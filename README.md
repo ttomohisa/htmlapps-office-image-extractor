@@ -135,7 +135,15 @@ Copyright (c) 2026 Tomohisa Takagi
 
 This project is licensed under the [MIT License](LICENSE).
 
-The distributable embeds **JSZip v3.10.1**, which is dual-licensed under the MIT License or GPLv3. JSZip includes or uses **pako**, which is licensed under the MIT License. Keep the applicable copyright and license notices when distributing modified or bundled copies.
+The distributable HTML contains third-party license notices. The same notices
+are also available in
+[THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt).
+
+The distributable embeds **JSZip v3.10.1**, which is dual-licensed under the
+MIT License or GPLv3. This project uses JSZip under the MIT License. JSZip
+includes or uses **pako** for DEFLATE compression and decompression support.
+Keep the applicable copyright and license notices when distributing modified
+or bundled copies.
 
 Microsoft, Excel, PowerPoint, Word, and Office are trademarks of the Microsoft group of companies.
 
