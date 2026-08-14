@@ -31,6 +31,10 @@ This tool is intended for simple and restricted environments: locked-down workst
 - Open one or many Office files from the picker or with drag and drop
 - Extract embedded images from Excel, PowerPoint, and Word files
 - Process multiple documents in a single operation
+- Wait for every selected document to finish inspection before enabling ZIP download
+- Limit simultaneous Office-package inspection to reduce peak memory pressure
+- Skip duplicate selections and report unsupported files instead of silently ignoring them
+- Clear the current selection without reloading the page
 - Preserve original image filenames and file extensions where possible
 - Preserve original image data without screenshotting, rendering, or recompression
 - Download all extracted assets as one ZIP archive
@@ -126,8 +130,17 @@ If you modify it directly, keep these principles intact:
 - Keep user files local; do not add uploads, analytics, telemetry, or remote logging.
 - Test Excel, PowerPoint, and Word input separately.
 - Test documents with no images, one image, many images, and duplicate image filenames.
-- Test drag and drop, the file picker, multi-file input, and ZIP download flows.
+- Test drag and drop, the file picker, multi-file input, duplicate selections, mixed supported/unsupported input, and ZIP download flows.
+- Test that ZIP download stays disabled until all selected files finish inspection.
 - Test on a network-disabled machine or browser profile.
+
+Run the lightweight source check before committing:
+
+```bash
+node scripts/check-source.mjs
+```
+
+The check verifies that the distributable stays self-contained and that the reliability guards expected by this repository are present.
 
 ## License and notices
 
