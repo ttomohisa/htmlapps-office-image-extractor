@@ -25,6 +25,7 @@ This tool is intended for simple and restricted environments: locked-down workst
 - **No installation** — open it directly in a modern browser
 - **No runtime dependencies** — scripts and styles, including JSZip, are embedded
 - **Original image bytes** — extracted images are not recompressed or converted
+- **Japanese / English UI** — follows the shared `htmlapps-template` visual language
 
 ## Features
 
