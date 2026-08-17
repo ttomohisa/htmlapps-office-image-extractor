@@ -1,0 +1,8 @@
+.cache/
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Build output can always be regenerated.
+dist/*
+!dist/.gitkeep

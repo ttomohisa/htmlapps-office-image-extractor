@@ -1,0 +1,22 @@
+{
+  "$schema": "./schemas/app-config.schema.json",
+  "name": "Office Image Extractor",
+  "nameJa": "Office Image Extractor",
+  "slug": "office-image-extractor",
+  "version": "1.0.0",
+  "description": "Extract original embedded images from Office Open XML files entirely in the browser.",
+  "descriptionJa": "Office Open XMLファイルに埋め込まれた元画像を、ブラウザー内だけで抽出する単一HTMLアプリです。",
+  "defaultLanguage": "auto",
+  "repository": {
+    "owner": "ttomohisa",
+    "name": "htmlapps-office-image-extractor"
+  },
+  "build": {
+    "output": "dist/index.html",
+    "blockRuntimeNetwork": true,
+    "selfExtract": {
+      "enabled": true,
+      "output": "dist/index.self-extract.html"
+    }
+  }
+}
