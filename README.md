@@ -1,54 +1,79 @@
 # Office Image Extractor
 
-![Office Image Extractor Social Preview](assets/social-preview.png)
+[![GitHub Pages](https://github.com/ttomohisa/htmlapps-office-image-extractor/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/ttomohisa/htmlapps-office-image-extractor/actions/workflows/deploy-pages.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Single HTML](https://img.shields.io/badge/distribution-single%20HTML-0ea5e9)](https://ttomohisa.github.io/htmlapps-office-image-extractor/)
 
-A local-first, self-contained browser utility for extracting original embedded images from modern Microsoft Excel, PowerPoint, and Word files.
+[日本語版 README](README.ja.md)
 
-Drop Office files into the page, inspect them entirely in the browser, and download the embedded media together as one ZIP. No upload, account, server, CDN, or runtime network connection is required.
+A privacy-focused, single-HTML app for extracting original embedded images from modern Microsoft Excel, PowerPoint, and Word files without uploading the selected documents to a server.
 
-[日本語 README](README.ja.md)
+## 🚀 Live demo
 
-![Office Image Extractor demo](assets/demo.gif)
+### [Open Office Image Extractor on GitHub Pages](https://ttomohisa.github.io/htmlapps-office-image-extractor/)
 
-## Try it online
+GitHub Pages delivers the initial HTML. After it loads, Office file inspection, image extraction, and ZIP creation are processed locally on your device. The files you select are not uploaded by the app.
 
-GitHub Pages: <https://ttomohisa.github.io/htmlapps-office-image-extractor/>
+[![Office Image Extractor demo](assets/demo.gif)](https://ttomohisa.github.io/htmlapps-office-image-extractor/)
 
-The legacy direct URL `office-image-extractor.html` is also kept as an alias. Your Office files stay in the browser and are never uploaded by this app.
+## Features
 
-## Highlights
-
-- **Local-only processing** — Office files are read in browser memory.
-- **One HTML release** — `dist/index.html` contains the app and its pinned runtime dependency.
-- **Original image bytes** — embedded media is copied without recompression or conversion.
-- **Excel / PowerPoint / Word** — supports modern Office Open XML formats and macro/template variants.
-- **Batch extraction** — inspect multiple documents and save all extracted media as one ZIP.
-- **Controlled memory use** — Office packages are inspected with limited concurrency.
-- **Japanese / English UI** — switch languages without reloading.
-- **Mobile-first UI** — follows the shared `htmlapps-template` visual and accessibility conventions.
-- **Self-extracting build** — an optional gzip-based HTML wrapper is generated alongside the readable build.
+- Extract original embedded images without recompression or conversion
+- Support modern Excel, PowerPoint, and Word Open XML formats
+- Add multiple Office files and inspect them together
+- Show the detected image count for each source file
+- Download all extracted images together as one ZIP
+- Preserve uncommon image formats such as SVG, EMF, WMF, TIFF, and GIF as stored in the Office package
+- Avoid filename collisions when multiple source documents contain the same media names
+- Japanese and English UI in the same HTML
+- Responsive layout for desktop and mobile
+- Embedded SVG favicon
+- Embedded JSZip runtime with a pinned version
+- No runtime network connection after the HTML has loaded
+- Generate both a readable standalone HTML and a gzip self-extracting HTML
 
 ## Supported formats
 
 | Application | Extensions |
-|---|---|
+| --- | --- |
 | Excel | `.xlsx`, `.xlsm`, `.xltx`, `.xltm` |
 | PowerPoint | `.pptx`, `.pptm`, `.potx`, `.potm`, `.ppsx`, `.ppsm` |
 | Word | `.docx`, `.docm`, `.dotx`, `.dotm` |
 
 Legacy `.xls`, `.ppt`, and `.doc` files are not supported because they are not Office Open XML ZIP packages.
 
-## How it works
+## Quick start
 
-Modern Office Open XML documents are ZIP packages. The app reads the package locally with JSZip and copies media entries from these locations:
+### Use the web demo
 
-| Source | Media path |
-|---|---|
-| Excel | `xl/media/` |
-| PowerPoint | `ppt/media/` |
-| Word | `word/media/` |
+Just [open the demo](https://ttomohisa.github.io/htmlapps-office-image-extractor/). No installation or account is required.
 
-The output is organized by source document:
+### Use the downloaded HTML
+
+1. Download [office-image-extractor.html](https://github.com/ttomohisa/htmlapps-office-image-extractor/blob/main/office-image-extractor.html) from this repository.
+2. Open it in a current Chromium-based browser, Firefox, or Safari.
+3. Add Office files and extract their embedded images locally.
+
+### Build and use it fully offline (advanced)
+
+1. Download or clone this repository.
+2. Double-click `build-standalone.bat` on Windows.
+3. The first build downloads the exact dependency version pinned in `dependencies.json`.
+4. Copy the generated `dist/index.html` wherever you need it.
+5. Open that single file later without an internet connection.
+
+Python, Node.js, and a local web server are not required. The builder uses Windows PowerShell and the built-in `tar.exe`.
+
+## Usage
+
+1. Drop Excel, PowerPoint, or Word files onto the page, or choose them from your device.
+2. Wait for each file to finish inspecting its embedded media.
+3. Review the number of images found for each source document.
+4. Add more Office files if needed.
+5. Select **Download extracted images (.zip)** to save everything together.
+6. Use **Clear all** when you want to remove the selected files and results from the current session.
+
+The downloaded ZIP is grouped by source document. For example:
 
 ```text
 extracted-office-images.zip
@@ -61,110 +86,127 @@ extracted-office-images.zip
     └── image1.svg
 ```
 
-If two source documents or media entries would produce the same ZIP path, the app creates a unique name instead of overwriting data.
+If two source documents or media entries would create the same ZIP path, the app generates a unique name instead of overwriting a file.
 
-## Use locally
+## How it works
 
-### Ready-built HTML
+Modern Office Open XML documents are ZIP packages. The app reads those packages locally with JSZip and copies media entries from these locations:
 
-Open either of these files directly in a current browser:
+| Source | Media path |
+| --- | --- |
+| Excel | `xl/media/` |
+| PowerPoint | `ppt/media/` |
+| Word | `word/media/` |
 
-- `index.html`
-- `office-image-extractor.html`
+The app does not render pages or slides and then take screenshots. It extracts the media files stored inside the Office package, so the original embedded image bytes are retained whenever possible.
 
-Both are generated copies of the current standalone build. For release artifacts, use `dist/index.html`.
+Macro-enabled files such as `.xlsm`, `.pptm`, and `.docm` can be inspected, but macros are never executed.
 
-### Build from source
+## Publish with GitHub Pages
 
-The repository follows [`ttomohisa/htmlapps-template`](https://github.com/ttomohisa/htmlapps-template).
+The repository includes a workflow that builds the fully embedded HTML and deploys it to GitHub Pages automatically.
 
-Source of truth:
+1. Push the repository to GitHub as `htmlapps-office-image-extractor`.
+2. Open **Settings → Pages → Build and deployment → Source** and select **GitHub Actions**.
+3. Push to `main`, or manually run **Deploy standalone app to GitHub Pages** from the Actions tab.
+4. After a successful deployment, the demo is available at `https://ttomohisa.github.io/htmlapps-office-image-extractor/`.
+
+Each push to `main` rebuilds `dist/index.html` from the pinned dependency, verifies the standalone artifact, generates the self-extracting variant, and then publishes the `dist` directory.
+
+The legacy `/office-image-extractor.html` path is also generated as an alias for compatibility.
+
+## Development and build layout
+
+This repository follows [`ttomohisa/htmlapps-template`](https://github.com/ttomohisa/htmlapps-template).
 
 ```text
-src/index.template.html
+.
+├─ src/index.template.html             # Application source template
+├─ dependencies.json                   # Pinned JSZip version and embedded asset
+├─ app.config.json                     # App metadata and build settings
+├─ build-standalone.bat                # Windows build entry point
+├─ build-standalone.ps1                # Standalone HTML builder
+├─ scripts/
+│  ├─ build-self-extract.ps1           # Self-extracting HTML builder
+│  ├─ check-repository.ps1             # Full repository validation
+│  ├─ verify-standalone.ps1            # Standalone HTML validation
+│  └─ verify-self-extract.ps1          # Self-extract payload validation
+├─ dist/index.html                     # Generated deployment artifact
+├─ dist/index.self-extract.html        # Generated gzip self-extracting artifact
+└─ .github/workflows/
+   ├─ build-standalone.yml              # Pull request build validation
+   └─ deploy-pages.yml                  # Automatic Pages deployment from main
 ```
 
-Build on Windows:
+`src/index.template.html` is the source of truth for the application UI and logic. Root-level `index.html` and `office-image-extractor.html` are generated convenience copies.
 
-```powershell
-.\build-standalone.ps1
-```
+### Build and verify
 
-or:
+Run:
 
 ```bat
 build-standalone.bat
 ```
 
-The build:
-
-1. reads `app.config.json` and `dependencies.json`,
-2. downloads the pinned JSZip package when it is not already cached,
-3. embeds the required asset into the HTML,
-4. writes dependency/build metadata,
-5. verifies the standalone artifact,
-6. creates `dist/index.self-extract.html`,
-7. refreshes the root HTML copies and the legacy Pages alias.
-
-Run the complete repository check with:
+or run the complete repository check:
 
 ```powershell
 .\scripts\check-repository.ps1
 ```
 
-Use `-ForceDownload` to refresh the dependency cache.
+To discard the package cache and download the pinned dependency again:
 
-## Repository layout
-
-```text
-.
-├── src/
-│   └── index.template.html
-├── scripts/
-│   ├── build-self-extract.ps1
-│   ├── check-repository.ps1
-│   ├── verify-self-extract.ps1
-│   └── verify-standalone.ps1
-├── schemas/
-├── docs/
-├── dist/                         # generated release artifacts
-├── app.config.json
-├── dependencies.json
-├── build-standalone.ps1
-├── build-standalone.bat
-├── index.html                    # generated direct-access copy
-└── office-image-extractor.html   # generated legacy/direct-access copy
+```bat
+build-standalone.bat -ForceDownload
 ```
 
-`AGENTS.md` and `APP_SPEC.md` define the implementation constraints and acceptance criteria used for future changes.
+The build process automatically:
 
-## Privacy and security
+- Downloads the pinned JSZip tarball from the official npm registry when needed
+- Embeds the required JSZip asset into the standalone HTML
+- Records dependency metadata and SHA-256 hashes
+- Rejects unresolved build placeholders and external runtime script or stylesheet references
+- Verifies that the Content Security Policy blocks runtime connections
+- Generates `dist/dependency-manifest.json`
+- Generates and verifies `dist/index.self-extract.html`
 
-- Files are processed entirely inside the browser.
-- The app does not upload document contents.
-- There is no account, analytics, telemetry, tracking, or remote logging.
-- Runtime CSP includes `connect-src 'none'`.
-- JSZip is version-pinned and embedded into the generated HTML at build time.
-- Office macros are not executed; the package is treated only as ZIP/XML/media data.
+## Privacy and runtime network protection
 
-See [SECURITY.md](SECURITY.md) and [VERIFY_OFFLINE.md](VERIFY_OFFLINE.md).
+The generated HTML includes:
+
+- A Content Security Policy containing `connect-src 'none'`
+- No external runtime script or stylesheet dependency
+- JSZip embedded directly in the generated HTML
+- Local-only Office package inspection and ZIP creation
+- No account, analytics, telemetry, tracking, or remote logging
+
+The GitHub Pages version requires an initial HTML request, but the Office files selected by the user are not transmitted by the app. For use with the network completely disconnected, open the generated `dist/index.html` locally.
 
 ## Limitations
 
 - Password-protected or corrupted Office packages may not be readable.
-- Externally linked images are not downloaded; only embedded media is extracted.
-- The app extracts stored media rather than rendering pages or slides.
-- Some documents contain EMF, WMF, TIFF, SVG, GIF, or other uncommon image formats. These are preserved as-is; preview support depends on the operating system and applications.
-- Very large documents can require substantial browser memory.
+- Externally linked images are not downloaded; only media embedded in the Office package is extracted.
+- Legacy `.xls`, `.ppt`, and `.doc` files are not supported.
+- The app extracts stored media rather than rendering documents, worksheets, or slides.
+- Some documents contain EMF, WMF, TIFF, SVG, GIF, or other uncommon formats. They are preserved as-is, but preview support depends on your operating system and applications.
+- Very large documents or large batches can consume substantial browser memory.
 
-## Third-party software
+## Dependencies
 
-The release embeds **JSZip 3.10.1**, which is dual-licensed under MIT or GPLv3. This project uses it under the MIT terms. JSZip includes/uses pako for DEFLATE support.
+| Library | Version | License | Purpose |
+| --- | ---: | --- | --- |
+| JSZip | 3.10.1 | MIT or GPL-3.0-or-later | Reading Office Open XML ZIP packages and generating the output ZIP |
 
-See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for notices retained with the project.
+This project uses JSZip under its MIT terms. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for details.
+
+## Contributing
+
+Bug reports and feature proposals are welcome through GitHub Issues. See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidance.
 
 ## License
 
-MIT License. See [LICENSE](LICENSE).
+Copyright © 2026 ttomohisa
+
+Licensed under the [MIT License](LICENSE).
 
 Microsoft, Excel, PowerPoint, Word, and Office are trademarks of the Microsoft group of companies. This project is independent and is not affiliated with, endorsed by, or sponsored by Microsoft.
