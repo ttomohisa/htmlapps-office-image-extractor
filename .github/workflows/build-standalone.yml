@@ -7,6 +7,7 @@ on:
     paths:
       - "src/**"
       - "scripts/**"
+      - "tests/**"
       - "app.config.json"
       - "dependencies.json"
       - "build-standalone.ps1"

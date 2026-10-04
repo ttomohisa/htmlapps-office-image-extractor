@@ -21,8 +21,10 @@ GitHub Pages delivers the initial HTML. After it loads, Office file inspection, 
 - Extract original embedded images without recompression or conversion
 - Support modern Excel, PowerPoint, and Word Open XML formats
 - Add multiple Office files and inspect them together
-- Show the detected image count for each source file
-- Download all extracted images together as one ZIP
+- Show detected image counts and skipped audio/video or other non-image media
+- Expand each document to review embedded image filenames and formats
+- Select individual images, select all/none per document, and download the selection as one ZIP
+- Save an individual image in its original format without changing the ZIP selection
 - Preserve uncommon image formats such as SVG, EMF, WMF, TIFF, and GIF as stored in the Office package
 - Avoid filename collisions when multiple source documents contain the same media names
 - Japanese and English UI in the same HTML
@@ -68,9 +70,9 @@ Python, Node.js, and a local web server are not required. The builder uses Windo
 
 1. Drop Excel, PowerPoint, or Word files onto the page, or choose them from your device.
 2. Wait for each file to finish inspecting its embedded media.
-3. Review the number of images found for each source document.
-4. Add more Office files if needed.
-5. Select **Download extracted images (.zip)** to save everything together.
+3. Open **Select images** for a document to review filenames and formats. All images start selected.
+4. Check the images you want, or use **Select all** / **Select none** for that document. Selection is kept only for this session.
+5. Choose **Download selected images (.zip)** for the selected images, or **Save** beside an image for that original file.
 6. Use **Clear all** when you want to remove the selected files and results from the current session.
 
 The downloaded ZIP is grouped by source document. For example:
@@ -97,6 +99,8 @@ Modern Office Open XML documents are ZIP packages. The app reads those packages 
 | Excel | `xl/media/` |
 | PowerPoint | `ppt/media/` |
 | Word | `word/media/` |
+
+The app uses `[Content_Types].xml` to distinguish images from audio, video, and other media. Explicit non-image content types are skipped. If a part has no usable metadata (including missing or malformed metadata), known image extensions are used as a conservative fallback; unrecognized extensions are skipped. The skipped-media count is displayed for each document.
 
 The app does not render pages or slides and then take screenshots. It extracts the media files stored inside the Office package, so the original embedded image bytes are retained whenever possible.
 
@@ -148,7 +152,7 @@ Run:
 build-standalone.bat
 ```
 
-or run the complete repository check:
+or run the complete repository check (Node.js 18+ is needed for the dependency-free regression tests; the HTML builders themselves do not need Node.js):
 
 ```powershell
 .\scripts\check-repository.ps1
@@ -190,6 +194,10 @@ The GitHub Pages version requires an initial HTML request, but the Office files 
 - The app extracts stored media rather than rendering documents, worksheets, or slides.
 - Some documents contain EMF, WMF, TIFF, SVG, GIF, or other uncommon formats. They are preserved as-is, but preview support depends on your operating system and applications.
 - Very large documents or large batches can consume substantial browser memory.
+
+### Regression tests and browser checks
+
+`node --test tests/extraction.test.cjs` runs the application script with its real embedded JSZip 3.10.1 against synthetic Office packages. The lightweight DOM/XML adapters are test-only and do not replace a browser smoke test. Check file picking, drag/drop, mixed-media counts, select all/none, selected ZIP contents, individual downloads, language switching, focus, removal, and clear cancellation/confirmation in a browser.
 
 ## Dependencies
 

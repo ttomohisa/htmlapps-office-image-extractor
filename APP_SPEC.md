@@ -12,14 +12,16 @@
 1. Open the app locally or through GitHub Pages.
 2. Select or drop one or more supported Office Open XML files.
 3. Wait for local inspection to complete.
-4. Review per-file image counts and any errors.
-5. Download all extracted images in one ZIP archive.
+4. Review per-file image counts and skipped non-image media; expand a document to inspect filenames/formats and select images.
+5. Download selected images in one ZIP archive, or save individual originals.
 6. Clear the session through the in-app confirmation dialog.
 
 ## 3. Functional requirements
 
 - Support `.xlsx`, `.xlsm`, `.xltx`, `.xltm`, `.pptx`, `.pptm`, `.potx`, `.potm`, `.ppsx`, `.ppsm`, `.docx`, `.docm`, `.dotx`, and `.dotm`.
 - Read only embedded media entries under `xl/media/`, `ppt/media/`, and `word/media/`.
+- Classify images from OOXML content types; when metadata is missing or malformed, use a conservative known-image extension fallback. Explicit non-image types are excluded.
+- Start with all images selected; support per-document all/none and preserve selection, expansion, and keyboard focus during progress/language updates. Selection exists only in the current session.
 - Preserve original image bytes and extensions without recompression or conversion.
 - Support multiple documents and prevent duplicate output paths.
 - Limit simultaneous Office package inspection to reduce peak memory use.
