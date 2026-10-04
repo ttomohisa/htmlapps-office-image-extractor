@@ -334,8 +334,24 @@
 
     .empty { padding: 27px 18px; color: var(--muted); text-align: center; font-size: 13px; }
 
+    .file-group { border-bottom: 1px solid var(--line); }
+    .file-group:last-child { border-bottom: 0; }
     .file-row { display: flex; align-items: center; gap: 13px; padding: 13px 14px; border-bottom: 1px solid var(--line); }
-    .file-row:last-child { border-bottom: 0; }
+    .file-row { border-bottom: 0; }
+    .image-panel { padding: 0 14px 14px; }
+    .image-panel[hidden] { display: none; }
+    .image-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; }
+    .image-tools span, .selected-summary { color: var(--muted); font-size: 12px; }
+    .selected-summary { align-self: center; margin: 0; }
+    .image-list { margin: 0; padding: 0; list-style: none; }
+    .image-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+    .image-label { display: flex; align-items: center; gap: 9px; flex: 1; min-width: 0; cursor: pointer; }
+    .image-label input { width: 18px; height: 18px; flex: 0 0 auto; accent-color: var(--accent); }
+    .image-name { min-width: 0; overflow-wrap: anywhere; font-size: 12px; }
+    .image-format { display: block; color: var(--muted); font-size: 10px; }
+    .image-toggle { margin-top: 8px; }
+    .media-note { margin-top: 4px; color: var(--muted); font-size: 11px; }
+    .image-row .button { flex: 0 0 auto; }
 
     .file-type {
       display: grid;
@@ -607,6 +623,7 @@
       <div id="selection-notice" class="selection-notice" role="status" aria-live="polite"></div>
 
       <div class="toolbar">
+          <p class="selected-summary" id="selected-summary" role="status" aria-live="polite"></p>
         <div class="button-row"><button id="download-button" class="button primary" type="button" disabled data-i18n="downloadZip">抽出画像をZIPで保存</button></div>
         <div class="button-row"><button id="clear-button" class="button danger" type="button" disabled data-i18n="clearAll">すべてクリア</button></div>
       </div>
@@ -855,7 +872,10 @@ freely, subject to the following restrictions:
       const BUILD_MANIFEST = window.AppBuild.manifest;
       const SUPPORTED_FILE_PATTERN =
         /\.(xlsx|xlsm|xltx|xltm|pptx|pptm|potx|potm|ppsx|ppsm|docx|docm|dotx|dotm)$/i;
-      const MEDIA_FILE_PATTERN = /^(xl|ppt|word)\/media\/[^/]+$/i;
+      const MEDIA_FILE_PATTERN = /^(xl|ppt|word)\/media\/[^/\\]+$/i;
+      // Only use this conservative extension fallback when a part has no usable
+      // content type. An explicit non-image type always wins over its filename.
+      const IMAGE_FILE_PATTERN = /\.(png|jpe?g|jfif|gif|webp|svg|emf|wmf|tiff?|bmp|dib|ico|avif|heic|heif|jxr|wdp)$/i;
       const MAX_CONCURRENT_INSPECTIONS = 2;
       const LANGUAGE_STORAGE_KEY = "office-image-extractor:language";
 
@@ -876,7 +896,17 @@ freely, subject to the following restrictions:
           dropBody: "または、端末からファイルを選択してください。",
           chooseFiles: "ファイルを選択",
           supportedHint: "対応: .xlsx / .pptx / .docx とマクロ・テンプレート系のOffice Open XML形式。ファイルは外部へ送信されません。",
-          downloadZip: "抽出画像をZIPで保存",
+          downloadZip: "選択した画像をZIPで保存",
+          showImages: "画像を選択",
+          hideImages: "画像一覧を閉じる",
+          selectAll: "すべて選択",
+          selectNone: "選択を解除",
+          selectedImages: "{selected} / {total}個の画像を選択中",
+          skippedMedia: "画像以外のメディア {count}件をスキップしました。",
+          downloadImage: "保存",
+          downloadImageLabel: "{name} を元形式で保存",
+          imageDownloaded: "画像の保存を開始しました",
+          imageDownloadFailed: "画像を保存できませんでした。もう一度お試しください。",
           clearAll: "すべてクリア",
           noFiles: "ファイルはまだ選択されていません。",
           supportedDetails: "対応形式と制限",
@@ -892,8 +922,8 @@ freely, subject to the following restrictions:
           footer: "完全内包HTML・ローカル処理",
           helpBasicsTitle: "基本操作",
           helpStep1: "Excel、PowerPoint、Wordファイルを選択するか、画面へドラッグ&ドロップします。",
-          helpStep2: "各ファイルの解析が終わると、見つかった埋め込み画像数が表示されます。",
-          helpStep3: "すべての解析完了後、「抽出画像をZIPで保存」でまとめて保存します。",
+          helpStep2: "解析後、「画像を選択」でファイル名と形式を確認し、保存する画像を選びます。最初はすべて選択されています。音声や動画は除外されます。",
+          helpStep3: "すべての解析完了後、選択した画像をZIPでまとめて保存できます。各画像の「保存」では選択状態に関係なく元画像を1枚保存します。",
           helpPrivacyTitle: "プライバシー",
           helpPrivacyBody: "ファイルの読み取り、画像抽出、ZIP作成はすべてブラウザー内で行います。このアプリからファイル内容を外部へ送信しません。",
           helpNotesTitle: "注意事項",
@@ -932,7 +962,17 @@ freely, subject to the following restrictions:
           dropBody: "Or choose files from your device.",
           chooseFiles: "Choose files",
           supportedHint: "Supports .xlsx / .pptx / .docx plus macro and template variants of Office Open XML. Files never leave your browser.",
-          downloadZip: "Download extracted images (.zip)",
+          downloadZip: "Download selected images (.zip)",
+          showImages: "Select images",
+          hideImages: "Hide image list",
+          selectAll: "Select all",
+          selectNone: "Select none",
+          selectedImages: "{selected} / {total} images selected",
+          skippedMedia: "Skipped {count} non-image media entries.",
+          downloadImage: "Save",
+          downloadImageLabel: "Save {name} in its original format",
+          imageDownloaded: "Image download started",
+          imageDownloadFailed: "The image could not be saved. Please try again.",
           clearAll: "Clear all",
           noFiles: "No files selected yet.",
           supportedDetails: "Supported formats & limitations",
@@ -948,8 +988,8 @@ freely, subject to the following restrictions:
           footer: "Self-contained HTML · Local processing",
           helpBasicsTitle: "Basics",
           helpStep1: "Choose Excel, PowerPoint, or Word files, or drag and drop them onto the page.",
-          helpStep2: "After each file is inspected, the number of discovered embedded images is shown.",
-          helpStep3: "When every file has finished, use Download extracted images to save them together as a ZIP.",
+          helpStep2: "After inspection, open Select images to review filenames and formats. All images start selected; audio and video are skipped.",
+          helpStep3: "When every file has finished, download the selected images as a ZIP. Each image also has a Save button for its original file, regardless of selection.",
           helpPrivacyTitle: "Privacy",
           helpPrivacyBody: "File reading, image extraction, and ZIP creation all happen in your browser. This app does not send file contents outside the page.",
           helpNotesTitle: "Notes",
@@ -978,6 +1018,8 @@ freely, subject to the following restrictions:
       const pendingInspections = [];
       let activeInspections = 0;
       let isGeneratingZip = false;
+      let isDownloadingImage = false;
+      let nextRecordId = 1;
       let zipProgress = 0;
       let selectionSummary = null;
       let toastTimer = 0;
@@ -995,6 +1037,7 @@ freely, subject to the following restrictions:
       const clearButton = $("#clear-button");
       const downloadButton = $("#download-button");
       const selectionNotice = $("#selection-notice");
+      const selectedSummary = $("#selected-summary");
       const languageButton = $("#languageButton");
       const helpDialog = $("#helpDialog");
       const toast = $("#toast");
@@ -1100,6 +1143,14 @@ freely, subject to the following restrictions:
         return `${file.name}\u0000${file.size}\u0000${file.lastModified}`;
       }
 
+      function isExporting() {
+        return isGeneratingZip || isDownloadingImage;
+      }
+
+      function selectedImageCount(record) {
+        return record.images?.filter(image => image.selected).length || 0;
+      }
+
       function hasPendingInspections() {
         return records.some((record) => !record.completed && !record.error);
       }
@@ -1138,7 +1189,10 @@ freely, subject to the following restrictions:
       }
 
       function render() {
+        const focusedKey = fileList.contains(document.activeElement) ? document.activeElement?.dataset.focusKey : null;
         const imageCount = records.reduce((total, record) => total + (record.images?.length || 0), 0);
+        const selectedCount = records.reduce((total, record) => total + selectedImageCount(record), 0);
+        const exporting = isExporting();
         const errorCount = records.filter((record) => record.error).length;
         const pending = hasPendingInspections();
 
@@ -1146,14 +1200,15 @@ freely, subject to the following restrictions:
         imageStat.textContent = formatNumber(imageCount);
         errorStat.textContent = formatNumber(errorCount);
 
-        downloadButton.disabled = isGeneratingZip || pending || imageCount === 0;
-        clearButton.disabled = isGeneratingZip || records.length === 0;
-        chooseButton.disabled = isGeneratingZip;
-        filePicker.disabled = isGeneratingZip;
+        selectedSummary.textContent = format(translate("selectedImages"), { selected: formatNumber(selectedCount), total: formatNumber(imageCount) });
+        downloadButton.disabled = exporting || pending || selectedCount === 0;
+        clearButton.disabled = exporting || records.length === 0;
+        chooseButton.disabled = exporting;
+        filePicker.disabled = exporting;
 
-        dropZone.classList.toggle("busy", isGeneratingZip);
-        dropZone.setAttribute("aria-disabled", isGeneratingZip ? "true" : "false");
-        dropZone.setAttribute("aria-busy", pending || isGeneratingZip ? "true" : "false");
+        dropZone.classList.toggle("busy", exporting);
+        dropZone.setAttribute("aria-disabled", exporting ? "true" : "false");
+        dropZone.setAttribute("aria-busy", pending || exporting ? "true" : "false");
 
         downloadButton.textContent = isGeneratingZip
           ? format(translate("creatingZip"), { percent: formatNumber(zipProgress) })
@@ -1171,22 +1226,42 @@ freely, subject to the following restrictions:
           const status = statusText(record);
           const removeLabel = format(translate("removeFile"), { name: record.file.name });
           return `
-            <article class="file-row">
+            <article class="file-group">
+            <div class="file-row">
               <div class="file-type">${escapeHtml(record.extension)}</div>
               <div class="file-details">
                 <div class="file-name" title="${escapeHtml(record.file.name)}">${escapeHtml(record.file.name)}</div>
                 <div class="file-status ${statusClass}">${escapeHtml(status)}</div>
+                ${record.skippedMedia ? `<div class="media-note">${escapeHtml(format(translate("skippedMedia"), { count: formatNumber(record.skippedMedia) }))}</div>` : ""}
                 <div class="progress-track" role="progressbar" aria-label="${escapeHtml(status)}"
                   aria-valuemin="0" aria-valuemax="100" aria-valuenow="${record.progress}">
                   <i class="progress-bar" style="width: ${record.progress}%"></i>
                 </div>
+                ${record.images?.length ? `<button class="button remove-button image-toggle" type="button" data-expand-index="${index}" data-focus-key="expand-${record.id}"
+                  aria-expanded="${Boolean(record.expanded)}" aria-controls="images-${record.id}">${escapeHtml(translate(record.expanded ? "hideImages" : "showImages"))}</button>` : ""}
               </div>
               <button class="button remove-button" type="button" data-remove-index="${index}"
-                aria-label="${escapeHtml(removeLabel)}" ${isGeneratingZip ? "disabled" : ""}>
+                data-focus-key="remove-${record.id}" aria-label="${escapeHtml(removeLabel)}" ${exporting ? "disabled" : ""}>
                 ${escapeHtml(translate("remove"))}
               </button>
+            </div>
+            ${record.images?.length ? `<div class="image-panel" id="images-${record.id}" ${record.expanded ? "" : "hidden"}>
+              <div class="image-tools">
+                <span>${escapeHtml(format(translate("selectedImages"), { selected: formatNumber(selectedImageCount(record)), total: formatNumber(record.images.length) }))}</span>
+                <button class="button remove-button" type="button" data-select-all="${index}" data-focus-key="all-${record.id}" ${exporting ? "disabled" : ""}>${escapeHtml(translate("selectAll"))}</button>
+                <button class="button remove-button" type="button" data-select-none="${index}" data-focus-key="none-${record.id}" ${exporting ? "disabled" : ""}>${escapeHtml(translate("selectNone"))}</button>
+              </div>
+              <ul class="image-list">${record.images.map((image, imageIndex) => `<li class="image-row">
+                <label class="image-label"><input type="checkbox" data-record-index="${index}" data-image-index="${imageIndex}" data-focus-key="image-${record.id}-${imageIndex}" ${image.selected ? "checked" : ""} ${exporting ? "disabled" : ""}>
+                  <span class="image-name">${escapeHtml(image.name)}<span class="image-format">${escapeHtml(image.name.includes(".") ? image.name.split(".").pop().toUpperCase() : image.contentType || "—")}</span></span>
+                </label>
+                <button class="button remove-button" type="button" data-record-index="${index}" data-download-image="${imageIndex}" data-focus-key="save-${record.id}-${imageIndex}"
+                  aria-label="${escapeHtml(format(translate("downloadImageLabel"), { name: image.name }))}" ${exporting || pending ? "disabled" : ""}>${escapeHtml(translate("downloadImage"))}</button>
+              </li>`).join("")}</ul>
+            </div>` : ""}
             </article>`;
         }).join("");
+        if (focusedKey) fileList.querySelector(`[data-focus-key="${focusedKey}"]`)?.focus({ preventScroll: true });
       }
 
       function applyLanguage() {
@@ -1212,6 +1287,30 @@ freely, subject to the following restrictions:
         render();
       }
 
+      async function readImageContentTypes(inputZip) {
+        const defaults = new Map();
+        const overrides = new Map();
+        const entry = inputZip.file("[Content_Types].xml");
+        if (entry) {
+          const xml = new DOMParser().parseFromString(await entry.async("string"), "application/xml");
+          if (!xml.querySelector("parsererror")) {
+            const namespace = "http://schemas.openxmlformats.org/package/2006/content-types";
+            for (const item of xml.getElementsByTagNameNS(namespace, "Default")) {
+              const extension = item.getAttribute("Extension")?.toLowerCase();
+              const type = item.getAttribute("ContentType")?.trim().toLowerCase();
+              if (extension && type) defaults.set(extension, type);
+            }
+            for (const item of xml.getElementsByTagNameNS(namespace, "Override")) {
+              let name = item.getAttribute("PartName")?.replace(/^\//, "");
+              const type = item.getAttribute("ContentType")?.trim().toLowerCase();
+              try { name = decodeURIComponent(name); } catch { /* retain malformed literal part name */ }
+              if (name && type) overrides.set(name, type);
+            }
+          }
+        }
+        return name => overrides.get(name) || defaults.get(name.split(".").pop().toLowerCase()) || "";
+      }
+
       async function inspectOfficeFile(record) {
         try {
           if (!records.includes(record)) return;
@@ -1227,7 +1326,13 @@ freely, subject to the following restrictions:
           render();
 
           const mediaEntries = Object.values(inputZip.files).filter((entry) => !entry.dir && MEDIA_FILE_PATTERN.test(entry.name));
-          record.images = mediaEntries.map((entry) => ({ entry, name: entry.name.split("/").pop() }));
+          const contentTypeFor = await readImageContentTypes(inputZip);
+          if (!records.includes(record)) return;
+          record.images = mediaEntries.filter(entry => {
+            const type = contentTypeFor(entry.name);
+            return type ? type.startsWith("image/") : IMAGE_FILE_PATTERN.test(entry.name);
+          }).map(entry => ({ entry, name: entry.name.split("/").pop(), contentType: contentTypeFor(entry.name), selected: true }));
+          record.skippedMedia = mediaEntries.length - record.images.length;
           record.progress = 100;
           record.completed = true;
           record.state = "done";
@@ -1260,7 +1365,7 @@ freely, subject to the following restrictions:
       }
 
       function addFiles(fileCollection) {
-        if (isGeneratingZip) return;
+        if (isExporting()) return;
         const selectedFiles = Array.from(fileCollection || []);
         const knownFiles = new Set(records.map((record) => fileIdentity(record.file)));
         let added = 0;
@@ -1280,6 +1385,9 @@ freely, subject to the following restrictions:
           knownFiles.add(identity);
           const record = {
             file,
+            id: nextRecordId++,
+            expanded: false,
+            skippedMedia: 0,
             extension: file.name.split(".").pop().toUpperCase(),
             state: "queued",
             progress: 0,
@@ -1308,9 +1416,39 @@ freely, subject to the following restrictions:
         return folderName;
       }
 
+      function saveBlob(blob, name) {
+        const downloadUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = name;
+        link.click();
+        window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+      }
+
+      async function downloadImage(record, image) {
+        if (isExporting() || hasPendingInspections() || !records.includes(record) || !record.images?.includes(image)) return;
+        const previousFocus = document.activeElement;
+        const focusKey = fileList.contains(previousFocus) ? previousFocus?.dataset.focusKey : null;
+        isDownloadingImage = true;
+        render();
+        try {
+          saveBlob(new Blob([await image.entry.async("uint8array")], { type: "application/octet-stream" }), image.name);
+          showToast(translate("imageDownloaded"));
+        } catch (error) {
+          console.error(error);
+          showToast(translate("imageDownloadFailed"));
+        } finally {
+          const restoreFocus = focusKey && (document.activeElement === previousFocus ||
+            document.activeElement === document.body || !document.activeElement?.isConnected);
+          isDownloadingImage = false;
+          render();
+          if (restoreFocus) fileList.querySelector(`[data-focus-key="${focusKey}"]`)?.focus({ preventScroll: true });
+        }
+      }
+
       async function downloadExtractedImages() {
-        if (isGeneratingZip || hasPendingInspections()) return;
-        const readyRecords = records.filter((record) => record.images && record.images.length > 0);
+        if (isExporting() || hasPendingInspections()) return;
+        const readyRecords = records.filter(record => selectedImageCount(record) > 0);
         if (readyRecords.length === 0) return;
 
         isGeneratingZip = true;
@@ -1324,14 +1462,14 @@ freely, subject to the following restrictions:
 
           for (const record of readyRecords) {
             const folderName = getUniqueFolderName(record.file.name, usedFolderNames);
-            for (const image of record.images) {
+            for (const image of record.images.filter(image => image.selected)) {
               const originalPath = `${folderName}/${image.name}`;
               let outputPath = originalPath;
               let suffix = 2;
 
               while (usedPaths.has(outputPath.toLowerCase())) {
                 const dotIndex = originalPath.lastIndexOf(".");
-                outputPath = dotIndex > 0
+                outputPath = dotIndex > originalPath.lastIndexOf("/") + 1
                   ? `${originalPath.slice(0, dotIndex)} (${suffix})${originalPath.slice(dotIndex)}`
                   : `${originalPath} (${suffix})`;
                 suffix += 1;
@@ -1346,16 +1484,11 @@ freely, subject to the following restrictions:
             { type: "blob", compression: "DEFLATE", compressionOptions: { level: 6 } },
             (metadata) => {
               zipProgress = Math.round(metadata.percent);
-              render();
+              downloadButton.textContent = format(translate("creatingZip"), { percent: formatNumber(zipProgress) });
             }
           );
 
-          const downloadUrl = URL.createObjectURL(zipBlob);
-          const link = document.createElement("a");
-          link.href = downloadUrl;
-          link.download = "extracted-office-images.zip";
-          link.click();
-          window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+          saveBlob(zipBlob, "extracted-office-images.zip");
           showToast(translate("downloaded"));
         } catch (error) {
           console.error(error);
@@ -1369,15 +1502,15 @@ freely, subject to the following restrictions:
 
       chooseButton.addEventListener("click", (event) => {
         event.stopPropagation();
-        if (!isGeneratingZip) filePicker.click();
+        if (!isExporting()) filePicker.click();
       });
 
       dropZone.addEventListener("click", () => {
-        if (!isGeneratingZip) filePicker.click();
+        if (!isExporting()) filePicker.click();
       });
 
       dropZone.addEventListener("keydown", (event) => {
-        if (!isGeneratingZip && (event.key === "Enter" || event.key === " ")) {
+        if (!isExporting() && (event.key === "Enter" || event.key === " ")) {
           event.preventDefault();
           filePicker.click();
         }
@@ -1391,7 +1524,7 @@ freely, subject to the following restrictions:
       ["dragenter", "dragover"].forEach((eventName) => {
         dropZone.addEventListener(eventName, (event) => {
           event.preventDefault();
-          if (!isGeneratingZip) dropZone.classList.add("drag-over");
+          if (!isExporting()) dropZone.classList.add("drag-over");
         });
       });
 
@@ -1403,7 +1536,7 @@ freely, subject to the following restrictions:
       });
 
       dropZone.addEventListener("drop", (event) => {
-        if (!isGeneratingZip) addFiles(event.dataTransfer.files);
+        if (!isExporting()) addFiles(event.dataTransfer.files);
       });
 
       window.addEventListener("dragover", (event) => {
@@ -1415,18 +1548,50 @@ freely, subject to the following restrictions:
         if (isFileDrop && !dropZone.contains(event.target)) event.preventDefault();
       });
 
-      fileList.addEventListener("click", (event) => {
+      fileList.addEventListener("change", event => {
+        const checkbox = event.target.closest("[data-image-index]");
+        if (!checkbox || isExporting()) return;
+        const image = records[Number(checkbox.dataset.recordIndex)]?.images?.[Number(checkbox.dataset.imageIndex)];
+        if (!image) return;
+        image.selected = checkbox.checked;
+        render();
+      });
+
+      fileList.addEventListener("click", async event => {
+        const expand = event.target.closest("[data-expand-index]");
+        if (expand) {
+          const record = records[Number(expand.dataset.expandIndex)];
+          if (record) { record.expanded = !record.expanded; render(); }
+          return;
+        }
+        if (isExporting()) return;
+        const all = event.target.closest("[data-select-all]");
+        const none = event.target.closest("[data-select-none]");
+        if (all || none) {
+          const record = records[Number(all ? all.dataset.selectAll : none.dataset.selectNone)];
+          record?.images?.forEach(image => { image.selected = Boolean(all); });
+          render();
+          return;
+        }
+        const download = event.target.closest("[data-download-image]");
+        if (download) {
+          const record = records[Number(download.dataset.recordIndex)];
+          const image = record?.images?.[Number(download.dataset.downloadImage)];
+          if (image) await downloadImage(record, image);
+          return;
+        }
         const removeButton = event.target.closest("[data-remove-index]");
-        if (!removeButton || isGeneratingZip) return;
+        if (!removeButton) return;
         const removeIndex = Number(removeButton.dataset.removeIndex);
         if (!Number.isInteger(removeIndex) || !records[removeIndex]) return;
         records.splice(removeIndex, 1);
         selectionSummary = null;
         render();
+        chooseButton.focus({ preventScroll: true });
       });
 
       clearButton.addEventListener("click", async () => {
-        if (isGeneratingZip || records.length === 0) return;
+        if (isExporting() || records.length === 0) return;
         const confirmed = await AppConfirm.ask({
           title: translate("confirmTitle"),
           message: translate("confirmClearMessage"),
@@ -1434,7 +1599,7 @@ freely, subject to the following restrictions:
           cancelLabel: translate("cancel"),
           tone: "danger"
         });
-        if (!confirmed) return;
+        if (!confirmed || isExporting()) return;
         records.length = 0;
         pendingInspections.length = 0;
         selectionSummary = null;
