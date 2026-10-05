@@ -623,7 +623,11 @@
       <div id="selection-notice" class="selection-notice" role="status" aria-live="polite"></div>
 
       <div class="toolbar">
+        <div class="button-row" role="group" data-i18n-aria-label="batchSelection" aria-label="すべての文書の画像選択">
           <p class="selected-summary" id="selected-summary" role="status" aria-live="polite"></p>
+          <button id="select-all-images" class="button" type="button" disabled data-i18n="selectAllImages">全画像を選択</button>
+          <button id="select-none-images" class="button" type="button" disabled data-i18n="selectNoImages">全画像の選択を解除</button>
+        </div>
         <div class="button-row"><button id="download-button" class="button primary" type="button" disabled data-i18n="downloadZip">抽出画像をZIPで保存</button></div>
         <div class="button-row"><button id="clear-button" class="button danger" type="button" disabled data-i18n="clearAll">すべてクリア</button></div>
       </div>
@@ -784,6 +788,8 @@ freely, subject to the following restrictions:
         <li data-i18n="helpNoteLegacy">旧形式の .xls / .ppt / .doc には対応していません。</li>
         <li data-i18n="helpNoteEncrypted">パスワード保護されたファイル、破損したファイルは読み込めない場合があります。</li>
         <li data-i18n="helpNoteLinked">外部リンク参照の画像ではなく、Officeファイル内に埋め込まれた画像だけを抽出します。</li>
+        <li data-i18n="helpNoteDuplicates"></li>
+        <li data-i18n="helpNoteMemory"></li>
         <li data-i18n="helpNoteFormats">EMF、WMF、SVG、TIFFなども元形式のまま抽出します。表示可否はOSやアプリに依存します。</li>
       </ul>
       <p class="dialog-note" data-i18n="helpOffline">配布HTMLには必要な処理コードを内包しており、実行時のネットワーク通信は不要です。</p>
@@ -877,6 +883,7 @@ freely, subject to the following restrictions:
       // content type. An explicit non-image type always wins over its filename.
       const IMAGE_FILE_PATTERN = /\.(png|jpe?g|jfif|gif|webp|svg|emf|wmf|tiff?|bmp|dib|ico|avif|heic|heif|jxr|wdp)$/i;
       const MAX_CONCURRENT_INSPECTIONS = 2;
+      const DUPLICATE_CHUNK_BYTES = 256 * 1024;
       const LANGUAGE_STORAGE_KEY = "office-image-extractor:language";
 
       const translations = {
@@ -900,6 +907,12 @@ freely, subject to the following restrictions:
           showImages: "画像を選択",
           hideImages: "画像一覧を閉じる",
           selectAll: "すべて選択",
+          batchSelection: "すべての文書の画像選択",
+          selectAllImages: "全画像を選択",
+          selectNoImages: "全画像の選択を解除",
+          checkingDuplicates: "重複ファイルを確認中…",
+          checkingFiles: "{count}件の追加を確認中…",
+          duplicateCheckFailed: "重複を確認できなかったため、このファイルも読み込みます。",
           selectNone: "選択を解除",
           selectedImages: "{selected} / {total}個の画像を選択中",
           skippedMedia: "画像以外のメディア {count}件をスキップしました。",
@@ -922,13 +935,15 @@ freely, subject to the following restrictions:
           footer: "完全内包HTML・ローカル処理",
           helpBasicsTitle: "基本操作",
           helpStep1: "Excel、PowerPoint、Wordファイルを選択するか、画面へドラッグ&ドロップします。",
-          helpStep2: "解析後、「画像を選択」でファイル名と形式を確認し、保存する画像を選びます。最初はすべて選択されています。音声や動画は除外されます。",
+          helpStep2: "解析後、全画像の選択・解除で文書をまたいでまとめて選べます。「画像を選択」では文書ごと・画像ごとに調整できます。追加した文書の画像は最初はすべて選択され、音声や動画は除外されます。",
           helpStep3: "すべての解析完了後、選択した画像をZIPでまとめて保存できます。各画像の「保存」では選択状態に関係なく元画像を1枚保存します。",
           helpPrivacyTitle: "プライバシー",
           helpPrivacyBody: "ファイルの読み取り、画像抽出、ZIP作成はすべてブラウザー内で行います。このアプリからファイル内容を外部へ送信しません。",
           helpNotesTitle: "注意事項",
           helpNoteLegacy: "旧形式の .xls / .ppt / .doc には対応していません。",
           helpNoteEncrypted: "パスワード保護されたファイル、破損したファイルは読み込めない場合があります。",
+          helpNoteDuplicates: "名前・サイズ・更新日時が同じファイルは、内容も完全に同じと確認できた場合のみ重複として除外します。確認できなかった場合は警告を表示し、そのファイルも読み込みます。",
+          helpNoteMemory: "重複確認は256 KiB以下の分割読み取りで行い、解析と合わせて最大2件を同時処理します。ZIPの解析はストリーミング処理ではなく、大きい文書や大量のファイルでは多くのメモリを使用します。",
           helpNoteLinked: "外部リンク参照の画像ではなく、Officeファイル内に埋め込まれた画像だけを抽出します。",
           helpNoteFormats: "EMF、WMF、SVG、TIFFなども元形式のまま抽出します。表示可否はOSやアプリに依存します。",
           helpOffline: "配布HTMLには必要な処理コードを内包しており、実行時のネットワーク通信は不要です。",
@@ -966,6 +981,12 @@ freely, subject to the following restrictions:
           showImages: "Select images",
           hideImages: "Hide image list",
           selectAll: "Select all",
+          batchSelection: "Image selection across all documents",
+          selectAllImages: "Select all images",
+          selectNoImages: "Select none across documents",
+          checkingDuplicates: "Checking for duplicate files…",
+          checkingFiles: "Checking {count} pending file(s)…",
+          duplicateCheckFailed: "Duplicate check failed; this file is also being inspected.",
           selectNone: "Select none",
           selectedImages: "{selected} / {total} images selected",
           skippedMedia: "Skipped {count} non-image media entries.",
@@ -988,13 +1009,15 @@ freely, subject to the following restrictions:
           footer: "Self-contained HTML · Local processing",
           helpBasicsTitle: "Basics",
           helpStep1: "Choose Excel, PowerPoint, or Word files, or drag and drop them onto the page.",
-          helpStep2: "After inspection, open Select images to review filenames and formats. All images start selected; audio and video are skipped.",
+          helpStep2: "After inspection, use the all-image controls to select or clear images across every document. Open Select images for per-document and individual choices. Newly added images start selected; audio and video are skipped.",
           helpStep3: "When every file has finished, download the selected images as a ZIP. Each image also has a Save button for its original file, regardless of selection.",
           helpPrivacyTitle: "Privacy",
           helpPrivacyBody: "File reading, image extraction, and ZIP creation all happen in your browser. This app does not send file contents outside the page.",
           helpNotesTitle: "Notes",
           helpNoteLegacy: "Legacy .xls / .ppt / .doc files are not supported.",
           helpNoteEncrypted: "Password-protected or corrupted files may not be readable.",
+          helpNoteDuplicates: "Files with the same name, size, and modification time are skipped only after exact byte equality is verified. Failed checks show a warning and keep the file for inspection.",
+          helpNoteMemory: "Duplicate checks read chunks of at most 256 KiB and share two processing slots with inspection. ZIP parsing is not streaming; large documents or batches can still use substantial memory.",
           helpNoteLinked: "Only images embedded in the Office package are extracted; externally linked images are not included.",
           helpNoteFormats: "Formats such as EMF, WMF, SVG, and TIFF are extracted unchanged. Preview support depends on your OS and applications.",
           helpOffline: "The distributable HTML contains the required processing code and does not need runtime network access.",
@@ -1038,6 +1061,8 @@ freely, subject to the following restrictions:
       const downloadButton = $("#download-button");
       const selectionNotice = $("#selection-notice");
       const selectedSummary = $("#selected-summary");
+      const selectAllImages = $("#select-all-images");
+      const selectNoImages = $("#select-none-images");
       const languageButton = $("#languageButton");
       const helpDialog = $("#helpDialog");
       const toast = $("#toast");
@@ -1157,6 +1182,7 @@ freely, subject to the following restrictions:
 
       function statusText(record) {
         if (record.error) return translate("readError");
+        if (record.state === "checking") return translate("checkingDuplicates");
         if (record.state === "reading") return translate("reading");
         if (record.state === "searching") return translate("searching");
         if (record.completed) {
@@ -1171,20 +1197,21 @@ freely, subject to the following restrictions:
 
       function formatSelectionSummary() {
         if (!selectionSummary) return "";
-        const { added, duplicates, unsupported } = selectionSummary;
+        const { added, duplicates, unsupported, pending } = selectionSummary;
         const parts = [];
 
         if (language === "ja") {
           if (added > 0) parts.push(`${formatNumber(added)}件追加しました。`);
           if (duplicates > 0) parts.push(`重複 ${formatNumber(duplicates)}件をスキップしました。`);
           if (unsupported > 0) parts.push(`未対応 ${formatNumber(unsupported)}件をスキップしました。`);
-          if (parts.length === 0) parts.push("追加できるOfficeファイルがありませんでした。");
+          if (parts.length === 0 && !pending) parts.push("追加できるOfficeファイルがありませんでした。");
         } else {
           if (added > 0) parts.push(`${formatNumber(added)} file${added === 1 ? "" : "s"} added.`);
           if (duplicates > 0) parts.push(`${formatNumber(duplicates)} duplicate${duplicates === 1 ? "" : "s"} skipped.`);
           if (unsupported > 0) parts.push(`${formatNumber(unsupported)} unsupported file${unsupported === 1 ? "" : "s"} skipped.`);
-          if (parts.length === 0) parts.push("No supported Office files were added.");
+          if (parts.length === 0 && !pending) parts.push("No supported Office files were added.");
         }
+        if (pending) parts.push(format(translate("checkingFiles"), { count: formatNumber(pending) }));
         return parts.join(" ");
       }
 
@@ -1202,6 +1229,9 @@ freely, subject to the following restrictions:
 
         selectedSummary.textContent = format(translate("selectedImages"), { selected: formatNumber(selectedCount), total: formatNumber(imageCount) });
         downloadButton.disabled = exporting || pending || selectedCount === 0;
+        selectAllImages.disabled = selectNoImages.disabled = exporting || pending || imageCount === 0;
+        selectAllImages.textContent = translate("selectAllImages");
+        selectNoImages.textContent = translate("selectNoImages");
         clearButton.disabled = exporting || records.length === 0;
         chooseButton.disabled = exporting;
         filePicker.disabled = exporting;
@@ -1232,6 +1262,7 @@ freely, subject to the following restrictions:
               <div class="file-details">
                 <div class="file-name" title="${escapeHtml(record.file.name)}">${escapeHtml(record.file.name)}</div>
                 <div class="file-status ${statusClass}">${escapeHtml(status)}</div>
+                ${record.duplicateCheckFailed ? `<div class="media-note">${escapeHtml(translate("duplicateCheckFailed"))}</div>` : ""}
                 ${record.skippedMedia ? `<div class="media-note">${escapeHtml(format(translate("skippedMedia"), { count: formatNumber(record.skippedMedia) }))}</div>` : ""}
                 <div class="progress-track" role="progressbar" aria-label="${escapeHtml(status)}"
                   aria-valuemin="0" aria-valuemax="100" aria-valuenow="${record.progress}">
@@ -1347,44 +1378,91 @@ freely, subject to the following restrictions:
         }
       }
 
+      // Metadata narrows the candidates; only exact local bytes establish a
+      // duplicate. Each queue slot retains at most two 256 KiB chunk buffers.
+      async function sameFileBytes(record, candidate) {
+        for (let offset = 0; offset < record.file.size; offset += DUPLICATE_CHUNK_BYTES) {
+          if (!records.includes(record) || !records.includes(candidate)) return false;
+          const end = Math.min(offset + DUPLICATE_CHUNK_BYTES, record.file.size);
+          const left = new Uint8Array(await record.file.slice(offset, end).arrayBuffer());
+          if (!records.includes(record) || !records.includes(candidate)) return false;
+          const right = new Uint8Array(await candidate.file.slice(offset, end).arrayBuffer());
+          if (!records.includes(record) || !records.includes(candidate)) return false;
+          if (left.length !== end - offset || right.length !== end - offset) throw new Error("Incomplete duplicate-check read");
+          for (let index = 0; index < left.length; index += 1) {
+            if (left[index] !== right[index]) return false;
+          }
+        }
+        return records.includes(record) && records.includes(candidate);
+      }
+
+      async function admitAndInspect(record) {
+        const candidates = records.filter(candidate => candidate.id < record.id && candidate.identity === record.identity && candidate.admitted);
+        if (candidates.length) {
+          record.state = "checking";
+          render();
+          try {
+            for (const candidate of candidates) {
+              if (await sameFileBytes(record, candidate) && records.includes(candidate)) {
+                // The earlier owner must still be live after the asynchronous read.
+                if (!records.includes(record)) return;
+                records.splice(records.indexOf(record), 1);
+                record.batch.duplicates += 1;
+                record.batch.pending -= 1;
+                render();
+                return;
+              }
+              if (!records.includes(record)) return;
+            }
+          } catch (error) {
+            if (!records.includes(record)) return;
+            // A read failure cannot prove equality. Keep the document and expose
+            // the failed check rather than silently dropping or hiding it.
+            console.error(error);
+            record.duplicateCheckFailed = true;
+          }
+        }
+        if (!records.includes(record)) return;
+        record.admitted = true;
+        record.batch.added += 1;
+        record.batch.pending -= 1;
+        await inspectOfficeFile(record);
+      }
+
       function pumpInspectionQueue() {
         while (activeInspections < MAX_CONCURRENT_INSPECTIONS && pendingInspections.length > 0) {
-          const record = pendingInspections.shift();
+          // Serialize admission decisions within each metadata group, while
+          // letting unrelated documents use the other slot. Later candidates
+          // can never overtake an undecided earlier owner, including across batches.
+          const next = pendingInspections.findIndex(record => !records.includes(record) ||
+            !records.some(earlier => earlier.id < record.id && earlier.identity === record.identity && !earlier.admitted));
+          if (next < 0) return;
+          const [record] = pendingInspections.splice(next, 1);
           if (!records.includes(record)) continue;
           activeInspections += 1;
-          inspectOfficeFile(record).finally(() => {
+          admitAndInspect(record).finally(() => {
             activeInspections -= 1;
             pumpInspectionQueue();
           });
         }
       }
 
-      function enqueueInspection(record) {
-        pendingInspections.push(record);
-        pumpInspectionQueue();
-      }
-
       function addFiles(fileCollection) {
         if (isExporting()) return;
-        const selectedFiles = Array.from(fileCollection || []);
-        const knownFiles = new Set(records.map((record) => fileIdentity(record.file)));
-        let added = 0;
-        let duplicates = 0;
-        let unsupported = 0;
-
-        for (const file of selectedFiles) {
+        // Each batch owns its counters. Late results update only this object,
+        // never replace the current batch's notice or resurrect cleared state.
+        const batch = { added: 0, duplicates: 0, unsupported: 0, pending: 0 };
+        selectionSummary = batch;
+        for (const file of Array.from(fileCollection || [])) {
           if (!SUPPORTED_FILE_PATTERN.test(file.name)) {
-            unsupported += 1;
+            batch.unsupported += 1;
             continue;
           }
-          const identity = fileIdentity(file);
-          if (knownFiles.has(identity)) {
-            duplicates += 1;
-            continue;
-          }
-          knownFiles.add(identity);
           const record = {
             file,
+            identity: fileIdentity(file),
+            batch,
+            admitted: false,
             id: nextRecordId++,
             expanded: false,
             skippedMedia: 0,
@@ -1396,13 +1474,21 @@ freely, subject to the following restrictions:
             error: false
           };
           records.push(record);
-          enqueueInspection(record);
-          added += 1;
+          pendingInspections.push(record);
+          batch.pending += 1;
         }
-
-        selectionSummary = { added, duplicates, unsupported };
+        pumpInspectionQueue();
         render();
       }
+
+      function selectEveryImage(selected) {
+        if (isExporting() || hasPendingInspections()) return;
+        records.forEach(record => record.images?.forEach(image => { image.selected = selected; }));
+        render();
+      }
+
+      selectAllImages.addEventListener("click", () => selectEveryImage(true));
+      selectNoImages.addEventListener("click", () => selectEveryImage(false));
 
       function getUniqueFolderName(fileName, usedFolderNames) {
         const baseName = sanitizeFolderName(fileName);
@@ -1586,6 +1672,7 @@ freely, subject to the following restrictions:
         if (!Number.isInteger(removeIndex) || !records[removeIndex]) return;
         records.splice(removeIndex, 1);
         selectionSummary = null;
+        pumpInspectionQueue();
         render();
         chooseButton.focus({ preventScroll: true });
       });

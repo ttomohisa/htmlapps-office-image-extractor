@@ -20,6 +20,14 @@ const checks = [
         /const MAX_CONCURRENT_INSPECTIONS = 2;/.test(html)
     ],
     [
+        "bounds duplicate comparison chunks",
+        /const DUPLICATE_CHUNK_BYTES = 256 \* 1024;/.test(html)
+    ],
+    [
+        "keeps batch-wide selection controls",
+        /id=["']select-all-images["']/.test(html) && /id=["']select-none-images["']/.test(html)
+    ],
+    [
         "keeps the clear-all control",
         /id=["']clear-button["']/.test(html)
     ],
