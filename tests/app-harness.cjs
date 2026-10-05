@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
-const html = fs.readFileSync(path.join(__dirname, '../src/index.template.html'), 'utf8');
+const html = fs.readFileSync(process.env.APP_HTML || path.join(__dirname, '../src/index.template.html'), 'utf8');
 const artifact = fs.readFileSync(path.join(__dirname, '../office-image-extractor.html'), 'utf8');
 const bundle = JSON.parse(Buffer.from(artifact.match(/const EMBEDDED_ASSET_BUNDLE_BASE64 = '([^']+)'/)[1], 'base64').toString());
 const vendor = { exports: {} };
@@ -48,9 +48,17 @@ async function fixture() {
   if (!context.api) throw errors[0] || Error('App did not initialize');
   return {api:context.api,document,get,downloads,errors,JSZip};
 }
-async function office(name='sample.pptx', entries={'ppt/media/image1.png':Uint8Array.from([137,80,78,71,13,10,26,10])}, types='<Default Extension="png" ContentType="image/png"/>') {
-  const zip=new JSZip(); if(types!==null)zip.file('[Content_Types].xml',`<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">${types}</Types>`); for(const [key,value] of Object.entries(entries))zip.file(key,value); const file=await zip.generateAsync({type:'uint8array'}); Object.assign(file,{name,size:file.length,lastModified:1}); return file;
+async function office(name='sample.pptx', entries={'ppt/media/image1.png':Uint8Array.from([137,80,78,71,13,10,26,10])}, types='<Default Extension="png" ContentType="image/png"/>', zipOptions={}) {
+  const zip=new JSZip(); if(types!==null)zip.file('[Content_Types].xml',`<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">${types}</Types>`,{date:new Date('2026-01-01T00:00:00Z')}); for(const [key,value] of Object.entries(entries))zip.file(key,value,{date:new Date('2026-01-01T00:00:00Z')}); zip.forEach((_,entry)=>{entry.date=new Date('2026-01-01T00:00:00Z');}); const file=await zip.generateAsync({type:'uint8array',...zipOptions}); return syntheticFile(file, {name});
+}
+function syntheticFile(bytes, {name='sample.pptx',lastModified=1}={}) {
+  const file=Uint8Array.from(bytes);
+  Object.assign(file,{name,size:file.length,lastModified});
+  // Real Blob slices exercise the production bounded asynchronous read API;
+  // JSZip still receives the byte array in this dependency-free Node adapter.
+  file.slice=(start,end)=>new Blob([file.subarray(start,end)]);
+  return file;
 }
 async function settled(f) { for(let i=0;i<200 && f.api.records.some(r=>!r.completed&&!r.error);i++)await new Promise(resolve=>setImmediate(resolve)); if(f.api.records.some(r=>!r.completed&&!r.error))throw Error('Inspection did not finish'); }
 async function action(f, selector, type='click', extra={}) { const node=f.get('#file-list').querySelector(selector); if(!node)throw Error('Missing control: '+selector); if(type==='change')node.checked=extra.checked; await f.get('#file-list').dispatch(type,{target:node,...extra}); }
-module.exports={fixture,office,settled,action,JSZip,html};
+module.exports={fixture,office,settled,action,JSZip,html,syntheticFile};
