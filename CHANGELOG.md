@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.1 - 2026-10-06
+
+- Standardize the local-processing badge and compact EN / JA target-language control, including localized accessible names, titles, and Help.
+- Keep application processing, data formats, privacy boundaries, dependencies, and layouts unchanged.
+- Add source and generated-artifact header regressions. Real-browser verification is tracked separately.
+
+
 ## 1.0.0 - 2026-08-17
 
 - Align repository structure with `ttomohisa/htmlapps-template`.

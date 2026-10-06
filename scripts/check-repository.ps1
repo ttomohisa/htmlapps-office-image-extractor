@@ -12,6 +12,9 @@ $app = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "app.config.json") | Con
 if ([string]::IsNullOrWhiteSpace([string]$app.name)) { throw "app.config.json: name is required" }
 if ([string]::IsNullOrWhiteSpace([string]$app.slug)) { throw "app.config.json: slug is required" }
 if ([string]::IsNullOrWhiteSpace([string]$app.version)) { throw "app.config.json: version is required" }
+& node --test (Join-Path $Root "tests/header-consistency.test.cjs")
+if ($LASTEXITCODE -ne 0) { throw "Header consistency regression tests failed." }
+
 $buildArguments = @{}
 if ($ForceDownload) { $buildArguments.ForceDownload = $true }
 & (Join-Path $Root "build-standalone.ps1") @buildArguments

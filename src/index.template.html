@@ -567,12 +567,12 @@
           </svg>
         </div>
         <div class="brand-copy">
-          <p class="brand-name"><span>Office Image Extractor</span><span class="version-badge" id="versionBadge">v1.0.0</span></p>
+          <p class="brand-name"><span>Office Image Extractor</span><span class="version-badge" id="versionBadge">v1.0.1</span></p>
           <p class="brand-meta" data-i18n="brandMeta">単一HTML・ローカル処理</p>
         </div>
       </div>
       <div class="header-actions">
-        <button class="language-button" id="languageButton" type="button" aria-label="Switch language">EN</button>
+        <button class="language-button" id="languageButton" type="button" aria-label="英語に切り替え" title="英語に切り替え">EN</button>
         <button class="icon-button header-icon-button" id="helpButton" type="button"
           data-i18n-title="helpTitle" data-i18n-aria-label="helpTitle"
           title="使い方と注意事項" aria-label="使い方と注意事項">
@@ -590,7 +590,7 @@
       </div>
       <div class="local-badge">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.8 8 7 10 4.2-2 7-5.4 7-10V6z"/><path d="m9 12 2 2 4-5"/></svg>
-        <span data-i18n="localBadge">実行時通信なし</span>
+        <span data-i18n="localBadge">完全ローカル処理</span>
       </div>
     </section>
 
@@ -893,7 +893,7 @@ freely, subject to the following restrictions:
           close: "閉じる",
           introTitle: "Officeファイルから画像をまとめて抽出",
           lead: "Excel、PowerPoint、Wordに埋め込まれた元画像を、ブラウザー内だけで取り出してZIPにまとめます。",
-          localBadge: "実行時通信なし",
+          localBadge: "完全ローカル処理",
           workspaceTitle: "画像抽出",
           workspaceBody: "Officeファイルを選択すると、埋め込み画像を自動で検出します。",
           files: "ファイル",
@@ -967,7 +967,7 @@ freely, subject to the following restrictions:
           close: "Close",
           introTitle: "Extract images from Office files",
           lead: "Recover original embedded images from Excel, PowerPoint, and Word entirely in your browser, then save them together as a ZIP.",
-          localBadge: "No runtime network",
+          localBadge: "Fully local processing",
           workspaceTitle: "Image extraction",
           workspaceBody: "Choose Office files and embedded images are detected automatically.",
           files: "Files",
@@ -1306,8 +1306,9 @@ freely, subject to the following restrictions:
         document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
           element.setAttribute("aria-label", translate(element.dataset.i18nAriaLabel));
         });
-        languageButton.textContent = language === "ja" ? "EN" : "日本語";
+        languageButton.textContent = language === "ja" ? "EN" : "JA";
         languageButton.setAttribute("aria-label", language === "ja" ? "英語に切り替え" : "Switch to Japanese");
+        languageButton.title = languageButton.getAttribute("aria-label");
         $("#appConfirmClose").setAttribute("aria-label", translate("close"));
         document.title = "Office Image Extractor";
         $("#versionBadge").textContent = `v${APP_CONFIG.version}`;
