@@ -67,3 +67,10 @@ All processing happens in the browser. The app has no upload, account, analytics
 - Global all/none updates every imported document and the selected total, preserves document expansion and keyboard focus, and leaves later imports initially selected. Per-document selection and individual original-image Save continue to work.
 - Same-metadata documents with different bytes are both retained and export their original images under unique document folders; byte-identical copies with the same metadata are skipped.
 - Regression coverage includes bounded multi-chunk comparison, overlapping imports, read failures, and removal/clear during pending work. Real-browser checks separately cover picker/drop, keyboard controls, downloads, and direct-file boot; test-only DOM/XML adapters are not evidence of browser verification.
+
+## Header consistency (v1.0.1)
+
+- Display the canonical three-part app version as `vX.Y.Z`.
+- Show `完全ローカル処理` in Japanese and `Fully local processing` in English; preserve the more detailed privacy explanations.
+- The language button shows the target language: `EN` in Japanese UI and `JA` in English UI. Its accessible name and title describe that target in the current UI language.
+- Keep Help accessible names and titles localized, without resetting work when switching languages.
