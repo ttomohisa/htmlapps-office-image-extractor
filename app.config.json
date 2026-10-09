@@ -3,7 +3,7 @@
   "name": "Office Image Extractor",
   "nameJa": "Office Image Extractor",
   "slug": "office-image-extractor",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Extract original embedded images from Office Open XML files entirely in the browser.",
   "descriptionJa": "Office Open XMLファイルに埋め込まれた元画像を、ブラウザー内だけで抽出する単一HTMLアプリです。",
   "defaultLanguage": "auto",
