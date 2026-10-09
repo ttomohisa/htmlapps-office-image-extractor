@@ -1,6 +1,6 @@
 # Office Image Extractor
 
-Header: v1.0.2. The privacy badge reads “Fully local processing”; the language button shows EN in Japanese and JA in English, with localized target-language and Help descriptions.
+Header: v1.0.3. The privacy badge reads “Fully local processing”; the language button shows EN in Japanese and JA in English, with localized target-language and Help descriptions.
 
 [![GitHub Pages](https://github.com/ttomohisa/htmlapps-office-image-extractor/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/ttomohisa/htmlapps-office-image-extractor/actions/workflows/deploy-pages.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -9,6 +9,8 @@ Header: v1.0.2. The privacy badge reads “Fully local processing”; the langua
 [日本語版 README](README.ja.md)
 
 A privacy-focused, single-HTML app for extracting original embedded images from modern Microsoft Excel, PowerPoint, and Word files without uploading the selected documents to a server.
+
+![Application screenshot in English](assets/screenshot-en.png)
 
 ## 🚀 Live demo
 
