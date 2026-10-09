@@ -21,3 +21,7 @@ if ($ForceDownload) { $buildArguments.ForceDownload = $true }
 & node --test (Join-Path $Root "tests/extraction.test.cjs")
 if ($LASTEXITCODE -ne 0) { throw "Office extraction regression tests failed." }
 Write-Host "[OK] Repository check passed." -ForegroundColor Green
+
+# Keep the supplied icon consistent across every release surface.
+& node (Join-Path $Root "scripts/test-icon-parity.cjs")
+if ($LASTEXITCODE -ne 0) { throw "Icon parity regression checks failed." }

@@ -12,6 +12,10 @@ if (-not [System.IO.Path]::IsPathRooted($InputPath)) { $InputPath = [System.IO.P
 if (-not [System.IO.Path]::IsPathRooted($OutputPath)) { $OutputPath = [System.IO.Path]::GetFullPath($OutputPath) }
 
 $inputBytes = [System.IO.File]::ReadAllBytes($InputPath)
+$inputHtml = [System.Text.Encoding]::UTF8.GetString($inputBytes)
+$faviconMatch = [regex]::Match($inputHtml, '<link rel="icon" type="image/svg\+xml" href="data:image/svg\+xml;base64,[A-Za-z0-9+/=]+">')
+if (-not $faviconMatch.Success) { throw "The source HTML must contain an embedded SVG favicon." }
+$faviconTag = $faviconMatch.Value
 $compressedBuffer = New-Object System.IO.MemoryStream
 try {
   $gzip = [System.IO.Compression.GZipStream]::new($compressedBuffer, [System.IO.Compression.CompressionMode]::Compress, $true)
@@ -47,6 +51,7 @@ $wrapper = @"
   <meta name="self-extract-source-bytes" content="$sourceBytes">
   <meta name="self-extract-gzip-bytes" content="$gzipBytes">
   <title>$encodedAppNameJa / $encodedAppName</title>
+  $faviconTag
   <style>
     :root { color-scheme: light; font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
     body { margin:0;min-height:100vh;display:grid;place-items:center;color:#24342f;background:#f6f8f7; }
