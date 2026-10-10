@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.4 - 2026-10-10
+
+- Keep the page stationary behind modal dialogs and make Clear confirmation content scrollable on short screens.
+- Wrap the compact title/version without shrinking language and Help controls.
+- Return keyboard focus to Choose files after confirmed clearing; preserve cancellation and extraction behavior.
+- Add responsive dialog and actual Clear-handler regression coverage.
+
 ## 1.0.3 - 2026-10-09
 
 - Add a genuine English screenshot for the app catalog and documentation.

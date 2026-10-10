@@ -48,7 +48,9 @@ All processing happens in the browser. The app has no upload, account, analytics
 ## 6. UX and accessibility
 
 - Mobile-first from 320px upward.
-- Visible keyboard focus.
+- Visible keyboard focus. After confirmed clearing, focus returns to the visible, enabled Choose files control unless a newer modal owns focus.
+- Open modal dialogs lock background page scrolling. The confirmation header stays visible while its body and actions scroll on short screens.
+- Narrow headers wrap the title/version without shrinking language or Help controls.
 - `prefers-reduced-motion` respected.
 - Help dialog documents the real workflow and limitations.
 - Confirmation dialog is centered on desktop and becomes a safe-area-aware bottom sheet on smartphones.

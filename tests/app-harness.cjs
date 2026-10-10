@@ -18,7 +18,8 @@ class Element {
   addEventListener(type, handler) { (this.listeners[type] ||= []).push(handler); }
   async dispatch(type, extra={}) { const event={target:this,preventDefault(){},stopPropagation(){},...extra}; for(const fn of this.listeners[type]||[]) await fn(event); }
   click() { if (this.tag === 'a') this.doc.downloads.push({name:this.download,blob:this.doc.blobs.get(this.href)}); else return this.dispatch('click'); }
-  focus() { if (!this.disabled) this.doc.activeElement=this; }
+  focus(options) { if (!this.disabled && this.isConnected && !this.hidden) { this.doc.activeElement=this; this.focusOptions=options; } }
+  getClientRects() { return this.isConnected && !this.hidden ? [{}] : []; }
   contains(node) { return this === node || this.children.includes(node); }
   matches(selector) { const m=selector.match(/^\[([^=\]]+)(?:="([^"]*)")?\]$/); return !!m && m[1] in this.attrs && (m[2]===undefined || this.attrs[m[1]]===m[2]); }
   closest(selector) { return this.matches(selector) ? this : null; }
@@ -37,7 +38,7 @@ class XMLParser {
 }
 async function fixture() {
   const elements=new Map(); const downloads=[]; const blobs=new Map(); const errors=[];
-  const document={downloads,blobs,activeElement:null,documentElement:{lang:'en'},querySelector:selector=>get(selector),querySelectorAll:()=>[],createElement:tag=>Object.assign(new Element(document),{tag}),getElementById:id=>get('#'+id)};
+  const document={downloads,blobs,activeElement:null,documentElement:{lang:'en'},querySelector:selector=>selector==='dialog:modal' ? [...elements.values()].find(el=>el.open)||null : get(selector),querySelectorAll:()=>[],createElement:tag=>Object.assign(new Element(document),{tag}),getElementById:id=>get('#'+id)};
   function get(selector) { if(!elements.has(selector)) elements.set(selector,new Element(document)); return elements.get(selector); }
   const context={JSZip,Blob,Uint8Array,ArrayBuffer,DataView,DOMParser:XMLParser,document,HTMLElement:Element,navigator:{language:'en'},localStorage:{getItem(){return null;},setItem(){}},console:{error:e=>errors.push(e)},setTimeout,clearTimeout,requestAnimationFrame:fn=>fn(),alert:message=>errors.push(message),URL:{createObjectURL(blob){const key='blob:'+blobs.size;blobs.set(key,blob);return key;},revokeObjectURL(){}},Intl};
   context.window={StandaloneAssets:{loadClassicScript:async()=>{}},AppBuild:{config:{version:'1.0.0'},manifest:{generatedAtUtc:'2026-10-04T00:00:00Z',dependencies:[]}},setTimeout:()=>0,clearTimeout(){},addEventListener(){}};
