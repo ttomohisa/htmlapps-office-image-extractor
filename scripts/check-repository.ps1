@@ -18,7 +18,7 @@ if ($LASTEXITCODE -ne 0) { throw "Header consistency regression tests failed." }
 $buildArguments = @{}
 if ($ForceDownload) { $buildArguments.ForceDownload = $true }
 & (Join-Path $Root "build-standalone.ps1") @buildArguments
-& node --test (Join-Path $Root "tests/extraction.test.cjs")
+& node --test (Join-Path $Root "tests/extraction.test.cjs") (Join-Path $Root "tests/dialog-layout.test.cjs")
 if ($LASTEXITCODE -ne 0) { throw "Office extraction regression tests failed." }
 Write-Host "[OK] Repository check passed." -ForegroundColor Green
 
