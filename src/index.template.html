@@ -792,7 +792,7 @@ freely, subject to the following restrictions:
         <li data-i18n="helpNoteEncrypted">パスワード保護されたファイル、破損したファイルは読み込めない場合があります。</li>
         <li data-i18n="helpNoteLinked">外部リンク参照の画像ではなく、Officeファイル内に埋め込まれた画像だけを抽出します。</li>
         <li data-i18n="helpNoteDuplicates"></li>
-        <li data-i18n="helpNoteMemory"></li>
+        <li data-i18n="helpNoteMemory">大きい文書や大量のファイルでは多くのメモリを使用します。処理できない場合は、文書の数やサイズを減らしてください。</li>
         <li data-i18n="helpNoteFormats">EMF、WMF、SVG、TIFFなども元形式のまま抽出します。表示可否はOSやアプリに依存します。</li>
       </ul>
       <p class="dialog-note" data-i18n="helpOffline">配布HTMLには必要な処理コードを内包しており、実行時のネットワーク通信は不要です。</p>
@@ -946,7 +946,7 @@ freely, subject to the following restrictions:
           helpNoteLegacy: "旧形式の .xls / .ppt / .doc には対応していません。",
           helpNoteEncrypted: "パスワード保護されたファイル、破損したファイルは読み込めない場合があります。",
           helpNoteDuplicates: "名前・サイズ・更新日時が同じファイルは、内容も完全に同じと確認できた場合のみ重複として除外します。確認できなかった場合は警告を表示し、そのファイルも読み込みます。",
-          helpNoteMemory: "重複確認は256 KiB以下の分割読み取りで行い、解析と合わせて最大2件を同時処理します。ZIPの解析はストリーミング処理ではなく、大きい文書や大量のファイルでは多くのメモリを使用します。",
+          helpNoteMemory: "大きい文書や大量のファイルでは多くのメモリを使用します。処理できない場合は、文書の数やサイズを減らしてください。",
           helpNoteLinked: "外部リンク参照の画像ではなく、Officeファイル内に埋め込まれた画像だけを抽出します。",
           helpNoteFormats: "EMF、WMF、SVG、TIFFなども元形式のまま抽出します。表示可否はOSやアプリに依存します。",
           helpOffline: "配布HTMLには必要な処理コードを内包しており、実行時のネットワーク通信は不要です。",
@@ -1020,7 +1020,7 @@ freely, subject to the following restrictions:
           helpNoteLegacy: "Legacy .xls / .ppt / .doc files are not supported.",
           helpNoteEncrypted: "Password-protected or corrupted files may not be readable.",
           helpNoteDuplicates: "Files with the same name, size, and modification time are skipped only after exact byte equality is verified. Failed checks show a warning and keep the file for inspection.",
-          helpNoteMemory: "Duplicate checks read chunks of at most 256 KiB and share two processing slots with inspection. ZIP parsing is not streaming; large documents or batches can still use substantial memory.",
+          helpNoteMemory: "Large documents or batches can use substantial memory. If processing fails, use fewer or smaller documents.",
           helpNoteLinked: "Only images embedded in the Office package are extracted; externally linked images are not included.",
           helpNoteFormats: "Formats such as EMF, WMF, SVG, and TIFF are extracted unchanged. Preview support depends on your OS and applications.",
           helpOffline: "The distributable HTML contains the required processing code and does not need runtime network access.",
