@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Clarify Japanese and English help by removing internal layout, implementation, and audit commentary while preserving usage guidance and cautions.
+
 ## 1.0.4 - 2026-10-10
 
 - Keep the page stationary behind modal dialogs and make Clear confirmation content scrollable on short screens.
