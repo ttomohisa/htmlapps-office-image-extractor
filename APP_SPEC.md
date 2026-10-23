@@ -76,3 +76,11 @@ All processing happens in the browser. The app has no upload, account, analytics
 - Show `完全ローカル処理` in Japanese and `Fully local processing` in English; preserve the more detailed privacy explanations.
 - The language button shows the target language: `EN` in Japanese UI and `JA` in English UI. Its accessible name and title describe that target in the current UI language.
 - Keep Help accessible names and titles localized, without resetting work when switching languages.
+
+## Mobile footer and Help build information
+
+- Hide only the informational page footer at the existing 520px smartphone breakpoint. Preserve functional bottom controls.
+- Keep the existing build information as the final item of Help’s independently scrollable body, with its unique IDs and localization unchanged. Build information remains available at every width. Native disclosure keyboard clicks inside Help must not dismiss it as backdrop clicks.
+- Use “Fully local processing” for the exact 完全ローカル処理 label; preserve detailed privacy explanations.
+- Focused PR Chromium checks cover the official generated variants in JA/EN at desktop, breakpoint, narrow and short sizes, final Help reachability, badge overflow, dismissal, errors and runtime network. Keep four screenshots plus failure evidence. These layout checks are not a new full main-flow audit.
+- Help keeps its header nonshrinking and allocates the remaining dialog height to a zero-minimum scroll body, so keyboard expansion of the final build disclosure cannot scroll Close out of view. Other dialog geometry remains unchanged.
