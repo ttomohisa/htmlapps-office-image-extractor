@@ -526,6 +526,7 @@
     }
 
     @media (max-width: 520px) {
+      footer { display: none; }
       :root { --header-height: 58px; }
       .header-inner { padding-block: 8px; }
       .brand-mark { width: 34px; height: 34px; border-radius: 10px; }
@@ -645,15 +646,6 @@
           <div class="support-item"><span>Excel</span><strong>.xlsx .xlsm .xltx .xltm</strong></div>
           <div class="support-item"><span>PowerPoint</span><strong>.pptx .pptm .potx .potm .ppsx .ppsm</strong></div>
           <div class="support-item"><span>Word</span><strong>.docx .docm .dotx .dotm</strong></div>
-        </div>
-      </details>
-
-      <details class="build-info-details">
-        <summary data-i18n="buildInfo">ビルド情報</summary>
-        <div class="build-info-grid">
-          <div class="build-info-item"><span data-i18n="appVersion">アプリバージョン</span><strong id="buildVersion">1.0.0</strong></div>
-          <div class="build-info-item"><span data-i18n="builtAt">生成日時</span><strong id="buildDate">-</strong></div>
-          <div class="build-info-item"><span data-i18n="dependencies">内包依存数</span><strong id="buildDeps">1</strong></div>
         </div>
       </details>
 
@@ -796,6 +788,14 @@ freely, subject to the following restrictions:
         <li data-i18n="helpNoteFormats">EMF、WMF、SVG、TIFFなども元形式のまま抽出します。表示可否はOSやアプリに依存します。</li>
       </ul>
       <p class="dialog-note" data-i18n="helpOffline">配布HTMLには必要な処理コードを内包しており、実行時のネットワーク通信は不要です。</p>
+      <details class="build-info-details">
+        <summary data-i18n="buildInfo">ビルド情報</summary>
+        <div class="build-info-grid">
+          <div class="build-info-item"><span data-i18n="appVersion">アプリバージョン</span><strong id="buildVersion">1.0.0</strong></div>
+          <div class="build-info-item"><span data-i18n="builtAt">生成日時</span><strong id="buildDate">-</strong></div>
+          <div class="build-info-item"><span data-i18n="dependencies">内包依存数</span><strong id="buildDeps">1</strong></div>
+        </div>
+      </details>
     </div>
   </dialog>
 
@@ -1711,6 +1711,7 @@ freely, subject to the following restrictions:
       $("#closeHelpButton").addEventListener("click", () => helpDialog.close());
 
       helpDialog.addEventListener("click", (event) => {
+        if (event.target !== helpDialog) return;
         const rect = helpDialog.getBoundingClientRect();
         const outside = event.clientX < rect.left || event.clientX > rect.right ||
           event.clientY < rect.top || event.clientY > rect.bottom;
