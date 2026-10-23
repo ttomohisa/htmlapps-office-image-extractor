@@ -450,6 +450,9 @@
     .dialog-header h2 { margin: 0; font-size: 17px; }
     .dialog-body { padding: 20px 20px 28px; overflow: auto; max-height: calc(100dvh - 102px); }
 
+    #helpDialog[open] { display: flex; flex-direction: column; }
+    #helpDialog .dialog-header { flex: 0 0 auto; }
+    #helpDialog .dialog-body { min-height: 0; flex: 1 1 auto; max-height: none; overflow: auto; overscroll-behavior: contain; }
     .dialog-body h3 {
       margin: 25px 0 8px;
       padding-top: 19px;

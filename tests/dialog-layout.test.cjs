@@ -38,3 +38,9 @@ test('Help keyboard descendant clicks stay open and genuine backdrop clicks dism
   click(dialog, {target:{},clientX:0,clientY:0}); assert.equal(dialog.open,true);
   click(dialog, {target:dialog,clientX:0,clientY:0}); assert.equal(dialog.open,false);
 });
+
+test('Help retains its header while only its allocated body scrolls to build details', () => {
+  assert.match(html, /#helpDialog\[open\]\s*\{[^}]*display:\s*flex[^}]*flex-direction:\s*column/);
+  assert.match(html, /#helpDialog \.dialog-header\s*\{[^}]*flex:\s*0 0 auto/);
+  assert.match(html, /#helpDialog \.dialog-body\s*\{[^}]*min-height:\s*0[^}]*flex:\s*1 1 auto[^}]*max-height:\s*none[^}]*overflow:\s*auto/);
+});
