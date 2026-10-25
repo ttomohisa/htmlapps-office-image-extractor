@@ -103,6 +103,13 @@ foreach ($dependency in $dependencies) {
   $manifestDependencies += [ordered]@{ id=$id; package=$packageName; version=$version; license=$license; homepage=$homepage; tarballSha256=(Get-FileHash -Algorithm SHA256 -Path $archivePath).Hash.ToLowerInvariant(); assets=$manifestAssets }
 }
 
+# First-party scripts remain inside the standalone asset bundle, not runtime imports.
+$assetBundle.dependencies['office'] = [ordered]@{ package='office-image-extractor'; version=[string]$appConfig.version; assets=[ordered]@{
+  worker=[ordered]@{ mime='text/javascript'; base64=[Convert]::ToBase64String([System.IO.File]::ReadAllBytes((Join-Path $Root 'src/office-worker.js'))) }
+  view=[ordered]@{ mime='text/javascript'; base64=[Convert]::ToBase64String([System.IO.File]::ReadAllBytes((Join-Path $Root 'src/office-view.js'))) }
+  jobs=[ordered]@{ mime='text/javascript'; base64=[Convert]::ToBase64String([System.IO.File]::ReadAllBytes((Join-Path $Root 'src/office-jobs.js'))) }
+} }
+
 $manifest = [ordered]@{
   schemaVersion=1; builder="single-html-app-template/1.0"; generatedAtUtc=[DateTime]::UtcNow.ToString("o")
   app=[ordered]@{ name=[string]$appConfig.name; slug=[string]$appConfig.slug; version=[string]$appConfig.version }

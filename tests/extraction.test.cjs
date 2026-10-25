@@ -61,8 +61,8 @@ test('a clear during inspection discards pending work and cannot restore old res
 test('individual Save restores keyboard focus after its temporary disabled state',async()=>{
   const f=await fixture();f.api.addFiles([await office()]);await settled(f);await action(f,'[data-expand-index="0"]');const save=f.get('#file-list').querySelector('[data-download-image="0"]');save.focus();await action(f,'[data-download-image="0"]');assert.equal(f.document.activeElement.dataset.focusKey,save.dataset.focusKey);assert.equal(f.document.activeElement.isConnected,true);
 });
-test('invalid backslash media paths cannot produce traversal paths in the output ZIP',async()=>{
-  const f=await fixture();f.api.addFiles([await office('safe.docx',{'word/media/ok.png':bytes,'word/media/..\\..\\outside.png':'bad'})]);await settled(f);await f.api.downloadExtractedImages();const zip=await JSZip.loadAsync(await f.downloads[0].blob.arrayBuffer());assert.deepEqual(Object.keys(zip.files).filter(k=>!zip.files[k].dir),['safe/ok.png']);
+test('invalid backslash media paths reject the ambiguous package without any output',async()=>{
+  const f=await fixture();f.api.addFiles([await office('safe.docx',{'word/media/ok.png':bytes,'word/media/..\\..\\outside.png':'bad'})]);await settled(f);await f.api.downloadExtractedImages();assert.equal(f.api.records[0].errorCode,'CORRUPT');assert.equal(f.downloads.length,0);
 });
 test('ZIP progress does not rebuild every selectable image row',async()=>{
   const f=await fixture();f.api.addFiles([await office('many.pptx',Object.fromEntries(Array.from({length:20},(_,i)=>['ppt/media/image'+i+'.png',bytes])))]);await settled(f);const before=f.get('#file-list').renderCount;await f.api.downloadExtractedImages();assert.equal(f.get('#file-list').renderCount-before,2);assert.equal(f.downloads.length,1);

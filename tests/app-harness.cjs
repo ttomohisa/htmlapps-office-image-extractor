@@ -37,11 +37,18 @@ class XMLParser {
   }
 }
 async function fixture() {
+  const {createEngine}=require('../src/office-worker.js');
+  const sax= bundle.dependencies.sax ? (()=>{const v={exports:{}};vm.runInNewContext(Buffer.from(bundle.dependencies.sax.assets.main.base64,'base64').toString(),{module:v,exports:v.exports});return v.exports;})() : require('../.cache/sax-1.6.1/extracted/package/lib/sax.js');
+  const engine=createEngine(JSZip,sax);
+  // DOM adapter runs the same package engine. Real Worker termination is covered
+  // separately by worker-lifecycle.test.cjs and browser QA, not simulated here.
+  class TestJobs { constructor(){this.epoch=0;} run(operation,payload){const epoch=this.epoch;return engine[operation](...payload).then(result=>{if(epoch!==this.epoch)throw Object.assign(new Error('CANCELLED'),{code:'CANCELLED'});return result;});} cancel(){this.epoch++;} }
+
   const elements=new Map(); const downloads=[]; const blobs=new Map(); const errors=[];
   const document={downloads,blobs,activeElement:null,documentElement:{lang:'en'},querySelector:selector=>selector==='dialog:modal' ? [...elements.values()].find(el=>el.open)||null : get(selector),querySelectorAll:()=>[],createElement:tag=>Object.assign(new Element(document),{tag}),getElementById:id=>get('#'+id)};
   function get(selector) { if(!elements.has(selector)) elements.set(selector,new Element(document)); return elements.get(selector); }
   const context={JSZip,Blob,Uint8Array,ArrayBuffer,DataView,DOMParser:XMLParser,document,HTMLElement:Element,navigator:{language:'en'},localStorage:{getItem(){return null;},setItem(){}},console:{error:e=>errors.push(e)},setTimeout,clearTimeout,requestAnimationFrame:fn=>fn(),alert:message=>errors.push(message),URL:{createObjectURL(blob){const key='blob:'+blobs.size;blobs.set(key,blob);return key;},revokeObjectURL(){}},Intl};
-  context.window={StandaloneAssets:{loadClassicScript:async()=>{}},AppBuild:{config:{version:'1.0.0'},manifest:{generatedAtUtc:'2026-10-04T00:00:00Z',dependencies:[]}},setTimeout:()=>0,clearTimeout(){},addEventListener(){}};
+  context.window={OfficeView:require('../src/office-view.js'),OfficeJobs:TestJobs,StandaloneAssets:{loadClassicScript:async()=>{},text:()=>''},AppBuild:{config:{version:'1.0.0'},manifest:{generatedAtUtc:'2026-10-04T00:00:00Z',dependencies:[]}},setTimeout:()=>0,clearTimeout(){},addEventListener(){}};
   const script=html.match(/<script>\s*(\(async \(\) => \{[\s\S]*?)<\/script>/)[1];
   const injection='globalThis.api = { records, pendingInspections, inspectOfficeFile, addFiles, render, applyLanguage, downloadExtractedImages, translations, setLanguage: value => { language=value; applyLanguage(); }, get activeInspections() { return activeInspections; }, get exporting() { return isGeneratingZip; } };';
   vm.runInNewContext(script.replace(/      applyLanguage\(\);\n    \}\)\(\)/,injection+'\n      applyLanguage();\n    })()'),context);

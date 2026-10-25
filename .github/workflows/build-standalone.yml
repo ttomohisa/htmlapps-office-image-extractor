@@ -40,3 +40,31 @@ jobs:
             dist/.nojekyll
           if-no-files-found: error
           retention-days: 14
+
+  browser-qa:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+      - uses: actions/download-artifact@v7
+        with:
+          name: standalone-html-${{ github.event.pull_request.head.sha || github.sha }}
+          path: dist
+      - name: Install pinned browser test runner
+        run: |
+          npm install --prefix .cache/browser --no-save --ignore-scripts playwright@1.64.1
+          .cache/browser/node_modules/.bin/playwright install --with-deps chromium
+      - name: Test standalone files in Chromium
+        env:
+          PLAYWRIGHT_MODULE: ../.cache/browser/node_modules/playwright
+        run: node tests/browser-qa.cjs
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: office-browser-qa-${{ github.event.pull_request.head.sha || github.sha }}
+          path: browser-qa
+          if-no-files-found: warn
