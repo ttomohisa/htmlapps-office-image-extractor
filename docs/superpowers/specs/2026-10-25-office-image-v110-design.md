@@ -19,11 +19,11 @@ Use a pinned, licensed, namespace-aware XML parser embedded at build time becaus
 
 ## Runtime model and cancellation
 
-Keep immutable original File references and stable document/image IDs in UI state. Workers own ZIP structures and transient inflated buffers, never DOM. A task envelope carries jobId, sessionId, operation and payload; events carry the same IDs and progress stage. Only the current session/job can update UI.
+Keep immutable original File references and stable document/image IDs in UI state. Workers own ZIP structures and transient inflated buffers, never DOM. A task envelope carries jobId, sessionId, operation, affectedDocumentIds and payload; events carry the same IDs and progress stage. Only the current session/job can update UI.
 
 Use one heavy worker job at a time to bound resident ZIP/inflate memory; inspect documents sequentially and discard ZIP working state afterward. Reopen an original File on demand for preview/export. Worker tasks include inspect, read-image, identify-duplicates and export. Parse XML in the worker, not a hidden synchronous main-thread stage. Stream entry inflation into bounded chunks and verify actual byte count/CRC before offering an original.
 
-Cancel terminates the active Worker, clears queued work belonging to the cancellation scope, rejects its pending promises and revokes its bootstrap URL. Completed document results remain. Interrupted documents become Cancelled with Retry; exports produce no download and retain selection. Remove terminates that document's work, Clear confirms then terminates all work, pagehide disposes workers and previews. Starting again creates a fresh worker. No noncancellable main-thread fallback; explain worker startup failure and offer retry or another supported browser.
+Cancel terminates the active Worker, clears queued work belonging to the cancellation scope, rejects its pending promises and revokes its bootstrap URL. Completed document results remain. Interrupted documents become Cancelled with Retry; exports produce no download and retain selection. Remove cancels queued tasks and terminates active tasks whose affectedDocumentIds include that document, including multi-document export/deduplication; invalidated snapshots can never download. Clear confirms then terminates all work, pagehide disposes workers and previews. Starting again creates a fresh worker. No noncancellable main-thread fallback; explain worker startup failure and offer retry or another supported browser.
 
 ## Resource defaults
 
@@ -41,7 +41,7 @@ Earlier user-facing GB/MB shorthand is implemented and labelled precisely as bin
 | One bitmap decode | — | 32 megapixels |
 | Thumbnail cache | — | 32 MiB |
 
-Read and validate central-directory size/count/offsets before JSZip creates its object graph. Reject encrypted, malformed, unsupported ZIP64 and unsafe/traversing paths explicitly. Count observed output chunks as well as declared lengths; abort on excess or mismatches. Metadata-only limits produce a usage-mapping warning while permitting image extraction if its separate limits pass. Unknown allocation failure is recoverable, not proof of corruption. Safety ceilings are not a guarantee every phone can process those sizes. Measure representative large fixtures; seek approval before materially tighter user-facing ceilings.
+Read and validate central-directory size/count/offsets before JSZip creates its object graph. Reject encrypted, malformed, unsupported ZIP64 and unsafe/traversing paths explicitly. Reject duplicate canonical ZIP entry names and central/local header identity conflicts before JSZip can collapse a path-keyed entry; report an ambiguous/malformed package rather than picking one. Count observed output chunks as well as declared lengths; abort on excess or mismatches. Metadata-only limits produce a usage-mapping warning while permitting image extraction if its separate limits pass. Unknown allocation failure is recoverable, not proof of corruption. Safety ceilings are not a guarantee every phone can process those sizes. Measure representative large fixtures; seek approval before materially tighter user-facing ceilings.
 
 ## Images and previews
 
@@ -51,7 +51,7 @@ Known oversized dimensions, unknown unsafe raster formats, failed decoding and S
 
 ## Usage provenance
 
-Resolve internal OPC relationships relative to the referring part with canonical paths and namespace-aware attributes; reject escape paths and never follow External targets. Preserve one-to-many uses and distinguish missing/broken/incomplete mappings from confidently found references.
+Resolve internal OPC relationships relative to the referring part with canonical paths and namespace-aware attributes; allow normal relative ../media paths after canonicalization, reject only escapes above package root, and never follow External targets. ZIP entry names themselves must not traverse directories. Disable DTD/external entities and reject entity declarations before XML parsing. Use streaming namespace-aware parsing capped at 256 nesting levels, 1,000,000 element events per metadata part, 1 MiB per token, and 200,000 accumulated usage records per document. On a metadata guard hit, stop mapping with an explicit incomplete-warning while preserving separately safe original extraction. Preserve one-to-many uses and distinguish missing/broken/incomplete mappings from confidently found references.
 
 PowerPoint: presentation.xml ordered slide IDs -> relationship targets -> slide image references. Slide filenames are not presentation numbers. Include labelled layout/master/notes references when traversed, preventing graph cycles and duplicate usages.
 Excel: workbook.xml ordered sheet names/IDs -> worksheet relationships -> drawings, VML and background references -> media. Shared images keep every sheet use; hidden sheets retain their names and status.
