@@ -1,6 +1,6 @@
 # Office Image Extractor
 
-Header: v1.0.3. The privacy badge reads “Fully local processing”; the language button shows EN in Japanese and JA in English, with localized target-language and Help descriptions.
+Header: v1.1.0. The privacy badge reads “Fully local processing”; the language button shows EN in Japanese and JA in English, with localized target-language and Help descriptions.
 
 [![GitHub Pages](https://github.com/ttomohisa/htmlapps-office-image-extractor/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/ttomohisa/htmlapps-office-image-extractor/actions/workflows/deploy-pages.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -202,7 +202,7 @@ The GitHub Pages version requires an initial HTML request, but the Office files 
 - Legacy `.xls`, `.ppt`, and `.doc` files are not supported.
 - The app extracts stored media rather than rendering documents, worksheets, or slides.
 - Some documents contain EMF, WMF, TIFF, SVG, GIF, or other uncommon formats. They are preserved as-is, but preview support depends on your operating system and applications.
-- Very large documents or large batches can consume substantial browser memory in JSZip and the app. The 256 KiB duplicate-comparison chunks and two-task inspection limit do not make ZIP parsing streaming or impose a total memory cap.
+- Large documents still consume browser memory. Heavy ZIP/XML/export jobs run in cancellable workers; capacity depends on the device even below the documented safety ceilings.
 
 ### Regression tests and browser checks
 
@@ -234,3 +234,15 @@ Copyright © 2026 ttomohisa
 Licensed under the [MIT License](LICENSE).
 
 Microsoft, Excel, PowerPoint, Word, and Office are trademarks of the Microsoft group of companies. This project is independent and is not affiliated with, endorsed by, or sponsored by Microsoft.
+
+## Image discovery in v1.1.0
+
+Expand a document to see lazy raster thumbnails, dimensions, original byte sizes and verified usage locations. Click a supported thumbnail to enlarge it. SVG/EMF/WMF and unsafe-size or unsupported previews remain available as unchanged originals. Originals may include regions cropped out in Office; this is not an Office page/slide renderer.
+
+Filter by document, format, name/usage, minimum width/height or byte range; sort by source order, name, size or dimensions. Filters do not change selection. “Select matching images” applies across matching pages; global all/none still applies to every document. The toolbar reports selected images hidden by filters, and ZIP saves all selected occurrences.
+
+“Group identical images” is optional and checks exact bytes. Expand each group's sources to select individual copies. The separate “Save one copy” option adds a JSON provenance manifest; normal export retains every selected occurrence. Partial failures require an explicit decision before saving only successful originals.
+
+Cancel terminates background processing without removing completed results. Retry interrupted documents. Large-document warning starts above 256 MiB; ceilings are 1 GiB/document, 2 GiB input/session, 1 GiB selected originals and ZIP, 2 GiB expanded/document, 512 MiB/image and 100,000 ZIP entries. Preview ceilings are 32 megapixels and 16 MiB encoded bytes. 1 GiB = 1,073,741,824 bytes; phones may run out of memory well below these values. Usage metadata can be unavailable while original saving remains possible.
+
+Full third-party notices and build information are in Help. Processing, previews, grouping and downloads stay offline in the standalone HTML.

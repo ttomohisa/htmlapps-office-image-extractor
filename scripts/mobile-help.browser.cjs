@@ -24,7 +24,7 @@ async function main() {
           const label = `${file} ${language} ${width}x${height}`;
           try {
             await page.goto(pathToFileURL(path.resolve(__dirname, '..', file)).href);
-            await page.locator('#helpButton').waitFor();
+            await page.waitForFunction(() => document.documentElement.dataset.ready === 'true');
             if (await page.locator('html').getAttribute('lang') !== language) await page.locator('#languageButton').click();
             assert.equal(await page.locator('[data-i18n="localBadge"]').innerText(), language === 'en' ? 'Fully local processing' : '完全ローカル処理', label);
             assert.ok(await page.locator('.local-badge').evaluate(el => {

@@ -15,6 +15,21 @@
           "stripSourceMapComment": true
         }
       ]
+    },
+    {
+      "id": "sax",
+      "package": "sax",
+      "version": "1.6.1",
+      "license": "BlueOak-1.0.0",
+      "homepage": "https://github.com/isaacs/sax-js",
+      "assets": [
+        {
+          "key": "main",
+          "path": "lib/sax.js",
+          "mime": "text/javascript",
+          "stripSourceMapComment": true
+        }
+      ]
     }
   ]
 }

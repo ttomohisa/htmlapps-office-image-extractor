@@ -564,6 +564,26 @@
         animation-duration: .01ms !important;
       }
     }
+
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    .page-intro h1 { font-size: 26px; line-height: 1.3; min-height: 1.3em; }
+    .image-row { align-items: center; }
+    .image-thumb { flex: 0 0 88px; width: 88px; height: 72px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-muted); padding: 3px; overflow: hidden; cursor: zoom-in; }
+    .image-thumb:disabled { cursor: default; }
+    .image-thumb img { width: 100%; height: 100%; object-fit: contain; }
+    .image-thumb span { font-size: 10px; line-height: 1.3; display: block; color: var(--muted); }
+    .image-usage { display: block; color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
+    .original-warning { margin: 12px 0; padding: 10px 12px; background: #fff8e6; color: #665122; border-radius: 8px; font-size: 12px; }
+    #previewDialog { width: min(1000px, calc(100% - 24px)); }
+    #previewImage { display: block; max-width: 100%; max-height: 65vh; margin: auto; object-fit: contain; }
+    .preview-meta { font-size: 12px; overflow-wrap: anywhere; }
+    @media (max-width: 520px) { .page-intro h1 { font-size: 21px; min-height: 2.6em; } .image-thumb { flex-basis: 64px; width: 64px; height: 60px; } }
+    .filter-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 14px 0; }
+    .filter-panel label { display: grid; gap: 4px; color: var(--muted); font-size: 12px; min-width: 0; }
+    .filter-panel input, .filter-panel select { min-width: 0; width: 100%; min-height: 42px; border: 1px solid var(--line); border-radius: 8px; background: white; padding: 7px; font: inherit; color: var(--text); }
+    .export-option { display: block; margin: 12px 0; font-size: 12px; }
+    .image-row details { max-width: 260px; font-size: 11px; }
+    @media (max-width: 520px) { .image-row { flex-wrap: wrap; } .image-row details { flex-basis: 100%; max-width: 100%; } }
   </style>
 </head>
 <body>
@@ -574,7 +594,7 @@
           <svg viewBox="0 0 1095 1095" xmlns="http://www.w3.org/2000/svg"><rect x="22" y="22" width="1050" height="1050" rx="262.5" fill="#16624f"/><path d="m420 111.5c7.5-1 15.5-0.5 22.5-0.5h44 136 38c11.5 0 22 0 29.5 9.5 8 10 5 26 5 38v88 69c0 10.5 2 22.5-5.5 31.5-7.5 8.5-17 8.5-28 8.5s-21.5 0-32 0h-165-30c-13.5 0-26 0.5-33-13.5-3.5-7-2.5-14.5-2.5-22v-33-125c0-18.5-4.5-46 20.5-50zm8 25c-5 1.5-4.5 7-4.5 11v32 107 28c0 3.5-1 9.5 1 13 2.5 4 9.5 2.5 13.5 2.5h40 145 35c3.5 0 10 1.5 12.5-2.5 2.5-3.5 1-17.5 1-22v-59-79-20c0-3 0.5-6.5-1-9-3-4-11-2.5-15.5-2.5h-42-128-38c-6 0-13-1-18.5 0.5zm-38 3v23.5c-11 3-22.5 5-34 7.5-25.5 5.5-51 11.5-76.5 17.5-9.5 2-18.5 4-28 6-3.5 1-9 1-11.5 3.5-3 3-1 7-0.5 10.5 2 9 4 17.5 6 26.5 6.5 29.5 12.5 59 19.5 88.5 1.5 7.5 3 15 4.5 22 1 4 1 8 4 11 8.5 2 21.5-3.5 30-5.5 17.5-3.5 35-7.5 53-11.5 10.5-2.5 22-6.5 33-6.5 1 5.5 1.5 10 4 15 1 2.5 3 4.5 4 7-12 4-25.5 6-38 8.5-19.5 4-38.5 9-58 13-11.5 2.5-26.5 9-38 4-16-7-16.5-27.5-19.5-42.5-7.5-36-16-72-24-108-3-13.5-10.5-33.5-1.5-45.5 8-10.5 34-13.5 47-16 29.5-6.5 59.5-13.5 89-20 11.5-2.5 23.5-6.5 35.5-7.5zm307 214c5.5-8 6-13 8.5-22 38.5 8 76.5 16.5 115 24.5 5-3.5 5-12 6.5-17.5 3.5-16 6.5-32 10.5-48 5-22.5 9.5-45.5 15-68 1.5-5.5 2.5-11 3.5-16 0.5-2.5 1.5-5.5 0.5-8-2-3-6.5-3-9.5-4-9-2-18.5-4-27.5-6-27-6-53.5-12.5-80.5-18-11-2.5-23.5-3.5-34-8v-23c11 0 28.5 6 40 8.5 30 6 59.5 13.5 89 20 13 3 35.5 4.5 43.5 16 8.5 12 1.5 30.5-2 44-8.5 36-16 72.5-24 109-3 14.5-3.5 35-19 42.5-11 5-27.5-1-39-3.5-19.5-4.5-39-9-59-13-7.5-1.5-15.5-3.5-23-5-5-1-10-2-14.5-3.5zm-218.5-195c4.5-1 9-1 13.5 0 31.5 7.5 31 54.5-1 60-4.5 1-9.5 1-14-0.5-30.5-8.5-29.5-53 1.5-60zm254 32c32-6 40.5 42 9.5 48.5-32 6.5-40.5-42.5-9.5-48.5zm-440 14c4-1 8.5-1 12.5 0 27 7 25 46.5-2.5 51-3.5 0.5-7.5 0.5-11-0.5-26.5-7-25-46 1-51zm307 6c1.5 0.5 2.5 0.5 3.5 1 4 3 13 16 17 21 9 11 17.5 22 26 33 3.5 4 10.5 11 12 16s0.5 12 0.5 17.5 1 12-1.5 17c-4 2.5-9.5 1.5-14 1.5h-33-124-36c-4.5 0-11 1.5-15-1.5-4.5-8.5 1.5-13.5 7-19 12-12.5 24.5-25 37-37 3-3 11-13 15.5-13.5 4-0.5 6 2.5 8.5 5 6.5 5.5 12.5 11.5 19 17 3 3 7 8 12 6 3.5-1.5 11-11 14-14 11-11.5 22.5-22.5 34-34 4.5-4.5 12-13.5 17.5-16zm-225 26.5c1 0 2 0 3 1 1.5 1 11.5 9.5 12 11 1 3.5 0 17 0 22 0 15.5 1.5 32-0.5 47.5-7.5 3-17 4-25 6-17 4-34 7.5-51 11-7.5 1.5-26 7.5-32.5 6-6-6-1.5-13 2-19 7.5-11.5 14.5-23 21.5-34.5 3-5 5.5-10.5 9.5-14.5 10-1 16.5 11.5 26 12.5 4-2.5 6.5-8 8.5-12 5.5-9 11-17.5 17-26 2.5-4 4.5-9 8.5-11.5zm420 15.5c4.5 6 7 14.5 10 21.5 4 9 8 17.5 11.5 26.5 1.5 3.5 4.5 8 5 12 0.5 5-2 11-3 16-1 4-1 9-3.5 12.5-3.5 2-7 0.5-10.5-0.5-6.5-1.5-13-3-19.5-4-26.5-6-53-10.5-79-18-1-6-0.5-12-0.5-18 0-2.5-0.5-6.5 0-9 1-2.5 5.5-5 7.5-6.5 5.5-4 18-16 24-17 3.5 5 7.5 10.5 11 15.5 4.5 0 8-4 11.5-7 7.5-6 15-12 22.5-17.5 4-3 7.5-7.5 13-6.5zm-191 225h-33.5v69.5h-28.5c-5.5 0-11 0.5-16-0.5v-68c-9-2.5-26 1.5-33.5-2-2-4.5 2-7 5-10 5.5-6 11-12.5 16.5-18.5 8.5-9 16.5-18.5 24.5-27.5 2.5-3 6-8.5 10.5-8.5 4 0 11 10 14 13 11 12.5 22 24.5 33 37 4 4.5 10.5 9 8 15.5zm116 424c-1-7-0.5-15-0.5-22v-42c0-43.5 0.5-86.5 0-130v-46c0-8.5 1-18-2-26.5-2-6-6.5-10-10.5-14.5-8-9.5-17-18-25-28 2.5-18.5 6-36.5 8.5-55 1.5-12 2-24.5 13-32.5s23-5.5 35-3.5c18.5 3 37.5 6.5 56 10 27 5 54.5 10 82 14 10 1.5 20 3 30 5 5.5 1 11 1.5 16 4 9 4.5 13.5 16 19 24 9 14.5 18.5 28.5 27.5 42.5 4 6 9.5 12.5 11.5 19 2.5 7.5-0.5 15.5-1.5 23-2.5 15.5-5 31-8 46-10 56.5-19.5 113-28.5 170-2 14-4.5 27.5-6.5 41-2 12.5-3.5 23.5-16.5 29.5-8 4-16 2.5-24.5 1-11.5-2-23.5-4-35-6-31.5-5-63.5-10.5-95-16-15-3-30.5-4.5-45.5-7.5zm-318.5-346c-2.5 2-5 4-7.5 7-2 2.5-3 5-5.5 7-13.5-10.5-25.5-23.5-38-35-5-4.5-10.5-11.5-17-14-1.5 5.5 0.5 13 1 18.5 2 12 3 24 4.5 35.5 1 6 0.5 12.5 7 15.5 4.5 2 9.5 0.5 14 0 8-1.5 15.5-3 23.5-4v309.5c-49.5 7.5-98.5 17-147.5 24.5-10.5 1.5-21 3.5-32 5.5-8.5 1.5-16.5 3.5-25-0.5-11.5-5.5-13.5-16-15-27-3-19.5-6-38.5-9-58-10-67-20.5-134-30-201-2.5-18.5-5.5-36.5-8-55-1.5-9.5-4.5-20-1.5-29 5-17.5 19-19 34.5-21.5s31.5-5 47-8c31.5-6 63.5-10.5 95-16 9.5-1.5 19.5-3.5 29-5 6.5-1 12.5-3 19-1.5 9.5 2 15.5 10 22.5 16.5 7.5 7 15 14.5 22.5 21.5 5.5 5 11.5 9.5 15.5 15.5zm512.5-2.5c-1.5 5-2 10.5-3 15.5-2 10.5-3.5 21.5-5 32-1 6-3.5 13 0.5 18.5 3.5 5 10.5 5 16 6 9 1.5 18 3 27 4.5 5 1 10 2.5 15 2 0-0.5 0.5-1 0.5-2 0-1.5-2-3.5-3-5-2.5-4.5-5.5-8.5-8.5-12.5-9-14.5-18.5-28-28-42-3.5-5-7-13.5-12-17zm-491.5 8.5c16.5-1.5 34 0 50.5 0h99 41c7.5 0 16-1 22.5 2s11.5 10 16 15c7 8 14.5 16 22 24s14.5 16 21.5 24.5c3.5 4 8.5 8.5 10 14 1.5 6 1 12.5 1 19v33 104 113c0 14.5 3.5 34-10 44-7.5 5.5-16.5 5-25 5h-39-164-33c-13.5 0-26 0.5-33.5-13-4-7-3.5-15-3.5-23v-38-148-132c0-7.5-1-15.5 0.5-23 2.5-11 12.5-19.5 23.5-20zm205.5 20c-2 5-1 11.5-0.5 17v34c0 6-0.5 12.5 4.5 17 4 3.5 10.5 3 15.5 3h28c5 0 10 0.5 14.5-0.5-1.5-5.5-10.5-13-14.5-17.5-11-13-22-25.5-33-38-4-4.5-8.5-12-14-14.5zm-254.5 92c-5.5 1-11 1.5-16.5 2.5-2.5 5.5-4.5 10.5-7 16-3.5-4-6.5-8.5-10-12.5-6 1-11.5 2.5-17.5 3.5 7 8.5 13.5 17.5 20.5 26-4 10.5-8.5 21.5-12.5 32 6-1 11.5-2 17-3 2-5.5 4-11 6-16 3.5 4.5 7.5 9 11 13.5 5.5-1 11.5-2 17-3-7-9-13.5-18-20.5-27 4-10.5 8-20.5 12-31zm-167.5 8c-5.5 1-10.5 2-16 3 1 8.5 2 16.5 3 25-10-7.5-24-2.5-29 8.5-7 15-3 37.5 12 46 4.5 2.5 10 3.5 15.5 2 5-1.5 7.5-5 11-8.5 0.5 1 0.5 4 1.5 5 1.5 1 12.5-1.5 15-2-4-26.5-8-52.5-12-79zm542-0.5c-2 6-2.5 13-3.5 19.5-2 11.5-4 23.5-6 35-1.5 8-5 17-3.5 25 5 1 10 1.5 15 2.5 1.5-8.5 3.5-17 5-25.5 3 3 5.5 6 10 7.5 24 7 35.5-27.5 29-45-5-14-18-20-31-11 0-1 0.5-4-0.5-5-1.5-1.5-12-2.5-14.5-3zm-424 16.5c-8.5-15.5-29.5-16.5-40.5-3-6 7.5-7.5 18-6 27 3 16 17 28.5 33.5 24 5-1.5 9-4 12-8 2.5-3 4-7 5-11l-13.5-6c-1.5 2.5-3 6-5.5 7.5-8.5 5-14.5-4.5-15.5-12-1-7 3-17 12-15 3.5 0.5 5 3.5 7.5 5.5 4-3 7.5-6.5 11-9.5zm547-9.5-3 14h-6.5c-1 5-2 9.5-2.5 14.5 2 0.5 4 1 6 2 0 13-11.5 38 7 44 2.5 0.5 4.5 1 7 1 4 0 7-0.5 10-2.5-0.5-4.5-1.5-9-2-13.5h-7.5c-2.5-6-0.5-20.5 2.5-26h10.5c0.5-4.5 1-9 2-14-3-0.5-6-1.5-9-2v-15c-5-1-9.5-2-14.5-2.5zm-64 3.5c-4.5 26-9 52-13.5 78.5 5.5 1 10.5 2 16 3 1.5-8.5 3-17 5-25 4 3 6.5 7 12 8 21.5 3.5 33-24 28.5-41.5-2.5-9.5-9-18.5-19.5-19-5-0.5-8.5 2.5-13 4 0-1 0.5-3.5 0-4.5-1-1.5-12.5-3-15-3zm-565 4c-33.5 6-26 65 9 60.5 36.5-4.5 28-67-9-60.5zm525 6c16.5-4.5 14.5 27.5 1 28-13.5 0-12-25-1-28zm151 8.5c-5.5-1.5-12.5-3-18-2 4 10 7.5 20 11.5 30-7.5 8.5-14.5 17.5-22 26 6 1 11.5 2 17.5 3 3.5-4.5 7.5-9 11-13 2.5 5.5 4.5 11 7 16.5 5.5 0.5 11.5 2.5 17 1.5-4-10.5-7.5-20.5-11.5-31 7-8.5 13.5-16.5 20.5-25-3.5-3-11.5-3-16.5-3.5-3.5 4.5-7.5 8.5-11 13-2-5-4-10.5-6-15.5zm-385-1.5h-21v91.5h21v-91.5zm294 2.5c16-3 13.5 28-0.5 28s-11-26 0.5-28zm-581 1c13.5-0.5 16.5 27 3 28-14 1.5-17-27.5-3-28zm-60 10c13.5-2 17.5 27.5 3 28.5-13.5 1-16-26.5-3-28.5zm409 16.5c-15-10.5-50-9.5-53 13-2 15 9 20 21.5 22.5 5.5 1 13 0.5 14 7-5.5 9-23 1.5-30.5-2-2 5-4.5 10-6.5 15 13 11.5 49.5 11.5 55.5-8.5 1-3 1-6 1-9-1.5-12-11.5-16-22.5-18-4.5-1-10-0.5-13-5 2-11 21-3 27.5-1l6-15zm-135-5h-23c7 11 14 22 21 32.5-7.5 11-15 22-22 33 3.5 2.5 17.5 1.5 22.5 1 4.5-6 8.5-12 13-18 4 6 8.5 12 12.5 18 4.5 0.5 19.5 1.5 22.5-1-7.5-11-14.5-22-22-33 7-11 14-22 21-32.5h-22.5l-12 17c-3.5-5.5-7.5-11.5-11-17zm163 0h-23.5c7 11 14 22 21 32.5l-22.5 33c4 2.5 18 1.5 23 1l12-18c4.5 6 8.5 12 13 18.5 5 0.5 19 1.5 22.5-1-7.5-11-14.5-22-22-33 7-11 14-22 21.5-32.5h-22.5c-3.5 5.5-7.5 11.5-11 17-3.5-5.5-7.5-11.5-11-17z" fill="#fdfdfd" fill-rule="evenodd" stroke="#fdfdfd" stroke-linejoin="round" stroke-width=".25"/></svg>
         </div>
         <div class="brand-copy">
-          <p class="brand-name"><span>Office Image Extractor</span><span class="version-badge" id="versionBadge">v1.0.4</span></p>
+          <p class="brand-name"><span>Office Image Extractor</span><span class="version-badge" id="versionBadge">v1.1.0</span></p>
           <p class="brand-meta" data-i18n="brandMeta">単一HTML・ローカル処理</p>
         </div>
       </div>
@@ -617,7 +637,7 @@
       <section id="drop-zone" class="drop-zone" role="button" tabindex="0" data-i18n-aria-label="chooseFiles" aria-label="Officeファイルを選択">
         <div>
           <div class="drop-zone-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5h5l1.5 2H20v8.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M12 16V11m0 0-2 2m2-2 2 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20H4V3h9l4 4v3M13 3v5h4M7 11h3M7 14h2"/><rect x="12" y="13" width="10" height="8" rx="1.5"/><path d="m13 20 3-3 2 2 2-2 2 2M8 18h3m-2-2 2 2-2 2"/></svg>
           </div>
           <strong data-i18n="dropTitle">Officeファイルをここにドロップ</strong>
           <span class="drop-zone-copy" data-i18n="dropBody">または、端末からファイルを選択してください。</span>
@@ -629,7 +649,7 @@
       <div class="hint" data-i18n="supportedHint">対応: .xlsx / .pptx / .docx とマクロ・テンプレート系のOffice Open XML形式。ファイルは外部へ送信されません。</div>
       <div id="selection-notice" class="selection-notice" role="status" aria-live="polite"></div>
 
-      <div class="toolbar">
+      <div class="toolbar"><button id="cancel-work" class="button" type="button" disabled data-i18n="stopWork">処理を中止</button>
         <div class="button-row" role="group" data-i18n-aria-label="batchSelection" aria-label="すべての文書の画像選択">
           <p class="selected-summary" id="selected-summary" role="status" aria-live="polite"></p>
           <button id="select-all-images" class="button" type="button" disabled data-i18n="selectAllImages">全画像を選択</button>
@@ -639,6 +659,20 @@
         <div class="button-row"><button id="clear-button" class="button danger" type="button" disabled data-i18n="clearAll">すべてクリア</button></div>
       </div>
 
+      <p class="original-warning" data-i18n="originalWarning"></p>
+<div class="filter-panel" aria-label="Image filters">
+<label><span data-i18n="searchImages"></span><input id="filter-text" type="search" data-filter="text"></label>
+<label><span data-i18n="documentFilter"></span><select id="filter-document" data-filter="documentId"></select></label>
+<label><span data-i18n="formatFilter"></span><select id="filter-format" data-filter="format"></select></label>
+<label><span data-i18n="minWidth"></span><input id="filter-width" type="number" min="0" data-filter="minWidth"></label>
+<label><span data-i18n="minHeight"></span><input id="filter-height" type="number" min="0" data-filter="minHeight"></label>
+<label><span data-i18n="minBytes"></span><input id="filter-min-bytes" type="number" min="0" data-filter="minBytes"></label>
+<label><span data-i18n="maxBytes"></span><input id="filter-max-bytes" type="number" min="0" data-filter="maxBytes"></label>
+<label><span data-i18n="sortImages"></span><select id="image-sort"><option value="source" data-i18n="sourceOrder"></option><option value="name" data-i18n="nameOrder"></option><option value="size" data-i18n="sizeOrder"></option><option value="dimensions" data-i18n="dimensionsOrder"></option></select></label>
+</div>
+<div class="button-row"><button id="select-matching" class="button" data-i18n="selectMatching"></button><button id="clear-matching" class="button" data-i18n="clearMatching"></button><button id="group-button" class="button" data-i18n="groupIdentical"></button></div>
+<p id="filter-summary" role="status" class="hint"></p><div class="button-row"><button id="previous-page" class="button" data-i18n="previous"></button><button id="next-page" class="button" data-i18n="next"></button></div>
+<label class="export-option"><input id="unique-export" type="checkbox"> <span data-i18n="uniqueExport"></span></label>
       <section id="file-list" class="file-list" aria-live="polite"><div class="empty" data-i18n="noFiles">ファイルはまだ選択されていません。</div></section>
     </section>
 
@@ -652,6 +686,58 @@
         </div>
       </details>
 
+
+    </section>
+  </main>
+
+  <footer>Office Image Extractor · MIT License · <span data-i18n="footer">完全内包HTML・ローカル処理</span></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+
+  <dialog class="app-confirm-dialog" id="appConfirmDialog" aria-labelledby="appConfirmTitle" aria-describedby="appConfirmMessage">
+    <div class="app-confirm-header">
+      <h2 class="app-confirm-title" id="appConfirmTitle">確認</h2>
+      <button class="app-confirm-close" id="appConfirmClose" type="button" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="app-confirm-body">
+      <p class="app-confirm-message" id="appConfirmMessage"></p>
+      <div class="app-confirm-actions">
+        <button class="app-confirm-button" id="appConfirmCancel" type="button">キャンセル</button>
+        <button class="app-confirm-button danger" id="appConfirmOk" type="button">クリアする</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="helpDialog" aria-labelledby="helpTitle">
+    <div class="dialog-header">
+      <h2 id="helpTitle" data-i18n="helpTitle">使い方と注意事項</h2>
+      <button class="icon-button" id="closeHelpButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <h3 data-i18n="helpBasicsTitle">基本操作</h3>
+      <ol>
+        <li data-i18n="helpStep1">Excel、PowerPoint、Wordファイルを選択するか、画面へドラッグ&ドロップします。</li>
+        <li data-i18n="helpStep2">各ファイルの解析が終わると、見つかった埋め込み画像数が表示されます。</li>
+        <li data-i18n="helpStep3">すべての解析完了後、「抽出画像をZIPで保存」でまとめて保存します。</li>
+      </ol>
+      <h3 data-i18n="helpPrivacyTitle">プライバシー</h3>
+      <p data-i18n="helpPrivacyBody">ファイルの読み取り、画像抽出、ZIP作成はすべてブラウザー内で行います。このアプリからファイル内容を外部へ送信しません。</p>
+      <h3 data-i18n="helpNotesTitle">注意事項</h3>
+      <ul>
+        <li data-i18n="helpNoteLegacy">旧形式の .xls / .ppt / .doc には対応していません。</li>
+        <li data-i18n="helpNoteEncrypted">パスワード保護されたファイル、破損したファイルは読み込めない場合があります。</li>
+        <li data-i18n="helpNoteLinked">外部リンク参照の画像ではなく、Officeファイル内に埋め込まれた画像だけを抽出します。</li>
+        <li data-i18n="helpNoteDuplicates"></li>
+        <li data-i18n="helpNoteMemory">大きい文書や大量のファイルでは多くのメモリを使用します。処理できない場合は、文書の数やサイズを減らしてください。</li>
+        <li data-i18n="helpNoteFormats">EMF、WMF、SVG、TIFFなども元形式のまま抽出します。表示可否はOSやアプリに依存します。</li>
+      </ul>
+      <p class="dialog-note" data-i18n="helpOffline">配布HTMLには必要な処理コードを内包しており、実行時のネットワーク通信は不要です。</p>
+      <p class="original-warning" data-i18n="originalWarning"></p>
+      <p data-i18n="resourceHelp"></p>
 <details class="license-notices">
             <summary data-i18n="thirdPartyLicenses">第三者ライセンス</summary>
 
@@ -741,60 +827,66 @@ freely, subject to the following restrictions:
 
 3. This notice may not be removed or altered from any source distribution.</pre>
             </section>
-        </details>
-    </section>
-  </main>
+        <section><h2>sax 1.6.1</h2><pre># Blue Oak Model License
 
-  <footer>Office Image Extractor · MIT License · <span data-i18n="footer">完全内包HTML・ローカル処理</span></footer>
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+Version 1.0.0
 
+## Purpose
 
-  <dialog class="app-confirm-dialog" id="appConfirmDialog" aria-labelledby="appConfirmTitle" aria-describedby="appConfirmMessage">
-    <div class="app-confirm-header">
-      <h2 class="app-confirm-title" id="appConfirmTitle">確認</h2>
-      <button class="app-confirm-close" id="appConfirmClose" type="button" aria-label="閉じる">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
-      </button>
-    </div>
-    <div class="app-confirm-body">
-      <p class="app-confirm-message" id="appConfirmMessage"></p>
-      <div class="app-confirm-actions">
-        <button class="app-confirm-button" id="appConfirmCancel" type="button">キャンセル</button>
-        <button class="app-confirm-button danger" id="appConfirmOk" type="button">クリアする</button>
-      </div>
-    </div>
-  </dialog>
+This license gives everyone as much permission to work with
+this software as possible, while protecting contributors
+from liability.
 
-  <dialog id="helpDialog" aria-labelledby="helpTitle">
-    <div class="dialog-header">
-      <h2 id="helpTitle" data-i18n="helpTitle">使い方と注意事項</h2>
-      <button class="icon-button" id="closeHelpButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
-      </button>
-    </div>
-    <div class="dialog-body">
-      <h3 data-i18n="helpBasicsTitle">基本操作</h3>
-      <ol>
-        <li data-i18n="helpStep1">Excel、PowerPoint、Wordファイルを選択するか、画面へドラッグ&ドロップします。</li>
-        <li data-i18n="helpStep2">各ファイルの解析が終わると、見つかった埋め込み画像数が表示されます。</li>
-        <li data-i18n="helpStep3">すべての解析完了後、「抽出画像をZIPで保存」でまとめて保存します。</li>
-      </ol>
-      <h3 data-i18n="helpPrivacyTitle">プライバシー</h3>
-      <p data-i18n="helpPrivacyBody">ファイルの読み取り、画像抽出、ZIP作成はすべてブラウザー内で行います。このアプリからファイル内容を外部へ送信しません。</p>
-      <h3 data-i18n="helpNotesTitle">注意事項</h3>
-      <ul>
-        <li data-i18n="helpNoteLegacy">旧形式の .xls / .ppt / .doc には対応していません。</li>
-        <li data-i18n="helpNoteEncrypted">パスワード保護されたファイル、破損したファイルは読み込めない場合があります。</li>
-        <li data-i18n="helpNoteLinked">外部リンク参照の画像ではなく、Officeファイル内に埋め込まれた画像だけを抽出します。</li>
-        <li data-i18n="helpNoteDuplicates"></li>
-        <li data-i18n="helpNoteMemory">大きい文書や大量のファイルでは多くのメモリを使用します。処理できない場合は、文書の数やサイズを減らしてください。</li>
-        <li data-i18n="helpNoteFormats">EMF、WMF、SVG、TIFFなども元形式のまま抽出します。表示可否はOSやアプリに依存します。</li>
-      </ul>
-      <p class="dialog-note" data-i18n="helpOffline">配布HTMLには必要な処理コードを内包しており、実行時のネットワーク通信は不要です。</p>
+## Acceptance
+
+In order to receive this license, you must agree to its
+rules.  The rules of this license are both obligations
+under that agreement and conditions to your license.
+You must not do anything with this software that triggers
+a rule that you cannot or will not follow.
+
+## Copyright
+
+Each contributor licenses you to do everything with this
+software that would otherwise infringe that contributor&#x27;s
+copyright in it.
+
+## Notices
+
+You must ensure that everyone who gets a copy of
+any part of this software from you, with or without
+changes, also gets the text of this license or a link to
+&lt;https://blueoakcouncil.org/license/1.0.0&gt;.
+
+## Excuse
+
+If anyone notifies you in writing that you have not
+complied with [Notices](#notices), you can keep your
+license by taking all practical steps to comply within 30
+days after the notice.  If you do not do so, your license
+ends immediately.
+
+## Patent
+
+Each contributor licenses you to do everything with this
+software that would otherwise infringe any patent claims
+they can license or become able to license.
+
+## Reliability
+
+No contributor can revoke this license.
+
+## No Liability
+
+***As far as the law allows, this software comes as is,
+without any warranty or condition, and no contributor
+will be liable to anyone for any damages related to this
+software or this license, under any kind of legal claim.***
+</pre></section></details>
       <details class="build-info-details">
         <summary data-i18n="buildInfo">ビルド情報</summary>
         <div class="build-info-grid">
-          <div class="build-info-item"><span data-i18n="appVersion">アプリバージョン</span><strong id="buildVersion">1.0.0</strong></div>
+          <div class="build-info-item"><span data-i18n="appVersion">アプリバージョン</span><strong id="buildVersion">1.1.0</strong></div>
           <div class="build-info-item"><span data-i18n="builtAt">生成日時</span><strong id="buildDate">-</strong></div>
           <div class="build-info-item"><span data-i18n="dependencies">内包依存数</span><strong id="buildDeps">1</strong></div>
         </div>
@@ -802,6 +894,10 @@ freely, subject to the following restrictions:
     </div>
   </dialog>
 
+  <dialog id="previewDialog" aria-labelledby="previewTitle">
+    <div class="dialog-header"><h2 id="previewTitle" data-i18n="previewTitle">元画像のプレビュー</h2><button id="closePreview" class="button" type="button" data-i18n="close">閉じる</button></div>
+    <div class="dialog-body"><p id="previewMeta" class="preview-meta"></p><img id="previewImage" alt=""><p id="previewStatus" role="status"></p><p class="original-warning" data-i18n="originalWarning"></p></div>
+  </dialog>
   <!-- ZIP reader/writer dependency -->
   <script>
     (() => {
@@ -880,6 +976,14 @@ freely, subject to the following restrictions:
 
       await window.StandaloneAssets.loadClassicScript("jszip", "main", "JSZip");
 
+      await window.StandaloneAssets.loadClassicScript("office", "jobs", "OfficeJobs");
+      await window.StandaloneAssets.loadClassicScript("office", "view", "OfficeView");
+      const jobs = new window.OfficeJobs([window.StandaloneAssets.text("jszip", "main"), window.StandaloneAssets.text("sax", "main"), window.StandaloneAssets.text("office", "worker")].join("\n;\n"));
+      const { previewEligible, PreviewCache } = window.OfficeView;
+      const thumbnailCache = new PreviewCache();
+      const filterState = { text: "", documentId: "", format: "", minWidth: 0, minHeight: 0, minBytes: 0, maxBytes: 0 };
+      let imageSort = "source", imagePage = 0, duplicateGroups = [], grouping = false, isGrouping = false;
+      let previewEpoch = 0, previewLoading = false, previewUrl = null, previewReturn = null;
       const APP_CONFIG = window.AppBuild.config;
       const BUILD_MANIFEST = window.AppBuild.manifest;
       const SUPPORTED_FILE_PATTERN =
@@ -894,6 +998,71 @@ freely, subject to the following restrictions:
 
       const translations = {
         ja: {
+          retry: "再試行",
+          partialTitle: "一部の画像を保存できませんでした",
+          partialMessage: "正常 {good}件、失敗 {failed}件。失敗一覧を確認して、正常な画像だけ保存しますか？ 出典対応表に省略した画像を記録します。",
+          saveSuccessful: "正常な画像だけ保存",
+          errorINPUT_LIMIT: "1文書の上限1 GiBを超えています。小さい文書に分けてください。",
+          errorSESSION_LIMIT: "入力合計2 GiBを超えています。不要な文書を取り除いて再試行してください。",
+          errorRESOURCE_LIMIT: "安全な展開量の上限を超えました。文書や画像を小さくして再試行してください。",
+          errorOUTPUT_LIMIT: "選択画像またはZIPが1 GiBを超えます。選択数を減らしてください。",
+          errorENCRYPTED: "暗号化されたZIPです。保護を解除したコピーを選んでください。",
+          errorOLE: "旧Office形式または暗号化されたOfficeファイルです。Officeで保護なしのxlsx/pptx/docxコピーを保存してください。",
+          errorZIP64: "このZIP64形式には対応していません。小さいOffice文書に分けてください。",
+          errorCOMPRESSION: "この圧縮形式には対応していません。Officeで新しいコピーを保存してください。",
+          errorCORRUPT: "ZIP構造または画像データの整合性を確認できません。Officeで開き直して新しいコピーを保存してください。",
+          errorMISSING: "画像データが見つかりません。新しいOfficeコピーを選び直してください。",
+          errorCANCELLED: "中止しました。完了済みの結果は残っています。再試行できます。",
+          errorWORKER: "バックグラウンド処理を開始できません。再試行するか、対応ブラウザーで開き直してください。",
+          errorEXPORT: "ZIPを作成できませんでした。選択数を減らすか、1枚ずつ保存してください。",
+          errorUNKNOWN: "処理を完了できませんでした。原因は特定できません。再試行するか、文書・選択数を減らしてください。",
+
+          searchImages: "検索（名前・使用箇所）",
+          documentFilter: "文書",
+          formatFilter: "形式",
+          minWidth: "幅 ≥ px",
+          minHeight: "高さ ≥ px",
+          minBytes: "容量 ≥ B",
+          maxBytes: "容量 ≤ B",
+          sortImages: "並べ替え",
+          sourceOrder: "元の順序",
+          nameOrder: "名前",
+          sizeOrder: "容量の大きい順",
+          dimensionsOrder: "寸法の大きい順",
+          selectMatching: "該当画像を選択",
+          clearMatching: "該当画像を解除",
+          groupIdentical: "同一画像をまとめる",
+          ungroup: "まとめ表示を解除",
+          grouping: "同一画像を確認中…",
+          allDocuments: "すべての文書",
+          allFormats: "すべての形式",
+          matches: "件が該当",
+          hiddenSelected: "件は絞り込みで非表示のまま選択中",
+          previous: "前へ",
+          next: "次へ",
+          uniqueExport: "同一バイトの画像は1枚だけ保存（出典対応表JSONを同梱）",
+          copies: "同一画像の選択数",
+          groupSources: "すべての出典・個別選択",
+
+          previewTitle: "元画像のプレビュー",
+          previewUnavailable: "プレビュー非対応・原本保存可",
+          previewLoading: "プレビューを準備中…",
+          previewError: "表示できません。原本保存は利用できます。",
+          originalWarning: "抽出するのは元画像です。Officeでトリミングした範囲の外側も含まれる場合があります。スライド・ページの見た目や図形・グラフを再現する機能ではありません。",
+          unknownUsage: "参照未検出／不明",
+          slideUsage: "スライド",
+          sheetUsage: "シート",
+          bodyUsage: "本文・セクション",
+          headerUsage: "ヘッダー",
+          footerUsage: "フッター",
+          footnotesUsage: "脚注",
+          endnotesUsage: "文末脚注",
+          commentsUsage: "コメント",
+          resourceHelp: "上限: 1文書1 GiB、入力合計2 GiB、選択画像とZIP出力1 GiB。256 MiB超は注意表示。1 GiB=1,073,741,824バイトです。端末のメモリによっては上限内でも処理できません。プレビューは32メガピクセル・原画像16 MiBまで。表示できない形式も原本のまま保存します。",
+          largeWarning: "大きい文書です。メモリに余裕のある端末で処理してください。",
+          metadataWarning: "使用箇所の一部を確認できません。画像の原本保存は利用できます。",
+
+          stopWork: "処理を中止",
           brandMeta: "単一HTML・ローカル処理",
           helpTitle: "使い方と注意事項",
           close: "閉じる",
@@ -968,6 +1137,71 @@ freely, subject to the following restrictions:
           cleared: "選択をクリアしました"
         },
         en: {
+          retry: "Retry",
+          partialTitle: "Some images could not be saved",
+          partialMessage: "{good} successful, {failed} failed. Review the failures and save only successful images? The provenance manifest records omissions.",
+          saveSuccessful: "Save successful images only",
+          errorINPUT_LIMIT: "Exceeds the 1 GiB document limit. Split into smaller documents.",
+          errorSESSION_LIMIT: "Total inputs exceed 2 GiB. Remove documents and retry.",
+          errorRESOURCE_LIMIT: "Exceeds a safe expansion limit. Use smaller documents or images and retry.",
+          errorOUTPUT_LIMIT: "Selected images or ZIP exceed 1 GiB. Select fewer images.",
+          errorENCRYPTED: "Encrypted ZIP. Choose a copy with protection removed.",
+          errorOLE: "Legacy binary or encrypted Office file. Save an unprotected xlsx/pptx/docx copy in Office.",
+          errorZIP64: "This ZIP64 format is unsupported. Split into smaller Office documents.",
+          errorCOMPRESSION: "Unsupported compression. Save a new copy using Office.",
+          errorCORRUPT: "ZIP structure or image integrity could not be verified. Reopen in Office and save a new copy.",
+          errorMISSING: "Image data is missing. Choose a new Office copy.",
+          errorCANCELLED: "Cancelled. Completed results are kept. You can retry.",
+          errorWORKER: "Background processing could not start. Retry or open in a supported browser.",
+          errorEXPORT: "Could not create ZIP. Select fewer images or save originals individually.",
+          errorUNKNOWN: "Processing failed; the cause is unknown. Retry or use fewer documents/images.",
+
+          searchImages: "Search name / usage",
+          documentFilter: "Document",
+          formatFilter: "Format",
+          minWidth: "Width ≥ px",
+          minHeight: "Height ≥ px",
+          minBytes: "Size ≥ B",
+          maxBytes: "Size ≤ B",
+          sortImages: "Sort",
+          sourceOrder: "Source order",
+          nameOrder: "Name",
+          sizeOrder: "Largest bytes first",
+          dimensionsOrder: "Largest dimensions first",
+          selectMatching: "Select matching images",
+          clearMatching: "Clear matching selection",
+          groupIdentical: "Group identical images",
+          ungroup: "Ungroup images",
+          grouping: "Checking identical images…",
+          allDocuments: "All documents",
+          allFormats: "All formats",
+          matches: "matching images",
+          hiddenSelected: "selected images hidden by filters",
+          previous: "Previous",
+          next: "Next",
+          uniqueExport: "Save one copy of byte-identical images (include JSON provenance manifest)",
+          copies: "copies selected",
+          groupSources: "All sources / individual selection",
+
+          previewTitle: "Original image preview",
+          previewUnavailable: "No preview; original available",
+          previewLoading: "Preparing preview…",
+          previewError: "Cannot preview. You can still save the original.",
+          originalWarning: "These are original embedded images. They may include areas cropped out in Office. This does not reproduce slide/page appearance, shapes or charts.",
+          unknownUsage: "Reference not detected / unknown",
+          slideUsage: "Slide",
+          sheetUsage: "Sheet",
+          bodyUsage: "Body · section",
+          headerUsage: "Header",
+          footerUsage: "Footer",
+          footnotesUsage: "Footnote",
+          endnotesUsage: "Endnote",
+          commentsUsage: "Comment",
+          resourceHelp: "Limits: 1 GiB per document, 2 GiB total inputs, 1 GiB selected images and output ZIP. Warning above 256 MiB. 1 GiB = 1,073,741,824 bytes. Device memory may run out below these ceilings. Previews are limited to 32 megapixels and 16 MiB original bytes. Unsupported previews can still be saved unchanged.",
+          largeWarning: "Large document. Use a device with sufficient free memory.",
+          metadataWarning: "Some usage information could not be verified. Original images can still be saved.",
+
+          stopWork: "Cancel processing",
           brandMeta: "Single file · Local-first",
           helpTitle: "How to use & notes",
           close: "Close",
@@ -1046,6 +1280,7 @@ freely, subject to the following restrictions:
       const records = [];
       const pendingInspections = [];
       let activeInspections = 0;
+      let exportEpoch = 0;
       let isGeneratingZip = false;
       let isDownloadingImage = false;
       let nextRecordId = 1;
@@ -1175,7 +1410,7 @@ freely, subject to the following restrictions:
       }
 
       function isExporting() {
-        return isGeneratingZip || isDownloadingImage;
+        return isGeneratingZip || isDownloadingImage || isGrouping;
       }
 
       function selectedImageCount(record) {
@@ -1186,8 +1421,11 @@ freely, subject to the following restrictions:
         return records.some((record) => !record.completed && !record.error);
       }
 
+      function formatBytes(n) { return n >= 1073741824 ? (n / 1073741824).toFixed(2) + " GiB" : n >= 1048576 ? (n / 1048576).toFixed(1) + " MiB" : n >= 1024 ? (n / 1024).toFixed(1) + " KiB" : n + " B"; }
+      function usageText(image) { return image.usages?.length ? image.usages.map(u => `${translate(u.kind + "Usage")} ${u.label || u.order || ""}${u.detail && !["drawing", "vmlDrawing"].includes(u.detail) ? " (" + u.detail + ")" : ""}`).join(" · ") : translate("unknownUsage"); }
+      function errorText(code) { return translate("error" + (translations.en["error" + code] ? code : "UNKNOWN")); }
       function statusText(record) {
-        if (record.error) return translate("readError");
+        if (record.error) return errorText(record.errorCode);
         if (record.state === "checking") return translate("checkingDuplicates");
         if (record.state === "reading") return translate("reading");
         if (record.state === "searching") return translate("searching");
@@ -1221,8 +1459,26 @@ freely, subject to the following restrictions:
         return parts.join(" ");
       }
 
+      function matchingImages() { return window.OfficeView.visibleOccurrences(records.flatMap(r => r.images || []), filterState, imageSort); }
+      function groupMembers(image) { const ids = duplicateGroups.find(g => g.includes(image.id)); return ids ? ids.map(id => occurrence(id)?.image).filter(Boolean) : [image]; }
+      function groupLabel(image) { const members = groupMembers(image); return members.length > 1 ? `${members.filter(i => i.selected).length}/${members.length} ${translate("copies")}` : ""; }
+      function groupDetails(image) { const members = grouping ? groupMembers(image) : []; return members.length > 1 ? `<details><summary>${escapeHtml(translate("groupSources"))}</summary>${members.map(i => `<label class="image-usage"><input type="checkbox" data-member-id="${i.id}" data-focus-key="member-${i.id}" ${i.selected ? "checked" : ""}> ${escapeHtml(i.documentName + " / " + i.name + " · " + usageText(i))}</label>`).join("")}</details>` : ""; }
+
       function render() {
         const focusedKey = fileList.contains(document.activeElement) ? document.activeElement?.dataset.focusKey : null;
+        const matching = matchingImages(), shown = [], seenGroups = new Set();
+        for (const image of matching) { const key = grouping ? groupMembers(image)[0]?.id || image.id : image.id; if (!seenGroups.has(key)) { shown.push(image); seenGroups.add(key); } }
+        imagePage = Math.min(imagePage, Math.max(0, Math.ceil(shown.length / 100) - 1));
+        const pageIds = new Set(shown.slice(imagePage * 100, (imagePage + 1) * 100).map(i => i.id));
+        const matchingIds = new Set(matching.map(i => i.id));
+        const hiddenSelected = records.flatMap(r => r.images || []).filter(i => i.selected && !matchingIds.has(i.id)).length;
+        $("#filter-summary").textContent = `${matching.length} ${translate("matches")} · ${hiddenSelected} ${translate("hiddenSelected")} · ${imagePage + 1}/${Math.max(1, Math.ceil(shown.length / 100))}`;
+        $("#previous-page").disabled = imagePage === 0; $("#next-page").disabled = (imagePage + 1) * 100 >= shown.length;
+        $("#filter-document").innerHTML = `<option value="">${escapeHtml(translate("allDocuments"))}</option>` + records.map(r => `<option value="${r.id}">${escapeHtml(r.file.name)}</option>`).join(""); $("#filter-document").value = filterState.documentId;
+        $("#filter-format").innerHTML = `<option value="">${escapeHtml(translate("allFormats"))}</option>` + [...new Set(records.flatMap(r => r.images || []).map(i => i.name.split(".").pop().toLowerCase()))].sort().map(ext => `<option value="${escapeHtml(ext)}">${escapeHtml(ext.toUpperCase())}</option>`).join(""); $("#filter-format").value = filterState.format;
+        $("#group-button").textContent = translate(isGrouping ? "grouping" : grouping ? "ungroup" : "groupIdentical");
+        $("#group-button").disabled = isExporting() || hasPendingInspections() || !records.some(r => r.images?.length);
+        for (const id of ["#select-matching", "#clear-matching", "#unique-export"]) $(id).disabled = isExporting() || hasPendingInspections();
         const imageCount = records.reduce((total, record) => total + (record.images?.length || 0), 0);
         const selectedCount = records.reduce((total, record) => total + selectedImageCount(record), 0);
         const exporting = isExporting();
@@ -1234,6 +1490,7 @@ freely, subject to the following restrictions:
         errorStat.textContent = formatNumber(errorCount);
 
         selectedSummary.textContent = format(translate("selectedImages"), { selected: formatNumber(selectedCount), total: formatNumber(imageCount) });
+        $("#cancel-work").disabled = !pending && !exporting;
         downloadButton.disabled = exporting || pending || selectedCount === 0;
         selectAllImages.disabled = selectNoImages.disabled = exporting || pending || imageCount === 0;
         selectAllImages.textContent = translate("selectAllImages");
@@ -1257,6 +1514,15 @@ freely, subject to the following restrictions:
           return;
         }
 
+        const renderRows = images => images.map(image => { const record = records.find(r => r.id === image.documentId), index = records.indexOf(record), imageIndex = record.images.indexOf(image); return `<li class="image-row">
+                <button type="button" class="image-thumb" data-preview-id="${image.id}" data-focus-key="preview-${image.id}" aria-label="${escapeHtml(translate("previewTitle") + ": " + image.name)}" ${previewEligible(image) ? "" : "disabled"}>${previewEligible(image) ? `<img data-thumb-id="${image.id}" alt="${escapeHtml(image.name)}">` : `<span>${escapeHtml(translate("previewUnavailable"))}</span>`}</button>
+                <label class="image-label"><input type="checkbox" ${grouping && groupMembers(image).length > 1 ? `data-group-id="${image.id}"` : `data-record-index="${index}" data-image-index="${imageIndex}"`} data-focus-key="image-${record.id}-${imageIndex}" ${(grouping ? groupMembers(image).every(i => i.selected) : image.selected) ? "checked" : ""} ${exporting ? "disabled" : ""}>
+                  <span class="image-name">${escapeHtml(image.name)} ${escapeHtml(groupLabel(image))}<span class="image-usage">${escapeHtml(image.documentName)}</span><span class="image-usage">${image.width && image.height ? image.width + " × " + image.height + " px" : "— px"} · ${formatBytes(image.bytes)}<br>${escapeHtml(usageText(image))}</span><span class="image-format">${escapeHtml(image.name.includes(".") ? image.name.split(".").pop().toUpperCase() : image.contentType || "—")}</span></span>
+                </label>
+                ${groupDetails(image)}
+                <button class="button remove-button" type="button" data-record-index="${index}" data-download-image="${imageIndex}" data-focus-key="save-${record.id}-${imageIndex}"
+                  aria-label="${escapeHtml(format(translate("downloadImageLabel"), { name: image.name }))}" ${exporting || pending ? "disabled" : ""}>${escapeHtml(translate("downloadImage"))}</button>
+              </li>`; }).join("");
         fileList.innerHTML = records.map((record, index) => {
           const statusClass = record.error ? "error" : record.completed ? "success" : "";
           const status = statusText(record);
@@ -1269,6 +1535,8 @@ freely, subject to the following restrictions:
                 <div class="file-name" title="${escapeHtml(record.file.name)}">${escapeHtml(record.file.name)}</div>
                 <div class="file-status ${statusClass}">${escapeHtml(status)}</div>
                 ${record.duplicateCheckFailed ? `<div class="media-note">${escapeHtml(translate("duplicateCheckFailed"))}</div>` : ""}
+                ${record.warnings?.map(w => `<div class="media-note">${escapeHtml(translate(w === "LARGE" ? "largeWarning" : "metadataWarning"))}</div>`).join("") || ""}
+                ${record.error ? `<button type="button" class="button" data-retry-id="${record.id}" data-focus-key="retry-${record.id}" ${exporting ? "disabled" : ""}>${escapeHtml(translate("retry"))}</button>` : ""}
                 ${record.skippedMedia ? `<div class="media-note">${escapeHtml(format(translate("skippedMedia"), { count: formatNumber(record.skippedMedia) }))}</div>` : ""}
                 <div class="progress-track" role="progressbar" aria-label="${escapeHtml(status)}"
                   aria-valuemin="0" aria-valuemax="100" aria-valuenow="${record.progress}">
@@ -1282,24 +1550,61 @@ freely, subject to the following restrictions:
                 ${escapeHtml(translate("remove"))}
               </button>
             </div>
-            ${record.images?.length ? `<div class="image-panel" id="images-${record.id}" ${record.expanded ? "" : "hidden"}>
+            ${record.images?.length && imageSort === "source" ? `<div class="image-panel" id="images-${record.id}" ${record.expanded ? "" : "hidden"}>
               <div class="image-tools">
                 <span>${escapeHtml(format(translate("selectedImages"), { selected: formatNumber(selectedImageCount(record)), total: formatNumber(record.images.length) }))}</span>
                 <button class="button remove-button" type="button" data-select-all="${index}" data-focus-key="all-${record.id}" ${exporting ? "disabled" : ""}>${escapeHtml(translate("selectAll"))}</button>
                 <button class="button remove-button" type="button" data-select-none="${index}" data-focus-key="none-${record.id}" ${exporting ? "disabled" : ""}>${escapeHtml(translate("selectNone"))}</button>
               </div>
-              <ul class="image-list">${record.images.map((image, imageIndex) => `<li class="image-row">
-                <label class="image-label"><input type="checkbox" data-record-index="${index}" data-image-index="${imageIndex}" data-focus-key="image-${record.id}-${imageIndex}" ${image.selected ? "checked" : ""} ${exporting ? "disabled" : ""}>
-                  <span class="image-name">${escapeHtml(image.name)}<span class="image-format">${escapeHtml(image.name.includes(".") ? image.name.split(".").pop().toUpperCase() : image.contentType || "—")}</span></span>
-                </label>
-                <button class="button remove-button" type="button" data-record-index="${index}" data-download-image="${imageIndex}" data-focus-key="save-${record.id}-${imageIndex}"
-                  aria-label="${escapeHtml(format(translate("downloadImageLabel"), { name: image.name }))}" ${exporting || pending ? "disabled" : ""}>${escapeHtml(translate("downloadImage"))}</button>
-              </li>`).join("")}</ul>
+              <ul class="image-list">${renderRows(record.images.filter(image => pageIds.has(image.id)))}</ul>
             </div>` : ""}
             </article>`;
-        }).join("");
+        }).join("") + (imageSort !== "source" ? `<ul class="image-list sorted-images">${renderRows(shown.slice(imagePage * 100, (imagePage + 1) * 100))}</ul>` : "");
+        for (const node of fileList.querySelectorAll("[data-group-id]")) { const pair = occurrence(node.dataset.groupId); const members = pair ? groupMembers(pair.image) : []; node.indeterminate = members.some(i => i.selected) && !members.every(i => i.selected); }
+        scheduleThumbnails();
         if (focusedKey) fileList.querySelector(`[data-focus-key="${focusedKey}"]`)?.focus({ preventScroll: true });
       }
+
+      function occurrence(id) { for (const record of records) { const image = record.images?.find(i => i.id === id); if (image) return { record, image }; } return null; }
+      async function rasterUrl(record, image, maxSide, epoch) {
+        const value = await jobs.run("preview", [record.file, image.path, maxSide], { affectedDocumentIds: [record.id] });
+        if (epoch !== previewEpoch || !records.includes(record)) return null;
+        return { url: URL.createObjectURL(value.blob), cost: value.cost };
+      }
+      function scheduleThumbnails() {
+        if (previewLoading || isExporting() || hasPendingInspections()) return;
+        const nodes = [...fileList.querySelectorAll("img[data-thumb-id]")];
+        for (const node of nodes) { const cached = thumbnailCache.get(node.dataset.thumbId); if (cached) node.src = cached.url; }
+        const next = nodes.find(node => !node.getAttribute("src") && !node.dataset.failed && node.getClientRects().length && node.getBoundingClientRect().top < window.innerHeight + 200 && node.getBoundingClientRect().bottom > -200);
+        if (!next) return;
+        const pair = occurrence(next.dataset.thumbId); if (!pair || !previewEligible(pair.image)) return;
+        previewLoading = true; const epoch = previewEpoch;
+        rasterUrl(pair.record, pair.image, 192, epoch).then(value => {
+          if (!value) return;
+          thumbnailCache.set(pair.image.id, value);
+          const target = fileList.querySelector(`img[data-thumb-id="${pair.image.id}"]`); if (target) target.src = value.url;
+        }).catch(() => { const target = fileList.querySelector(`img[data-thumb-id="${pair.image.id}"]`); if (target) { target.dataset.failed = "true"; target.alt = translate("previewError"); } }).finally(() => { previewLoading = false; scheduleThumbnails(); });
+      }
+      function disposePreviews() {
+        previewEpoch++; jobs.cancel(null, ["preview"]); thumbnailCache.clear();
+        if (previewUrl) URL.revokeObjectURL(previewUrl); previewUrl = null;
+        $("#previewImage").removeAttribute?.("src");
+        if ($("#previewDialog").open) $("#previewDialog").close();
+      }
+      async function openPreview(id, trigger) {
+        const pair = occurrence(id); if (!pair || !previewEligible(pair.image) || isExporting()) return;
+        disposePreviews(); previewReturn = trigger;
+        const epoch = previewEpoch, dialog = $("#previewDialog");
+        $("#previewMeta").textContent = `${pair.image.name} · ${pair.image.width} × ${pair.image.height} px · ${formatBytes(pair.image.bytes)} · ${usageText(pair.image)}`;
+        $("#previewImage").alt = pair.image.name;
+        $("#previewStatus").textContent = translate("previewLoading"); dialog.showModal();
+        try { const value = await rasterUrl(pair.record, pair.image, 1920, epoch); if (value && dialog.open && epoch === previewEpoch) { previewUrl = value.url; $("#previewImage").src = value.url; $("#previewStatus").textContent = ""; } else if (value) URL.revokeObjectURL(value.url); }
+        catch { if (epoch === previewEpoch) $("#previewStatus").textContent = translate("previewError"); }
+      }
+      $("#closePreview").addEventListener("click", () => $("#previewDialog").close());
+      $("#previewDialog").addEventListener("close", () => { jobs.cancel(null, ["preview"]); previewEpoch++; if (previewUrl) URL.revokeObjectURL(previewUrl); previewUrl = null; $("#previewImage").removeAttribute?.("src"); if (previewReturn?.isConnected) previewReturn.focus(); scheduleThumbnails(); });
+      window.addEventListener("scroll", scheduleThumbnails, { passive: true });
+      window.addEventListener("pagehide", disposePreviews);
 
       function applyLanguage() {
         document.documentElement.lang = language;
@@ -1325,58 +1630,30 @@ freely, subject to the following restrictions:
         render();
       }
 
-      async function readImageContentTypes(inputZip) {
-        const defaults = new Map();
-        const overrides = new Map();
-        const entry = inputZip.file("[Content_Types].xml");
-        if (entry) {
-          const xml = new DOMParser().parseFromString(await entry.async("string"), "application/xml");
-          if (!xml.querySelector("parsererror")) {
-            const namespace = "http://schemas.openxmlformats.org/package/2006/content-types";
-            for (const item of xml.getElementsByTagNameNS(namespace, "Default")) {
-              const extension = item.getAttribute("Extension")?.toLowerCase();
-              const type = item.getAttribute("ContentType")?.trim().toLowerCase();
-              if (extension && type) defaults.set(extension, type);
-            }
-            for (const item of xml.getElementsByTagNameNS(namespace, "Override")) {
-              let name = item.getAttribute("PartName")?.replace(/^\//, "");
-              const type = item.getAttribute("ContentType")?.trim().toLowerCase();
-              try { name = decodeURIComponent(name); } catch { /* retain malformed literal part name */ }
-              if (name && type) overrides.set(name, type);
-            }
-          }
-        }
-        return name => overrides.get(name) || defaults.get(name.split(".").pop().toLowerCase()) || "";
-      }
-
       async function inspectOfficeFile(record) {
         try {
           if (!records.includes(record)) return;
+          if (record.file.size > 1073741824) throw Object.assign(new Error("INPUT_LIMIT"), { code: "INPUT_LIMIT" });
+          if (records.reduce((n, r) => n + (r.rejectedInput && r !== record ? 0 : r.file.size), 0) > 2147483648) throw Object.assign(new Error("SESSION_LIMIT"), { code: "SESSION_LIMIT" });
+          record.rejectedInput = false;
           record.state = "reading";
           record.progress = 15;
           render();
 
-          const inputZip = await JSZip.loadAsync(record.file);
-          if (!records.includes(record)) return;
-
-          record.state = "searching";
-          record.progress = 55;
-          render();
-
-          const mediaEntries = Object.values(inputZip.files).filter((entry) => !entry.dir && MEDIA_FILE_PATTERN.test(entry.name));
-          const contentTypeFor = await readImageContentTypes(inputZip);
-          if (!records.includes(record)) return;
-          record.images = mediaEntries.filter(entry => {
-            const type = contentTypeFor(entry.name);
-            return type ? type.startsWith("image/") : IMAGE_FILE_PATTERN.test(entry.name);
-          }).map(entry => ({ entry, name: entry.name.split("/").pop(), contentType: contentTypeFor(entry.name), selected: true }));
-          record.skippedMedia = mediaEntries.length - record.images.length;
+          const result = await jobs.run("inspect", [record.file], { affectedDocumentIds: [record.id] });
+          if (!records.includes(record) || record.cancelled) return;
+          record.images = result.images.map((image, index) => ({ ...image, id: `${record.id}:${index}`, documentId: record.id, documentName: record.file.name, selected: true,
+            entry: { async: () => jobs.run("readImage", [record.file, image.path], { affectedDocumentIds: [record.id] }) } }));
+          record.warnings = result.warnings;
+          record.skippedMedia = result.skippedMedia;
           record.progress = 100;
           record.completed = true;
           record.state = "done";
         } catch (error) {
           console.error(error);
           if (!records.includes(record)) return;
+          record.errorCode = error.code || "UNKNOWN";
+          record.cancelled = error.code === "CANCELLED";
           record.error = true;
           record.progress = 100;
           record.state = "error";
@@ -1389,12 +1666,12 @@ freely, subject to the following restrictions:
       // duplicate. Each queue slot retains at most two 256 KiB chunk buffers.
       async function sameFileBytes(record, candidate) {
         for (let offset = 0; offset < record.file.size; offset += DUPLICATE_CHUNK_BYTES) {
-          if (!records.includes(record) || !records.includes(candidate)) return false;
+          if (!records.includes(record) || !records.includes(candidate) || record.cancelled) return false;
           const end = Math.min(offset + DUPLICATE_CHUNK_BYTES, record.file.size);
           const left = new Uint8Array(await record.file.slice(offset, end).arrayBuffer());
-          if (!records.includes(record) || !records.includes(candidate)) return false;
+          if (!records.includes(record) || !records.includes(candidate) || record.cancelled) return false;
           const right = new Uint8Array(await candidate.file.slice(offset, end).arrayBuffer());
-          if (!records.includes(record) || !records.includes(candidate)) return false;
+          if (!records.includes(record) || !records.includes(candidate) || record.cancelled) return false;
           if (left.length !== end - offset || right.length !== end - offset) throw new Error("Incomplete duplicate-check read");
           for (let index = 0; index < left.length; index += 1) {
             if (left[index] !== right[index]) return false;
@@ -1404,6 +1681,7 @@ freely, subject to the following restrictions:
       }
 
       async function admitAndInspect(record) {
+        if (record.admitted) { await inspectOfficeFile(record); return; }
         const candidates = records.filter(candidate => candidate.id < record.id && candidate.identity === record.identity && candidate.admitted);
         if (candidates.length) {
           record.state = "checking";
@@ -1429,7 +1707,7 @@ freely, subject to the following restrictions:
             record.duplicateCheckFailed = true;
           }
         }
-        if (!records.includes(record)) return;
+        if (!records.includes(record) || record.cancelled) return;
         record.admitted = true;
         record.batch.added += 1;
         record.batch.pending -= 1;
@@ -1480,19 +1758,52 @@ freely, subject to the following restrictions:
             completed: false,
             error: false
           };
+          const totalBytes = records.reduce((n, r) => n + (r.rejectedInput ? 0 : r.file.size), 0) + file.size;
+          if (file.size > 1073741824 || totalBytes > 2147483648) {
+            record.rejectedInput = true; record.error = true; record.completed = true; record.admitted = true;
+            record.errorCode = file.size > 1073741824 ? "INPUT_LIMIT" : "SESSION_LIMIT";
+            record.state = "error"; records.push(record); batch.added++; continue;
+          }
           records.push(record);
           pendingInspections.push(record);
           batch.pending += 1;
         }
+        duplicateGroups = []; grouping = false;
         pumpInspectionQueue();
         render();
       }
+
+      function cancelWork() {
+        for (const record of records) if (!record.completed && !record.error) {
+          record.cancelled = true; record.error = true; record.errorCode = "CANCELLED"; record.state = "error";
+          if (!record.admitted) { record.admitted = true; record.batch.pending = Math.max(0, record.batch.pending - 1); }
+        }
+        pendingInspections.length = 0;
+        exportEpoch++; disposePreviews(); jobs.cancel(); render();
+      }
+      $("#cancel-work").addEventListener("click", cancelWork);
+      window.addEventListener("pagehide", () => { exportEpoch++; jobs.cancel(); });
 
       function selectEveryImage(selected) {
         if (isExporting() || hasPendingInspections()) return;
         records.forEach(record => record.images?.forEach(image => { image.selected = selected; }));
         render();
       }
+
+      for (const [id, key] of [["filter-text","text"],["filter-document","documentId"],["filter-format","format"],["filter-width","minWidth"],["filter-height","minHeight"],["filter-min-bytes","minBytes"],["filter-max-bytes","maxBytes"]]) $("#"+id).addEventListener("input", event => { filterState[key] = ["text","documentId","format"].includes(key) ? event.target.value : Math.max(0, Number(event.target.value) || 0); imagePage = 0; render(); });
+      $("#image-sort").addEventListener("change", event => { imageSort = event.target.value; imagePage = 0; render(); });
+      $("#previous-page").addEventListener("click", () => { imagePage = Math.max(0, imagePage - 1); render(); });
+      $("#next-page").addEventListener("click", () => { imagePage++; render(); });
+      $("#select-matching").addEventListener("click", () => { if (!isExporting() && !hasPendingInspections()) { matchingImages().forEach(i => i.selected = true); render(); } });
+      $("#clear-matching").addEventListener("click", () => { if (!isExporting() && !hasPendingInspections()) { matchingImages().forEach(i => i.selected = false); render(); } });
+      $("#group-button").addEventListener("click", async () => {
+        if (isExporting() || hasPendingInspections()) return;
+        if (grouping) { grouping = false; render(); return; }
+        isGrouping = true; disposePreviews(); render();
+        try { duplicateGroups = await jobs.run("identifyDuplicates", [records.flatMap(r => (r.images || []).map(i => ({ id: i.id, file: r.file, path: i.path })))], { affectedDocumentIds: records.map(r => r.id) }); grouping = true; imagePage = 0; }
+        catch (e) { if (e.code !== "CANCELLED") showToast(translate("previewError")); }
+        finally { isGrouping = false; render(); }
+      });
 
       selectAllImages.addEventListener("click", () => selectEveryImage(true));
       selectNoImages.addEventListener("click", () => selectEveryImage(false));
@@ -1529,7 +1840,7 @@ freely, subject to the following restrictions:
           showToast(translate("imageDownloaded"));
         } catch (error) {
           console.error(error);
-          showToast(translate("imageDownloadFailed"));
+          if (error.code !== "CANCELLED") showToast(errorText(error.code));
         } finally {
           const restoreFocus = focusKey && (document.activeElement === previousFocus ||
             document.activeElement === document.body || !document.activeElement?.isConnected);
@@ -1541,56 +1852,20 @@ freely, subject to the following restrictions:
 
       async function downloadExtractedImages() {
         if (isExporting() || hasPendingInspections()) return;
-        const readyRecords = records.filter(record => selectedImageCount(record) > 0);
-        if (readyRecords.length === 0) return;
-
-        isGeneratingZip = true;
-        zipProgress = 0;
-        render();
-
+        const items = records.flatMap(record => (record.images || []).filter(i => i.selected).map(image => ({ id: image.id, documentId: record.id, documentName: record.file.name, file: record.file, path: image.path, name: image.name, usages: image.usages })));
+        if (!items.length) return;
+        const epoch = ++exportEpoch; disposePreviews(); isGeneratingZip = true; zipProgress = 0; render();
         try {
-          const outputZip = new JSZip();
-          const usedPaths = new Set();
-          const usedFolderNames = new Set();
-
-          for (const record of readyRecords) {
-            const folderName = getUniqueFolderName(record.file.name, usedFolderNames);
-            for (const image of record.images.filter(image => image.selected)) {
-              const originalPath = `${folderName}/${image.name}`;
-              let outputPath = originalPath;
-              let suffix = 2;
-
-              while (usedPaths.has(outputPath.toLowerCase())) {
-                const dotIndex = originalPath.lastIndexOf(".");
-                outputPath = dotIndex > originalPath.lastIndexOf("/") + 1
-                  ? `${originalPath.slice(0, dotIndex)} (${suffix})${originalPath.slice(dotIndex)}`
-                  : `${originalPath} (${suffix})`;
-                suffix += 1;
-              }
-
-              usedPaths.add(outputPath.toLowerCase());
-              outputZip.file(outputPath, await image.entry.async("uint8array"));
-            }
+          const result = await jobs.run("exportImages", [items, { unique: $("#unique-export").checked }], { affectedDocumentIds: records.map(r => r.id), onProgress: p => { zipProgress = p.percent || 0; downloadButton.textContent = format(translate("creatingZip"), { percent: formatNumber(zipProgress) }); } });
+          if (epoch !== exportEpoch) return;
+          if (!result.blob) { showToast(errorText(result.failed[0]?.code || "EXPORT")); return; }
+          if (result.failed.length) {
+            const confirmed = await AppConfirm.ask({ title: translate("partialTitle"), message: format(translate("partialMessage"), { good: result.count, failed: result.failed.length }) + "\n" + result.failed.map(i => `${i.document} / ${i.path}: ${errorText(i.code)}`).join("\n"), confirmLabel: translate("saveSuccessful"), cancelLabel: translate("cancel"), tone: "danger" });
+            if (!confirmed || epoch !== exportEpoch) return;
           }
-
-          const zipBlob = await outputZip.generateAsync(
-            { type: "blob", compression: "DEFLATE", compressionOptions: { level: 6 } },
-            (metadata) => {
-              zipProgress = Math.round(metadata.percent);
-              downloadButton.textContent = format(translate("creatingZip"), { percent: formatNumber(zipProgress) });
-            }
-          );
-
-          saveBlob(zipBlob, "extracted-office-images.zip");
-          showToast(translate("downloaded"));
-        } catch (error) {
-          console.error(error);
-          alert(translate("zipFailed"));
-        } finally {
-          isGeneratingZip = false;
-          zipProgress = 0;
-          render();
-        }
+          saveBlob(result.blob, result.failed.length ? "extracted-office-images-partial.zip" : "extracted-office-images.zip"); showToast(translate("downloaded"));
+        } catch (error) { if (error.code !== "CANCELLED") showToast(errorText(error.code)); }
+        finally { isGeneratingZip = false; zipProgress = 0; render(); }
       }
 
       chooseButton.addEventListener("click", (event) => {
@@ -1642,6 +1917,9 @@ freely, subject to the following restrictions:
       });
 
       fileList.addEventListener("change", event => {
+        if (isExporting()) return;
+        const group = event.target.closest("[data-group-id]"), member = event.target.closest("[data-member-id]");
+        if (group || member) { const pair = occurrence(group ? group.dataset.groupId : member.dataset.memberId); if (pair) (group ? groupMembers(pair.image) : [pair.image]).forEach(i => i.selected = event.target.checked); render(); return; }
         const checkbox = event.target.closest("[data-image-index]");
         if (!checkbox || isExporting()) return;
         const image = records[Number(checkbox.dataset.recordIndex)]?.images?.[Number(checkbox.dataset.imageIndex)];
@@ -1651,6 +1929,10 @@ freely, subject to the following restrictions:
       });
 
       fileList.addEventListener("click", async event => {
+        const retry = event.target.closest("[data-retry-id]");
+        if (retry && !isExporting()) { const record = records.find(r => r.id === Number(retry.dataset.retryId)); if (record) { record.error = false; record.cancelled = false; record.completed = false; record.errorCode = null; record.state = "queued"; pendingInspections.push(record); pumpInspectionQueue(); render(); } return; }
+        const preview = event.target.closest("[data-preview-id]");
+        if (preview) { await openPreview(preview.dataset.previewId, preview); return; }
         const expand = event.target.closest("[data-expand-index]");
         if (expand) {
           const record = records[Number(expand.dataset.expandIndex)];
@@ -1677,7 +1959,8 @@ freely, subject to the following restrictions:
         if (!removeButton) return;
         const removeIndex = Number(removeButton.dataset.removeIndex);
         if (!Number.isInteger(removeIndex) || !records[removeIndex]) return;
-        records.splice(removeIndex, 1);
+        disposePreviews(); jobs.cancel([records[removeIndex].id]);
+        records.splice(removeIndex, 1); duplicateGroups = []; grouping = false;
         selectionSummary = null;
         pumpInspectionQueue();
         render();
@@ -1694,7 +1977,8 @@ freely, subject to the following restrictions:
           tone: "danger"
         });
         if (!confirmed || isExporting()) return;
-        records.length = 0;
+        disposePreviews(); jobs.cancel();
+        records.length = 0; duplicateGroups = []; grouping = false; imagePage = 0;
         pendingInspections.length = 0;
         selectionSummary = null;
         render();
@@ -1722,6 +2006,7 @@ freely, subject to the following restrictions:
       });
 
       applyLanguage();
+      document.documentElement.dataset.ready = "true";
     })().catch(error => {
       console.error(error);
       const toast = document.getElementById("toast");

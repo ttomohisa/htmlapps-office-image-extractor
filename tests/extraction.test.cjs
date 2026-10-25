@@ -61,8 +61,8 @@ test('a clear during inspection discards pending work and cannot restore old res
 test('individual Save restores keyboard focus after its temporary disabled state',async()=>{
   const f=await fixture();f.api.addFiles([await office()]);await settled(f);await action(f,'[data-expand-index="0"]');const save=f.get('#file-list').querySelector('[data-download-image="0"]');save.focus();await action(f,'[data-download-image="0"]');assert.equal(f.document.activeElement.dataset.focusKey,save.dataset.focusKey);assert.equal(f.document.activeElement.isConnected,true);
 });
-test('invalid backslash media paths cannot produce traversal paths in the output ZIP',async()=>{
-  const f=await fixture();f.api.addFiles([await office('safe.docx',{'word/media/ok.png':bytes,'word/media/..\\..\\outside.png':'bad'})]);await settled(f);await f.api.downloadExtractedImages();const zip=await JSZip.loadAsync(await f.downloads[0].blob.arrayBuffer());assert.deepEqual(Object.keys(zip.files).filter(k=>!zip.files[k].dir),['safe/ok.png']);
+test('invalid backslash media paths reject the ambiguous package without any output',async()=>{
+  const f=await fixture();f.api.addFiles([await office('safe.docx',{'word/media/ok.png':bytes,'word/media/..\\..\\outside.png':'bad'})]);await settled(f);await f.api.downloadExtractedImages();assert.equal(f.api.records[0].errorCode,'CORRUPT');assert.equal(f.downloads.length,0);
 });
 test('ZIP progress does not rebuild every selectable image row',async()=>{
   const f=await fixture();f.api.addFiles([await office('many.pptx',Object.fromEntries(Array.from({length:20},(_,i)=>['ppt/media/image'+i+'.png',bytes])))]);await settled(f);const before=f.get('#file-list').renderCount;await f.api.downloadExtractedImages();assert.equal(f.get('#file-list').renderCount-before,2);assert.equal(f.downloads.length,1);
@@ -247,3 +247,4 @@ test('canonical ownership is checked again when an equality result is delivered'
  }});
  f.api.addFiles([b]);await drained(f);assert.equal(f.api.records.length,1);assert.equal(f.api.records[0].file,b);assert.equal(selected(f),1);
 });
+test('oversized rejected document does not block a valid file in the same batch',async()=>{const f=await fixture(),big=await office('huge.docx'),good=await office('good.docx');big.size=2147483649;f.api.addFiles([big,good]);await settled(f);assert.equal(f.api.records[0].errorCode,'INPUT_LIMIT');assert.equal(f.api.records[1].error,false);assert.equal(f.api.records[1].images.length,1);});
