@@ -9,6 +9,15 @@ function createEngine(JSZip,sax,progress=()=>{}){
  function validateInputs(files){if(files.some(f=>size(f)>limits.input))fail('INPUT_LIMIT');if(files.reduce((n,f)=>n+size(f),0)>limits.session)fail('SESSION_LIMIT');}
  function canonical(path){if(!path||/[\\\0?#]/.test(path))return null;const out=[];for(const x of path.split('/')){if(!x||x==='.')continue;if(x==='..'){if(!out.length)return null;out.pop();}else out.push(x);}return out.join('/');}
  function resolveTarget(part,target){try{target=decodeURIComponent(target);}catch{return null;}if(/^[a-z][a-z\d+.-]*:/i.test(target)||target.startsWith('//'))return null;return canonical(target.startsWith('/')?target:part.slice(0,part.lastIndexOf('/')+1)+target);}
+ function checkExtra(bytes, start, length, name) {
+  const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength),end=start+length;let at=start;
+  if(end>bytes.length)fail('CORRUPT');
+  while(at<end){if(at+4>end)fail('CORRUPT');const type=view.getUint16(at,true),n=view.getUint16(at+2,true);at+=4;if(at+n>end)fail('CORRUPT');
+   if(type===1)fail('ZIP64');
+   if(type===0x7075){if(n<5||bytes[at]!==1)fail('CORRUPT');let alternative;try{alternative=new TextDecoder('utf-8',{fatal:true}).decode(bytes.subarray(at+5,at+n));}catch{fail('CORRUPT');}if(alternative!==name)fail('CORRUPT');}
+   at+=n;
+  }
+ }
  async function preflight(file){
   validateInputs([file]);const n=size(file);if(n<22)fail('CORRUPT');const start=Math.max(0,n-65557),tail=await slice(file,start,n),d=new DataView(tail.buffer,tail.byteOffset,tail.byteLength);let e=-1;
   for(let i=tail.length-22;i>=0;i--)if(d.getUint32(i,true)===0x06054b50&&i+22+d.getUint16(i+20,true)===tail.length){e=i;break;}if(e<0){const sig=await slice(file,0,8);if(sig[0]===0xd0&&sig[1]===0xcf)fail('OLE');fail('CORRUPT');}
@@ -17,6 +26,7 @@ function createEngine(JSZip,sax,progress=()=>{}){
   for(let i=0;i<count;i++){
    if(p+46>bytes.length||v.getUint32(p,true)!==0x02014b50)fail('CORRUPT');const flags=v.getUint16(p+8,true),method=v.getUint16(p+10,true),crc=v.getUint32(p+16,true),compressed=v.getUint32(p+20,true),uncompressed=v.getUint32(p+24,true),nl=v.getUint16(p+28,true),el=v.getUint16(p+30,true),cl=v.getUint16(p+32,true),local=v.getUint32(p+42,true);
    if(flags&1)fail('ENCRYPTED');if([compressed,uncompressed,local].includes(0xffffffff))fail('ZIP64');if(![0,8].includes(method))fail('COMPRESSION');if(p+46+nl+el+cl>bytes.length)fail('CORRUPT');let name;try{name=decoder.decode(bytes.subarray(p+46,p+46+nl));}catch{fail('CORRUPT');}
+   checkExtra(bytes,p+46+nl,el,name);
    const key=canonical(name);if(!key||name.startsWith('/')||name.split('/').some(x=>x==='..'||x==='.')||/[\\\0]/.test(name)||entries.has(key))fail('CORRUPT');
    const header=await slice(file,local,Math.min(local+30+nl,offset));if(header.length<30+nl)fail('CORRUPT');const h=new DataView(header.buffer,header.byteOffset,header.byteLength),extra=h.getUint16(28,true);
    if(h.getUint32(0,true)!==0x04034b50||h.getUint16(6,true)!==flags||h.getUint16(8,true)!==method||h.getUint16(26,true)!==nl||decoder.decode(header.subarray(30,30+nl))!==name||local+30+nl+extra+compressed>offset)fail('CORRUPT');
@@ -57,13 +67,20 @@ function createEngine(JSZip,sax,progress=()=>{}){
  async function mapUsages(ctx,images,xml){
   const imageByPath=new Map(images.map(i=>[i.path,i])),cache=new Map();let uses=0;
   const relNS=u=>/^http:\/\/(schemas\.openxmlformats\.org\/officeDocument\/2006|purl\.oclc\.org\/ooxml\/officeDocument)\/relationships$/.test(u);
-  const relationIds=t=>Object.values(t.attributes).filter(a=>relNS(a.uri)&&['id','embed','link'].includes(a.local)).map(a=>a.value);
-  async function relationships(part){if(cache.has(part))return cache.get(part);const map=new Map(),at=part.lastIndexOf('/'),p=part.slice(0,at+1)+'_rels/'+part.slice(at+1)+'.rels';await xml(p,t=>{if(t.local!=='Relationship'||!/^http:\/\/(schemas\.openxmlformats\.org\/package\/2006|purl\.oclc\.org\/ooxml\/package)\/relationships$/.test(t.uri))return;const id=attr(t,'Id');if(map.has(id))fail('METADATA');map.set(id,{path:attr(t,'TargetMode')==='External'?null:resolveTarget(part,attr(t,'Target')),kind:attr(t,'Type').split('/').pop()});});cache.set(part,map);return map;}
+  const relationIds=t=>{
+   const family=/^http:\/\/(schemas\.openxmlformats\.org\/(drawingml|spreadsheetml|presentationml|wordprocessingml)\/2006|purl\.oclc\.org\/ooxml\/(drawingml|spreadsheetml|presentationml|wordprocessingml))\//.test(t.uri);
+   const allowed=family && ((/\/drawingml\//.test(t.uri)&&t.local==='blip')||(/\/spreadsheetml\//.test(t.uri)&&['sheet','drawing','legacyDrawing','legacyDrawingHF','picture'].includes(t.local))||(/\/presentationml\//.test(t.uri)&&t.local==='sldId')||(/\/wordprocessingml\//.test(t.uri)&&['headerReference','footerReference'].includes(t.local)));
+   const vml=t.uri==='urn:schemas-microsoft-com:vml'&&t.local==='imagedata';
+   const svg=t.uri==='http://schemas.microsoft.com/office/drawing/2016/SVG/main'&&t.local==='svgBlip';
+   if(!allowed&&!vml&&!svg)return [];
+   return Object.values(t.attributes).filter(a=>(relNS(a.uri)&&['id','embed','link'].includes(a.local))||(vml&&a.uri==='urn:schemas-microsoft-com:office:office'&&a.local==='relid')).map(a=>a.value);
+  };
+  async function relationships(part){if(cache.has(part))return cache.get(part);const map=new Map(),at=part.lastIndexOf('/'),p=part.slice(0,at+1)+'_rels/'+part.slice(at+1)+'.rels';await xml(p,t=>{if(t.local!=='Relationship'||!/^http:\/\/(schemas\.openxmlformats\.org\/package\/2006|purl\.oclc\.org\/ooxml\/package)\/relationships$/.test(t.uri))return;const id=attr(t,'Id');if(map.has(id))fail('METADATA');const type=attr(t,'Type'),cut=type.lastIndexOf('/'),valid=relNS(type.slice(0,cut));map.set(id,{path:attr(t,'TargetMode')==='External'||!valid?null:resolveTarget(part,attr(t,'Target')),kind:valid?type.slice(cut+1):'unknown'});});cache.set(part,map);return map;}
   const followKinds=new Set(['drawing','vmlDrawing','slideLayout','slideMaster','notesSlide','notesMaster','header','footer','footnotes','endnotes','comments']);
   async function walk(part,context,seen=new Set()){
    const key=part+'|'+context.kind+'|'+context.order;if(seen.has(key))return;if(seen.size>=10000)fail('METADATA');seen.add(key);
    if(!ctx.entries.has(part))fail('METADATA');const rel=await relationships(part),references=[];let currentSection=1;
-   await xml(part,t=>{for(const id of relationIds(t))references.push({id,section:currentSection});},tag=>{if(tag.local==='sectPr'&&context.kind==='body')currentSection++;});
+   await xml(part,t=>{for(const id of relationIds(t))references.push({id,section:currentSection});},tag=>{if(tag.local==='sectPr'&&/\/wordprocessingml\//.test(tag.uri)&&context.kind==='body')currentSection++;});
    for(const edge of rel.values())if(['slideLayout','slideMaster','notesSlide','notesMaster','footnotes','endnotes','comments'].includes(edge.kind))references.push({edge,section:null});
    const handled=new Set();for(const reference of references){const edge=reference.edge||rel.get(reference.id);if(!edge){continue;}if(!edge.path)continue;const dedupe=edge.path+'|'+reference.section;if(handled.has(dedupe))continue;handled.add(dedupe);
     const image=imageByPath.get(edge.path);if(edge.kind==='image'&&image){const usage={...context,part,order:context.kind==='body'?reference.section:context.order};if(++uses>200000)fail('METADATA');if(!image.usages.some(u=>u.kind===usage.kind&&u.part===usage.part&&u.label===usage.label&&u.order===usage.order))image.usages.push(usage);}
@@ -73,6 +90,17 @@ function createEngine(JSZip,sax,progress=()=>{}){
   if(ctx.entries.has('ppt/presentation.xml')){const rel=await relationships('ppt/presentation.xml'),slides=[];await xml('ppt/presentation.xml',t=>{if(t.local==='sldId'&&/\/presentationml\//.test(t.uri)){const id=relationIds(t)[0];if(id)slides.push(id);}});for(let i=0;i<slides.length;i++){const e=rel.get(slides[i]);if(e?.path)await walk(e.path,{kind:'slide',label:'',order:i+1});}}
   if(ctx.entries.has('xl/workbook.xml')){const rel=await relationships('xl/workbook.xml'),sheets=[];await xml('xl/workbook.xml',t=>{if(t.local==='sheet'&&/\/spreadsheetml\//.test(t.uri))sheets.push({id:relationIds(t)[0],label:attr(t,'name')+(attr(t,'state')&&attr(t,'state')!=='visible'?' (hidden)':'')});});for(let i=0;i<sheets.length;i++){const e=rel.get(sheets[i].id);if(e?.path)await walk(e.path,{kind:'sheet',label:sheets[i].label,order:i+1});}}
   if(ctx.entries.has('word/document.xml'))await walk('word/document.xml',{kind:'body',label:'',order:1});
+ }
+ async function preview(file,path,maxSide=192){
+  const data=await read(await open(file),path,16777216),dim=dimensions(data);
+  if(!dim.mime||!dim.width||!dim.height||dim.width*dim.height>limits.pixels)fail('PREVIEW');
+  if(typeof createImageBitmap!=='function'||typeof OffscreenCanvas!=='function')fail('PREVIEW');
+  const bitmap=await createImageBitmap(new Blob([data],{type:dim.mime}));
+  try{if(bitmap.width!==dim.width||bitmap.height!==dim.height||bitmap.width*bitmap.height>limits.pixels)fail('PREVIEW');
+   const scale=Math.min(1,Math.min(1920,Math.max(1,maxSide))/Math.max(bitmap.width,bitmap.height));
+   const canvas=new OffscreenCanvas(Math.max(1,Math.round(bitmap.width*scale)),Math.max(1,Math.round(bitmap.height*scale)));
+   canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);const blob=await canvas.convertToBlob({type:'image/png'}),cost=canvas.width*canvas.height*4+blob.size;canvas.width=canvas.height=0;return {blob,cost};
+  }finally{bitmap.close();}
  }
  async function exportImages(items,options={}){
   const output=new JSZip(),failed=[],outputs=[],folders=new Map(),usedFolders=new Set(),usedPaths=new Set(),fingerprints=new Map();let total=0,selectedTotal=0,ctx=null,current=null,count=0;
@@ -102,7 +130,7 @@ function createEngine(JSZip,sax,progress=()=>{}){
   }return groups;
  }
  async function readImage(file,path){return read(await open(file),path);}
- return {exportImages,identifyDuplicates,limits,validateInputs,resolveTarget,preflight,inspect,readImage,dimensions,parseXML,open,read,fail};
+ return {preview,exportImages,identifyDuplicates,limits,validateInputs,resolveTarget,preflight,inspect,readImage,dimensions,parseXML,open,read,fail};
 }
 if(typeof module==='object'&&module.exports)module.exports={createEngine};
 else {root.onmessage=async({data:m})=>{const engine=createEngine(root.JSZip,root.sax,progress=>root.postMessage({jobId:m.jobId,sessionId:m.sessionId,progress}));try{const result=await engine[m.operation](...m.payload);root.postMessage({jobId:m.jobId,sessionId:m.sessionId,result});}catch(e){root.postMessage({jobId:m.jobId,sessionId:m.sessionId,error:{code:e.code||'UNKNOWN'}});}};}

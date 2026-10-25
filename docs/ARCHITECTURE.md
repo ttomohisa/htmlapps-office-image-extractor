@@ -1,7 +1,11 @@
 # Architecture
 
-The source template contains the application shell and three build placeholders. `build-standalone.ps1` downloads the pinned JSZip package at build time, embeds `dist/jszip.min.js` as Base64, and replaces the placeholders with app configuration, a dependency manifest, and the asset bundle.
+The PowerShell build embeds pinned JSZip 3.10.1 and sax 1.6.1 plus first-party office-worker.js, office-jobs.js and office-view.js in the standalone asset bundle. There are no runtime imports or network calls. Root/download aliases and the gzip self-extract wrapper are generated, not hand-edited.
 
-At runtime the app creates a temporary Blob URL for the embedded JSZip script. CSP allows Blob scripts but blocks all network connections. Office files are opened with JSZip and media entries from `xl/media/`, `ppt/media/`, or `word/media/` are copied into a new ZIP.
+The UI keeps immutable original File references, stable image occurrence IDs, selection, provenance and bounded preview resources. OfficeJobs serializes heavy jobs, creates a Blob Worker per job, and terminates/revokes it on success, error or cancellation. Job/session IDs and affected document IDs invalidate stale and multi-document results. Document candidate duplicate comparison remains exact in bounded 256 KiB chunks.
 
-The second release artifact gzip-compresses the complete standalone HTML and wraps it in a small loader that restores it with `DecompressionStream`.
+The worker validates ZIP central/local identities, names, budgets and CRCs, then uses namespace-aware bounded SAX events for usage mapping. It reads originals on demand, fingerprints and byte-compares duplicate candidates, and generates STORE ZIPs to avoid recompressing already-compressed image formats. Original bytes are never recompressed as images. Metadata failure is separate from image-read failure. Partial output is never downloaded until the UI obtains explicit consent.
+
+Preview decoding only accepts recognized, budgeted raster headers. The UI renders small PNG thumbnails into a bounded LRU and closes bitmaps/revokes URLs. SVG and unsupported originals are not embedded as active content. Filters and grouping are views over occurrence selection, never destructive transforms.
+
+See the approved v1.1.0 design for exact limits and acceptance cases.

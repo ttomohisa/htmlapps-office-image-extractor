@@ -1514,6 +1514,15 @@ software or this license, under any kind of legal claim.***
           return;
         }
 
+        const renderRows = images => images.map(image => { const record = records.find(r => r.id === image.documentId), index = records.indexOf(record), imageIndex = record.images.indexOf(image); return `<li class="image-row">
+                <button type="button" class="image-thumb" data-preview-id="${image.id}" data-focus-key="preview-${image.id}" aria-label="${escapeHtml(translate("previewTitle") + ": " + image.name)}" ${previewEligible(image) ? "" : "disabled"}>${previewEligible(image) ? `<img data-thumb-id="${image.id}" alt="${escapeHtml(image.name)}">` : `<span>${escapeHtml(translate("previewUnavailable"))}</span>`}</button>
+                <label class="image-label"><input type="checkbox" ${grouping && groupMembers(image).length > 1 ? `data-group-id="${image.id}"` : `data-record-index="${index}" data-image-index="${imageIndex}"`} data-focus-key="image-${record.id}-${imageIndex}" ${(grouping ? groupMembers(image).every(i => i.selected) : image.selected) ? "checked" : ""} ${exporting ? "disabled" : ""}>
+                  <span class="image-name">${escapeHtml(image.name)} ${escapeHtml(groupLabel(image))}<span class="image-usage">${escapeHtml(image.documentName)}</span><span class="image-usage">${image.width && image.height ? image.width + " × " + image.height + " px" : "— px"} · ${formatBytes(image.bytes)}<br>${escapeHtml(usageText(image))}</span><span class="image-format">${escapeHtml(image.name.includes(".") ? image.name.split(".").pop().toUpperCase() : image.contentType || "—")}</span></span>
+                </label>
+                ${groupDetails(image)}
+                <button class="button remove-button" type="button" data-record-index="${index}" data-download-image="${imageIndex}" data-focus-key="save-${record.id}-${imageIndex}"
+                  aria-label="${escapeHtml(format(translate("downloadImageLabel"), { name: image.name }))}" ${exporting || pending ? "disabled" : ""}>${escapeHtml(translate("downloadImage"))}</button>
+              </li>`; }).join("");
         fileList.innerHTML = records.map((record, index) => {
           const statusClass = record.error ? "error" : record.completed ? "success" : "";
           const status = statusText(record);
@@ -1541,24 +1550,16 @@ software or this license, under any kind of legal claim.***
                 ${escapeHtml(translate("remove"))}
               </button>
             </div>
-            ${record.images?.length ? `<div class="image-panel" id="images-${record.id}" ${record.expanded ? "" : "hidden"}>
+            ${record.images?.length && imageSort === "source" ? `<div class="image-panel" id="images-${record.id}" ${record.expanded ? "" : "hidden"}>
               <div class="image-tools">
                 <span>${escapeHtml(format(translate("selectedImages"), { selected: formatNumber(selectedImageCount(record)), total: formatNumber(record.images.length) }))}</span>
                 <button class="button remove-button" type="button" data-select-all="${index}" data-focus-key="all-${record.id}" ${exporting ? "disabled" : ""}>${escapeHtml(translate("selectAll"))}</button>
                 <button class="button remove-button" type="button" data-select-none="${index}" data-focus-key="none-${record.id}" ${exporting ? "disabled" : ""}>${escapeHtml(translate("selectNone"))}</button>
               </div>
-              <ul class="image-list">${record.images.filter(image => pageIds.has(image.id)).map((image) => { const imageIndex = record.images.indexOf(image); return `<li class="image-row">
-                <button type="button" class="image-thumb" data-preview-id="${image.id}" data-focus-key="preview-${image.id}" aria-label="${escapeHtml(translate("previewTitle") + ": " + image.name)}" ${previewEligible(image) ? "" : "disabled"}>${previewEligible(image) ? `<img data-thumb-id="${image.id}" alt="${escapeHtml(image.name)}">` : `<span>${escapeHtml(translate("previewUnavailable"))}</span>`}</button>
-                <label class="image-label"><input type="checkbox" ${grouping && groupMembers(image).length > 1 ? `data-group-id="${image.id}"` : `data-record-index="${index}" data-image-index="${imageIndex}"`} data-focus-key="image-${record.id}-${imageIndex}" ${(grouping ? groupMembers(image).every(i => i.selected) : image.selected) ? "checked" : ""} ${exporting ? "disabled" : ""}>
-                  <span class="image-name">${escapeHtml(image.name)} ${escapeHtml(groupLabel(image))}<span class="image-usage">${image.width && image.height ? image.width + " × " + image.height + " px" : "— px"} · ${formatBytes(image.bytes)}<br>${escapeHtml(usageText(image))}</span><span class="image-format">${escapeHtml(image.name.includes(".") ? image.name.split(".").pop().toUpperCase() : image.contentType || "—")}</span></span>
-                </label>
-                ${groupDetails(image)}
-                <button class="button remove-button" type="button" data-record-index="${index}" data-download-image="${imageIndex}" data-focus-key="save-${record.id}-${imageIndex}"
-                  aria-label="${escapeHtml(format(translate("downloadImageLabel"), { name: image.name }))}" ${exporting || pending ? "disabled" : ""}>${escapeHtml(translate("downloadImage"))}</button>
-              </li>`; }).join("")}</ul>
+              <ul class="image-list">${renderRows(record.images.filter(image => pageIds.has(image.id)))}</ul>
             </div>` : ""}
             </article>`;
-        }).join("");
+        }).join("") + (imageSort !== "source" ? `<ul class="image-list sorted-images">${renderRows(shown.slice(imagePage * 100, (imagePage + 1) * 100))}</ul>` : "");
         for (const node of fileList.querySelectorAll("[data-group-id]")) { const pair = occurrence(node.dataset.groupId); const members = pair ? groupMembers(pair.image) : []; node.indeterminate = members.some(i => i.selected) && !members.every(i => i.selected); }
         scheduleThumbnails();
         if (focusedKey) fileList.querySelector(`[data-focus-key="${focusedKey}"]`)?.focus({ preventScroll: true });
@@ -1566,22 +1567,12 @@ software or this license, under any kind of legal claim.***
 
       function occurrence(id) { for (const record of records) { const image = record.images?.find(i => i.id === id); if (image) return { record, image }; } return null; }
       async function rasterUrl(record, image, maxSide, epoch) {
-        const data = await jobs.run("readImage", [record.file, image.path], { affectedDocumentIds: [record.id] });
+        const value = await jobs.run("preview", [record.file, image.path, maxSide], { affectedDocumentIds: [record.id] });
         if (epoch !== previewEpoch || !records.includes(record)) return null;
-        const bitmap = await createImageBitmap(new Blob([data], { type: image.mime }));
-        try {
-          if (epoch !== previewEpoch || !records.includes(record) || bitmap.width * bitmap.height > 32000000 || bitmap.width !== image.width || bitmap.height !== image.height) return null;
-          const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height)), canvas = document.createElement("canvas");
-          canvas.width = Math.max(1, Math.round(bitmap.width * scale)); canvas.height = Math.max(1, Math.round(bitmap.height * scale));
-          canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-          const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
-          const cost = canvas.width * canvas.height * 4 + (blob?.size || 0); canvas.width = canvas.height = 0;
-          if (!blob || epoch !== previewEpoch || !records.includes(record)) return null;
-          return { url: URL.createObjectURL(blob), cost };
-        } finally { bitmap.close(); }
+        return { url: URL.createObjectURL(value.blob), cost: value.cost };
       }
       function scheduleThumbnails() {
-        if (typeof createImageBitmap !== "function" || previewLoading || isExporting() || hasPendingInspections()) return;
+        if (previewLoading || isExporting() || hasPendingInspections()) return;
         const nodes = [...fileList.querySelectorAll("img[data-thumb-id]")];
         for (const node of nodes) { const cached = thumbnailCache.get(node.dataset.thumbId); if (cached) node.src = cached.url; }
         const next = nodes.find(node => !node.getAttribute("src") && !node.dataset.failed && node.getClientRects().length && node.getBoundingClientRect().top < window.innerHeight + 200 && node.getBoundingClientRect().bottom > -200);
@@ -1595,7 +1586,7 @@ software or this license, under any kind of legal claim.***
         }).catch(() => { const target = fileList.querySelector(`img[data-thumb-id="${pair.image.id}"]`); if (target) { target.dataset.failed = "true"; target.alt = translate("previewError"); } }).finally(() => { previewLoading = false; scheduleThumbnails(); });
       }
       function disposePreviews() {
-        previewEpoch++; thumbnailCache.clear();
+        previewEpoch++; jobs.cancel(null, ["preview"]); thumbnailCache.clear();
         if (previewUrl) URL.revokeObjectURL(previewUrl); previewUrl = null;
         $("#previewImage").removeAttribute?.("src");
         if ($("#previewDialog").open) $("#previewDialog").close();
@@ -1611,7 +1602,7 @@ software or this license, under any kind of legal claim.***
         catch { if (epoch === previewEpoch) $("#previewStatus").textContent = translate("previewError"); }
       }
       $("#closePreview").addEventListener("click", () => $("#previewDialog").close());
-      $("#previewDialog").addEventListener("close", () => { previewEpoch++; if (previewUrl) URL.revokeObjectURL(previewUrl); previewUrl = null; $("#previewImage").removeAttribute?.("src"); if (previewReturn?.isConnected) previewReturn.focus(); scheduleThumbnails(); });
+      $("#previewDialog").addEventListener("close", () => { jobs.cancel(null, ["preview"]); previewEpoch++; if (previewUrl) URL.revokeObjectURL(previewUrl); previewUrl = null; $("#previewImage").removeAttribute?.("src"); if (previewReturn?.isConnected) previewReturn.focus(); scheduleThumbnails(); });
       window.addEventListener("scroll", scheduleThumbnails, { passive: true });
       window.addEventListener("pagehide", disposePreviews);
 
@@ -1643,7 +1634,8 @@ software or this license, under any kind of legal claim.***
         try {
           if (!records.includes(record)) return;
           if (record.file.size > 1073741824) throw Object.assign(new Error("INPUT_LIMIT"), { code: "INPUT_LIMIT" });
-          if (records.reduce((n, r) => n + r.file.size, 0) > 2147483648) throw Object.assign(new Error("SESSION_LIMIT"), { code: "SESSION_LIMIT" });
+          if (records.reduce((n, r) => n + (r.rejectedInput && r !== record ? 0 : r.file.size), 0) > 2147483648) throw Object.assign(new Error("SESSION_LIMIT"), { code: "SESSION_LIMIT" });
+          record.rejectedInput = false;
           record.state = "reading";
           record.progress = 15;
           render();
@@ -1766,9 +1758,9 @@ software or this license, under any kind of legal claim.***
             completed: false,
             error: false
           };
-          const totalBytes = records.reduce((n, r) => n + r.file.size, 0) + file.size;
+          const totalBytes = records.reduce((n, r) => n + (r.rejectedInput ? 0 : r.file.size), 0) + file.size;
           if (file.size > 1073741824 || totalBytes > 2147483648) {
-            record.error = true; record.completed = true; record.admitted = true;
+            record.rejectedInput = true; record.error = true; record.completed = true; record.admitted = true;
             record.errorCode = file.size > 1073741824 ? "INPUT_LIMIT" : "SESSION_LIMIT";
             record.state = "error"; records.push(record); batch.added++; continue;
           }
@@ -2014,6 +2006,7 @@ software or this license, under any kind of legal claim.***
       });
 
       applyLanguage();
+      document.documentElement.dataset.ready = "true";
     })().catch(error => {
       console.error(error);
       const toast = document.getElementById("toast");

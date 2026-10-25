@@ -45,13 +45,13 @@ async function fixture() {
   class TestJobs { constructor(){this.epoch=0;} run(operation,payload){const epoch=this.epoch;return engine[operation](...payload).then(result=>{if(epoch!==this.epoch)throw Object.assign(new Error('CANCELLED'),{code:'CANCELLED'});return result;});} cancel(){this.epoch++;} }
 
   const elements=new Map(); const downloads=[]; const blobs=new Map(); const errors=[];
-  const document={downloads,blobs,activeElement:null,documentElement:{lang:'en'},querySelector:selector=>selector==='dialog:modal' ? [...elements.values()].find(el=>el.open)||null : get(selector),querySelectorAll:()=>[],createElement:tag=>Object.assign(new Element(document),{tag}),getElementById:id=>get('#'+id)};
+  const document={downloads,blobs,activeElement:null,documentElement:{lang:'en',dataset:{}},querySelector:selector=>selector==='dialog:modal' ? [...elements.values()].find(el=>el.open)||null : get(selector),querySelectorAll:()=>[],createElement:tag=>Object.assign(new Element(document),{tag}),getElementById:id=>get('#'+id)};
   function get(selector) { if(!elements.has(selector)) elements.set(selector,new Element(document)); return elements.get(selector); }
   const context={JSZip,Blob,Uint8Array,ArrayBuffer,DataView,DOMParser:XMLParser,document,HTMLElement:Element,navigator:{language:'en'},localStorage:{getItem(){return null;},setItem(){}},console:{error:e=>errors.push(e)},setTimeout,clearTimeout,requestAnimationFrame:fn=>fn(),alert:message=>errors.push(message),URL:{createObjectURL(blob){const key='blob:'+blobs.size;blobs.set(key,blob);return key;},revokeObjectURL(){}},Intl};
   context.window={OfficeView:require('../src/office-view.js'),OfficeJobs:TestJobs,StandaloneAssets:{loadClassicScript:async()=>{},text:()=>''},AppBuild:{config:{version:'1.0.0'},manifest:{generatedAtUtc:'2026-10-04T00:00:00Z',dependencies:[]}},setTimeout:()=>0,clearTimeout(){},addEventListener(){}};
   const script=html.match(/<script>\s*(\(async \(\) => \{[\s\S]*?)<\/script>/)[1];
   const injection='globalThis.api = { records, pendingInspections, inspectOfficeFile, addFiles, render, applyLanguage, downloadExtractedImages, translations, setLanguage: value => { language=value; applyLanguage(); }, get activeInspections() { return activeInspections; }, get exporting() { return isGeneratingZip; } };';
-  vm.runInNewContext(script.replace(/      applyLanguage\(\);\n    \}\)\(\)/,injection+'\n      applyLanguage();\n    })()'),context);
+  vm.runInNewContext(script.replace(/      applyLanguage\(\);\n      document.documentElement.dataset.ready = \"true\";\n    \}\)\(\)/,injection+'\n      applyLanguage();\n    })()'),context);
   for(let i=0;i<10&&!context.api;i++) await new Promise(resolve=>setImmediate(resolve));
   if (!context.api) throw errors[0] || Error('App did not initialize');
   return {api:context.api,document,get,downloads,errors,JSZip};

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0 - 2026-10-25
+
+- Add bounded raster previews, enlargement, dimensions, byte sizes and relationship-based Office provenance.
+- Add filters/sorting, optional exact-image grouping and explicit unique-copy ZIP manifests without losing selections.
+- Move package processing and export into terminable Workers with generous resource budgets, CRC/path validation and explicit partial-save recovery.
+- Explain uncropped originals, stabilize bilingual titles, move complete licenses into Help and replace the drop icon.
+- Preserve offline standalone/self-extract HTML and strict document-byte deduplication. Add unit, worker lifecycle and real-browser regression coverage.
+
+
 ## Unreleased — mobile Help layout
 
 - Hide the informational footer at 520px and below; move existing build information to the end of Help without changing functional bottom controls.

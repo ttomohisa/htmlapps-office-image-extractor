@@ -28,7 +28,7 @@
 - Compare duplicate candidates in chunks of at most 256 KiB using the same queue as Office package inspection, with at most two active tasks. Serialize admission decisions within each matching-metadata group, including overlapping imports. A failed comparison keeps the document for normal inspection and displays a warning.
 - Removing or clearing records invalidates their pending work; stale comparison or inspection results must not restore them or overwrite newer import status.
 - Disable global selection and ZIP download while import, duplicate checking, or inspection is pending; also disable global selection during ZIP or individual-image export. Zero selected images cannot be exported as a ZIP.
-- Bounded comparison reads and inspection concurrency do not provide streaming ZIP parsing or a total memory cap; JSZip and large documents or batches can still consume substantial browser memory.
+- Heavy ZIP/XML/hash/export jobs run sequentially in disposable Workers. Cancel actually terminates running work; completed results and selections remain, and interrupted documents can be retried. JSZip still requires memory, so limits are safety ceilings, not device-capacity guarantees.
 - Keep Japanese and English UI switchable without reload.
 - Use reusable in-app confirmation for destructive clearing.
 - Expose build version, generation time, and embedded dependency count.
@@ -84,3 +84,16 @@ All processing happens in the browser. The app has no upload, account, analytics
 - Use “Fully local processing” for the exact 完全ローカル処理 label; preserve detailed privacy explanations.
 - Focused PR Chromium checks cover the official generated variants in JA/EN at desktop, breakpoint, narrow and short sizes, final Help reachability, badge overflow, dismissal, errors and runtime network. Keep four screenshots plus failure evidence. These layout checks are not a new full main-flow audit.
 - Help keeps its header nonshrinking and allocates the remaining dialog height to a zero-minimum scroll body, so keyboard expansion of the final build disclosure cannot scroll Close out of view. Other dialog geometry remains unchanged.
+
+## v1.1.0 discovery and recovery
+
+- Lazy raster thumbnails and enlargement show original dimensions and bytes. Previews never replace exported originals. Unsupported/SVG/vector or unsafe-size previews use a placeholder with original save preserved.
+- Presentation IDs determine slide order; workbook relationships determine named sheets; Word shows section/story affiliation, never inferred page numbers. Multiple uses and unknown references are retained.
+- Warn that original images can include cropped-out content and do not reproduce Office rendering.
+- Document/format/name/usage/dimension/byte filters and stable sorting do not mutate selection. Matching-image selection is distinct from global all/none. Hidden selected count is visible; ZIP includes all selected images. Page image results at 100 rows.
+- Optional grouping requires fingerprint plus exact byte comparison, preserves occurrence selections/provenance and supports mixed groups. A separate explicit unique-copy export includes a JSON provenance manifest.
+- Limits: warn at 256 MiB/document; hard 1 GiB/document, 2 GiB/session, 100,000 entries/document, 2 GiB declared/observed inflated data/document, 512 MiB/image and 1 GiB selected images/output ZIP. A GiB is 1,073,741,824 bytes.
+- Metadata bounds: 32 MiB/part, 128 MiB total, 256 nesting levels, 1,000,000 elements/part, bounded tokens and 200,000 usage records. Mapping limitations must not destroy otherwise safe originals.
+- Preview limits: 32 megapixels, 16 MiB encoded original, one decode at a time and 32 MiB thumbnail cache; object URLs and bitmaps are released.
+- Reject ambiguous ZIP paths/header conflicts, encrypted/unsupported archives and invalid image CRCs with actionable errors. Partial ZIP requires explicit confirmation, lists failed items and records omissions in its manifest.
+- JA/EN title metrics stay consistent, third-party notices live inside Help, and the drop area uses a document-to-image icon without changing the supplied app artwork.

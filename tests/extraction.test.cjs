@@ -247,3 +247,4 @@ test('canonical ownership is checked again when an equality result is delivered'
  }});
  f.api.addFiles([b]);await drained(f);assert.equal(f.api.records.length,1);assert.equal(f.api.records[0].file,b);assert.equal(selected(f),1);
 });
+test('oversized rejected document does not block a valid file in the same batch',async()=>{const f=await fixture(),big=await office('huge.docx'),good=await office('good.docx');big.size=2147483649;f.api.addFiles([big,good]);await settled(f);assert.equal(f.api.records[0].errorCode,'INPUT_LIMIT');assert.equal(f.api.records[1].error,false);assert.equal(f.api.records[1].images.length,1);});
