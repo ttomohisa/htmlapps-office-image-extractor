@@ -14,6 +14,7 @@ const JSZip = vendor.exports;
 class Element {
   constructor(doc, attrs = {}) { this.doc = doc; this.attrs = attrs; this.dataset = {}; this.listeners = {}; this.children = []; this.disabled = 'disabled' in attrs; this.checked = 'checked' in attrs; this.open = false; this.isConnected = true; this.textContent = ''; this.value = ''; this.classList = { add() {}, remove() {}, toggle() {} }; for (const [key,value] of Object.entries(attrs)) if(key.startsWith('data-')) this.dataset[key.slice(5).replace(/-([a-z])/g,(_,c)=>c.toUpperCase())] = value; }
   setAttribute(k,v) { this.attrs[k]=String(v); }
+  removeAttribute(k) { delete this.attrs[k]; }
   getAttribute(k) { return this.attrs[k] ?? null; }
   addEventListener(type, handler) { (this.listeners[type] ||= []).push(handler); }
   async dispatch(type, extra={}) { const event={target:this,preventDefault(){},stopPropagation(){},...extra}; for(const fn of this.listeners[type]||[]) await fn(event); }
@@ -36,7 +37,7 @@ class XMLParser {
     return { querySelector:sel=>sel==='parsererror' && !/<(?:\w+:)?Types\b[^>]*>[\s\S]*<\/(?:\w+:)?Types>/.test(text) ? {} : null, getElementsByTagNameNS:(_,tag)=>nodes.filter(x=>x.localName===tag) };
   }
 }
-async function fixture() {
+async function fixture(options = {}) {
   const {createEngine}=require('../src/office-worker.js');
   const sax= bundle.dependencies.sax ? (()=>{const v={exports:{}};vm.runInNewContext(Buffer.from(bundle.dependencies.sax.assets.main.base64,'base64').toString(),{module:v,exports:v.exports});return v.exports;})() : require('../.cache/sax-1.6.1/extracted/package/lib/sax.js');
   const engine=createEngine(JSZip,sax);
@@ -47,14 +48,25 @@ async function fixture() {
   const elements=new Map(); const downloads=[]; const blobs=new Map(); const errors=[];
   const document={downloads,blobs,activeElement:null,documentElement:{lang:'en',dataset:{}},querySelector:selector=>selector==='dialog:modal' ? [...elements.values()].find(el=>el.open)||null : get(selector),querySelectorAll:()=>[],createElement:tag=>Object.assign(new Element(document),{tag}),getElementById:id=>get('#'+id)};
   function get(selector) { if(!elements.has(selector)) elements.set(selector,new Element(document)); return elements.get(selector); }
-  const context={JSZip,Blob,Uint8Array,ArrayBuffer,DataView,DOMParser:XMLParser,document,HTMLElement:Element,navigator:{language:'en'},localStorage:{getItem(){return null;},setItem(){}},console:{error:e=>errors.push(e)},setTimeout,clearTimeout,requestAnimationFrame:fn=>fn(),alert:message=>errors.push(message),URL:{createObjectURL(blob){const key='blob:'+blobs.size;blobs.set(key,blob);return key;},revokeObjectURL(){}},Intl};
+  const storage = options.storage || new Map();
+  const localStorage = { getItem(key){return storage.get(key) ?? null;}, setItem(key,value){if(options.storageBlocked)throw new Error('Storage blocked');storage.set(key,String(value));} };
+  const location = {href:options.url || 'https://example.test/office.html'};
+  const history = {replaceState(_state,_title,url){location.href=String(url);}};
+  const Url = class extends URL {};
+  Url.createObjectURL=blob=>{const key='blob:'+blobs.size;blobs.set(key,blob);return key;};
+  Url.revokeObjectURL=()=>{};
+  const context={JSZip,Blob,Uint8Array,ArrayBuffer,DataView,DOMParser:XMLParser,document,HTMLElement:Element,navigator:{language:options.language || 'en',languages:options.languages || [options.language || 'en']},localStorage,location,history,console:{error:e=>errors.push(e)},setTimeout,clearTimeout,requestAnimationFrame:fn=>fn(),alert:message=>errors.push(message),URL:Url,Intl};
   context.window={OfficeView:require('../src/office-view.js'),OfficeJobs:TestJobs,StandaloneAssets:{loadClassicScript:async()=>{},text:()=>''},AppBuild:{config:{version:'1.0.0'},manifest:{generatedAtUtc:'2026-10-04T00:00:00Z',dependencies:[]}},setTimeout:()=>0,clearTimeout(){},addEventListener(){}};
+  Object.assign(context.window, {localStorage,location,history,navigator:context.navigator,document});
+  const commonPath=path.join(__dirname,'../components/ui-conventions.js');
+  if(fs.existsSync(commonPath))vm.runInNewContext(fs.readFileSync(commonPath,'utf8'),context);
+  context.window.BrowserKittyUI=context.BrowserKittyUI;
   const script=html.match(/<script>\s*(\(async \(\) => \{[\s\S]*?)<\/script>/)[1];
   const injection='globalThis.api = { records, pendingInspections, inspectOfficeFile, addFiles, render, applyLanguage, downloadExtractedImages, translations, setLanguage: value => { language=value; applyLanguage(); }, get activeInspections() { return activeInspections; }, get exporting() { return isGeneratingZip; } };';
   vm.runInNewContext(script.replace(/      applyLanguage\(\);\n      document.documentElement.dataset.ready = \"true\";\n    \}\)\(\)/,injection+'\n      applyLanguage();\n    })()'),context);
   for(let i=0;i<10&&!context.api;i++) await new Promise(resolve=>setImmediate(resolve));
   if (!context.api) throw errors[0] || Error('App did not initialize');
-  return {api:context.api,document,get,downloads,errors,JSZip};
+  return {api:context.api,document,get,downloads,errors,JSZip,storage,location};
 }
 async function office(name='sample.pptx', entries={'ppt/media/image1.png':Uint8Array.from([137,80,78,71,13,10,26,10])}, types='<Default Extension="png" ContentType="image/png"/>', zipOptions={}) {
   const zip=new JSZip(); if(types!==null)zip.file('[Content_Types].xml',`<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">${types}</Types>`,{date:new Date('2026-01-01T00:00:00Z')}); for(const [key,value] of Object.entries(entries))zip.file(key,value,{date:new Date('2026-01-01T00:00:00Z')}); zip.forEach((_,entry)=>{entry.date=new Date('2026-01-01T00:00:00Z');}); const file=await zip.generateAsync({type:'uint8array',...zipOptions}); return syntheticFile(file, {name});

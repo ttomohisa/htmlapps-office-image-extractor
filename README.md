@@ -246,3 +246,9 @@ Filter by document, format, name/usage, minimum width/height or byte range; sort
 Cancel terminates background processing without removing completed results. Retry interrupted documents. Large-document warning starts above 256 MiB; ceilings are 1 GiB/document, 2 GiB input/session, 1 GiB selected originals and ZIP, 2 GiB expanded/document, 512 MiB/image and 100,000 ZIP entries. Preview ceilings are 32 megapixels and 16 MiB encoded bytes. 1 GiB = 1,073,741,824 bytes; phones may run out of memory well below these values. Usage metadata can be unavailable while original saving remains possible.
 
 Full third-party notices and build information are in Help. Processing, previews, grouping and downloads stay offline in the standalone HTML.
+
+## Shared UI pilot (1.0.0)
+
+Work stays in this tab only; save the selected original images before closing it. The ZIP includes selected images hidden by filters. Removing documents discards their inspection results and selections after confirmation, without deleting original files. Cancel preserves them. The language switch preserves work and writes the Browser Kitty preference; startup URL/legacy preferences are read-only. Cross-tool language reuse requires the same web origin; direct file opening has browser-dependent storage isolation.
+
+Canonical UI files are vendored under `components/` with a SHA-256 lock and embedded at build time. No runtime network dependency is added.

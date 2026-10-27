@@ -585,6 +585,7 @@
     .image-row details { max-width: 260px; font-size: 11px; }
     @media (max-width: 520px) { .image-row { flex-wrap: wrap; } .image-row details { flex-basis: 100%; max-width: 100%; } }
   </style>
+  <style>__BK_UI_CSS__</style>
 </head>
 <body>
   <header class="app-header">
@@ -599,8 +600,8 @@
         </div>
       </div>
       <div class="header-actions">
-        <button class="language-button" id="languageButton" type="button" aria-label="英語に切り替え" title="英語に切り替え">EN</button>
-        <button class="icon-button header-icon-button" id="helpButton" type="button"
+        <button data-bk-button data-bk-variant="secondary" class="language-button" data-bk-header-action id="languageButton" type="button" aria-label="英語に切り替え" title="英語に切り替え">EN</button>
+        <button data-bk-button data-bk-variant="secondary" class="icon-button header-icon-button" data-bk-header-action id="helpButton" type="button"
           data-i18n-title="helpTitle" data-i18n-aria-label="helpTitle"
           title="使い方と注意事項" aria-label="使い方と注意事項">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.35 2.35 0 1 1 3.72 1.9c-.92.67-1.52 1.12-1.52 2.1"/><path d="M12 17h.01"/></svg>
@@ -634,6 +635,7 @@
         </div>
       </div>
 
+      <p id="session-save-status" class="hint"></p>
       <section id="drop-zone" class="drop-zone" role="button" tabindex="0" data-i18n-aria-label="chooseFiles" aria-label="Officeファイルを選択">
         <div>
           <div class="drop-zone-icon" aria-hidden="true">
@@ -641,7 +643,7 @@
           </div>
           <strong data-i18n="dropTitle">Officeファイルをここにドロップ</strong>
           <span class="drop-zone-copy" data-i18n="dropBody">または、端末からファイルを選択してください。</span>
-          <button id="choose-button" class="button primary choose-button" type="button" data-i18n="chooseFiles">ファイルを選択</button>
+          <button data-bk-button data-bk-variant="primary" id="choose-button" class="button primary choose-button" type="button" data-i18n="chooseFiles">ファイルを選択</button>
         </div>
         <input id="file-picker" type="file" multiple accept=".xlsx,.xlsm,.xltx,.xltm,.pptx,.pptm,.potx,.potm,.ppsx,.ppsm,.docx,.docm,.dotx,.dotm">
       </section>
@@ -649,18 +651,19 @@
       <div class="hint" data-i18n="supportedHint">対応: .xlsx / .pptx / .docx とマクロ・テンプレート系のOffice Open XML形式。ファイルは外部へ送信されません。</div>
       <div id="selection-notice" class="selection-notice" role="status" aria-live="polite"></div>
 
-      <div class="toolbar"><button id="cancel-work" class="button" type="button" disabled data-i18n="stopWork">処理を中止</button>
+      <div class="toolbar"><button data-bk-button data-bk-variant="secondary" id="cancel-work" class="button" type="button" disabled data-i18n="stopWork">処理を中止</button>
         <div class="button-row" role="group" data-i18n-aria-label="batchSelection" aria-label="すべての文書の画像選択">
           <p class="selected-summary" id="selected-summary" role="status" aria-live="polite"></p>
-          <button id="select-all-images" class="button" type="button" disabled data-i18n="selectAllImages">全画像を選択</button>
-          <button id="select-none-images" class="button" type="button" disabled data-i18n="selectNoImages">全画像の選択を解除</button>
+          <button data-bk-button data-bk-variant="secondary" id="select-all-images" class="button" type="button" disabled data-i18n="selectAllImages">全画像を選択</button>
+          <button data-bk-button data-bk-variant="secondary" id="select-none-images" class="button" type="button" disabled data-i18n="selectNoImages">全画像の選択を解除</button>
         </div>
-        <div class="button-row"><button id="download-button" class="button primary" type="button" disabled data-i18n="downloadZip">抽出画像をZIPで保存</button></div>
-        <div class="button-row"><button id="clear-button" class="button danger" type="button" disabled data-i18n="clearAll">すべてクリア</button></div>
+        <div class="button-row"><button data-bk-button data-bk-variant="primary" id="download-button" aria-describedby="export-reason" class="button primary" type="button" disabled data-i18n="downloadZip">抽出画像をZIPで保存</button></div>
+        <div class="button-row"><button data-bk-button data-bk-variant="danger" id="clear-button" class="button danger" type="button" disabled data-i18n="clearAll">すべてクリア</button></div>
       </div>
 
+      <p id="export-reason" class="hint" role="status" aria-live="polite"></p>
       <p class="original-warning" data-i18n="originalWarning"></p>
-<div class="filter-panel" aria-label="Image filters">
+<div class="filter-panel" data-i18n-aria-label="imageFilters" aria-label="画像の絞り込み">
 <label><span data-i18n="searchImages"></span><input id="filter-text" type="search" data-filter="text"></label>
 <label><span data-i18n="documentFilter"></span><select id="filter-document" data-filter="documentId"></select></label>
 <label><span data-i18n="formatFilter"></span><select id="filter-format" data-filter="format"></select></label>
@@ -670,8 +673,8 @@
 <label><span data-i18n="maxBytes"></span><input id="filter-max-bytes" type="number" min="0" data-filter="maxBytes"></label>
 <label><span data-i18n="sortImages"></span><select id="image-sort"><option value="source" data-i18n="sourceOrder"></option><option value="name" data-i18n="nameOrder"></option><option value="size" data-i18n="sizeOrder"></option><option value="dimensions" data-i18n="dimensionsOrder"></option></select></label>
 </div>
-<div class="button-row"><button id="select-matching" class="button" data-i18n="selectMatching"></button><button id="clear-matching" class="button" data-i18n="clearMatching"></button><button id="group-button" class="button" data-i18n="groupIdentical"></button></div>
-<p id="filter-summary" role="status" class="hint"></p><div class="button-row"><button id="previous-page" class="button" data-i18n="previous"></button><button id="next-page" class="button" data-i18n="next"></button></div>
+<div class="button-row"><button data-bk-button data-bk-variant="secondary" id="select-matching" class="button" data-i18n="selectMatching"></button><button data-bk-button data-bk-variant="secondary" id="clear-matching" class="button" data-i18n="clearMatching"></button><button data-bk-button data-bk-variant="secondary" id="group-button" class="button" data-i18n="groupIdentical"></button></div>
+<p id="filter-summary" role="status" class="hint"></p><div class="button-row"><button data-bk-button data-bk-variant="secondary" id="previous-page" class="button" data-i18n="previous"></button><button data-bk-button data-bk-variant="secondary" id="next-page" class="button" data-i18n="next"></button></div>
 <label class="export-option"><input id="unique-export" type="checkbox"> <span data-i18n="uniqueExport"></span></label>
       <section id="file-list" class="file-list" aria-live="polite"><div class="empty" data-i18n="noFiles">ファイルはまだ選択されていません。</div></section>
     </section>
@@ -697,15 +700,15 @@
   <dialog class="app-confirm-dialog" id="appConfirmDialog" aria-labelledby="appConfirmTitle" aria-describedby="appConfirmMessage">
     <div class="app-confirm-header">
       <h2 class="app-confirm-title" id="appConfirmTitle">確認</h2>
-      <button class="app-confirm-close" id="appConfirmClose" type="button" aria-label="閉じる">
+      <button data-bk-button data-bk-variant="secondary" class="app-confirm-close" id="appConfirmClose" type="button" aria-label="閉じる">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
       </button>
     </div>
     <div class="app-confirm-body">
       <p class="app-confirm-message" id="appConfirmMessage"></p>
       <div class="app-confirm-actions">
-        <button class="app-confirm-button" id="appConfirmCancel" type="button">キャンセル</button>
-        <button class="app-confirm-button danger" id="appConfirmOk" type="button">クリアする</button>
+        <button data-bk-button data-bk-variant="secondary" class="app-confirm-button" id="appConfirmCancel" type="button">キャンセル</button>
+        <button data-bk-button data-bk-variant="danger" class="app-confirm-button danger" id="appConfirmOk" type="button">クリアする</button>
       </div>
     </div>
   </dialog>
@@ -713,7 +716,7 @@
   <dialog id="helpDialog" aria-labelledby="helpTitle">
     <div class="dialog-header">
       <h2 id="helpTitle" data-i18n="helpTitle">使い方と注意事項</h2>
-      <button class="icon-button" id="closeHelpButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
+      <button data-bk-button data-bk-variant="secondary" class="icon-button" id="closeHelpButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
       </button>
     </div>
@@ -895,7 +898,7 @@ software or this license, under any kind of legal claim.***
   </dialog>
 
   <dialog id="previewDialog" aria-labelledby="previewTitle">
-    <div class="dialog-header"><h2 id="previewTitle" data-i18n="previewTitle">元画像のプレビュー</h2><button id="closePreview" class="button" type="button" data-i18n="close">閉じる</button></div>
+    <div class="dialog-header"><h2 id="previewTitle" data-i18n="previewTitle">元画像のプレビュー</h2><button data-bk-button data-bk-variant="secondary" id="closePreview" class="button" type="button" data-i18n="close">閉じる</button></div>
     <div class="dialog-body"><p id="previewMeta" class="preview-meta"></p><img id="previewImage" alt=""><p id="previewStatus" role="status"></p><p class="original-warning" data-i18n="originalWarning"></p></div>
   </dialog>
   <!-- ZIP reader/writer dependency -->
@@ -970,6 +973,7 @@ software or this license, under any kind of legal claim.***
       });
     })();
   </script>
+  <script data-bk-ui-version="1.0.0">__BK_UI_JS__</script>
   <script>
     (async () => {
       "use strict";
@@ -1091,11 +1095,11 @@ software or this license, under any kind of legal claim.***
           selectNone: "選択を解除",
           selectedImages: "{selected} / {total}個の画像を選択中",
           skippedMedia: "画像以外のメディア {count}件をスキップしました。",
-          downloadImage: "保存",
+          downloadImage: "画像を保存",
           downloadImageLabel: "{name} を元形式で保存",
           imageDownloaded: "画像の保存を開始しました",
           imageDownloadFailed: "画像を保存できませんでした。もう一度お試しください。",
-          clearAll: "すべてクリア",
+          clearAll: "全ファイルを一覧から取り除く",
           noFiles: "ファイルはまだ選択されていません。",
           supportedDetails: "対応形式と制限",
           thirdPartyLicenses: "第三者ライセンス",
@@ -1104,8 +1108,15 @@ software or this license, under any kind of legal claim.***
           builtAt: "生成日時",
           dependencies: "内包依存数",
           confirmTitle: "確認",
-          confirmClearMessage: "選択したOfficeファイルと解析結果をすべてクリアしますか？",
-          confirmClearAction: "クリアする",
+          imageFilters: "画像の絞り込み",
+          exportNeedsFiles: "Officeファイルを選択すると画像を保存できます。",
+          exportNeedsSelection: "保存する画像を1枚以上選択してください。",
+          exportWaiting: "解析が終わると保存できます。中止した後は解析済みの画像を保存できます。",
+          exportBusy: "保存用データを作成しています。処理を中止できます。",
+          exportScope: "保存対象: 選択した{count}枚の元画像（絞り込みで非表示の画像も含みます）。",
+          confirmRemoveMessage: "「{name}」を一覧から取り除きますか？解析結果と画像の選択は元に戻せません。元のファイルは削除されません。",
+          confirmClearMessage: "{count}件のOfficeファイルを一覧から取り除きますか？解析結果と画像の選択は元に戻せません。元のファイルは削除されません。",
+          confirmClearAction: "一覧から取り除く",
           cancel: "キャンセル",
           footer: "完全内包HTML・ローカル処理",
           helpBasicsTitle: "基本操作",
@@ -1129,12 +1140,12 @@ software or this license, under any kind of legal claim.***
           imageFoundOne: "1個の画像を検出",
           imageFoundMany: "{count}個の画像を検出",
           readError: "読み込めませんでした。暗号化、破損、未対応形式の可能性があります。",
-          removeFile: "{name} を削除",
+          removeFile: "{name} を一覧から取り除く",
           remove: "削除",
           creatingZip: "ZIP作成中… {percent}%",
           zipFailed: "ZIPを作成できませんでした。ファイル数やサイズを減らしてもう一度お試しください。",
           downloaded: "ZIPの保存を開始しました",
-          cleared: "選択をクリアしました"
+          cleared: "全ファイルを一覧から取り除きました"
         },
         en: {
           retry: "Retry",
@@ -1217,7 +1228,7 @@ software or this license, under any kind of legal claim.***
           dropBody: "Or choose files from your device.",
           chooseFiles: "Choose files",
           supportedHint: "Supports .xlsx / .pptx / .docx plus macro and template variants of Office Open XML. Files never leave your browser.",
-          downloadZip: "Download selected images (.zip)",
+          downloadZip: "Save selected images as ZIP",
           showImages: "Select images",
           hideImages: "Hide image list",
           selectAll: "Select all",
@@ -1230,11 +1241,11 @@ software or this license, under any kind of legal claim.***
           selectNone: "Select none",
           selectedImages: "{selected} / {total} images selected",
           skippedMedia: "Skipped {count} non-image media entries.",
-          downloadImage: "Save",
+          downloadImage: "Save image",
           downloadImageLabel: "Save {name} in its original format",
           imageDownloaded: "Image download started",
           imageDownloadFailed: "The image could not be saved. Please try again.",
-          clearAll: "Clear all",
+          clearAll: "Remove all documents",
           noFiles: "No files selected yet.",
           supportedDetails: "Supported formats & limitations",
           thirdPartyLicenses: "Third-party licenses",
@@ -1243,8 +1254,15 @@ software or this license, under any kind of legal claim.***
           builtAt: "Built at",
           dependencies: "Embedded dependencies",
           confirmTitle: "Confirm",
-          confirmClearMessage: "Clear all selected Office files and inspection results?",
-          confirmClearAction: "Clear",
+          imageFilters: "Image filters",
+          exportNeedsFiles: "Choose an Office document to save its images.",
+          exportNeedsSelection: "Select at least one image to save.",
+          exportWaiting: "Save will be available when inspection finishes. Stop processing to save images already inspected.",
+          exportBusy: "Preparing your download. You can stop processing.",
+          exportScope: "Save scope: {count} selected original images, including selections hidden by filters.",
+          confirmRemoveMessage: 'Remove "{name}" from the list? Inspection results and image selections cannot be restored. Your original file is not deleted.',
+          confirmClearMessage: "Remove {count} Office documents from the list? Inspection results and image selections cannot be restored. Your original files are not deleted.",
+          confirmClearAction: "Remove from list",
           cancel: "Cancel",
           footer: "Self-contained HTML · Local processing",
           helpBasicsTitle: "Basics",
@@ -1273,7 +1291,7 @@ software or this license, under any kind of legal claim.***
           creatingZip: "Creating ZIP… {percent}%",
           zipFailed: "The ZIP could not be created. Please try fewer or smaller files.",
           downloaded: "ZIP download started",
-          cleared: "Selection cleared"
+          cleared: "All documents removed from the list"
         }
       };
 
@@ -1287,8 +1305,8 @@ software or this license, under any kind of legal claim.***
       let zipProgress = 0;
       let selectionSummary = null;
       let toastTimer = 0;
-      let language = readStorage(LANGUAGE_STORAGE_KEY) ||
-        ((navigator.language || "").toLowerCase().startsWith("ja") ? "ja" : "en");
+      const commonUI = window.BrowserKittyUI;
+      let language = commonUI.resolveLanguage({ legacyKeys: [LANGUAGE_STORAGE_KEY] });
 
       const $ = (selector) => document.querySelector(selector);
       const dropZone = $("#drop-zone");
@@ -1333,6 +1351,7 @@ software or this license, under any kind of legal claim.***
           title.textContent = options.title || translate("confirmTitle");
           message.textContent = options.message || "";
           cancelButton.textContent = options.cancelLabel || translate("cancel");
+          okButton.setAttribute("data-bk-variant", options.tone === "danger" ? "danger" : "primary");
           okButton.textContent = options.confirmLabel || translate("confirmClearAction");
           okButton.classList.toggle("danger", options.tone === "danger");
           okButton.classList.toggle("primary", options.tone !== "danger");
@@ -1507,6 +1526,12 @@ software or this license, under any kind of legal claim.***
           ? format(translate("creatingZip"), { percent: formatNumber(zipProgress) })
           : translate("downloadZip");
 
+        commonUI.setSaveStatus($("#session-save-status"), { mode: "session", language });
+        commonUI.setButtonState(downloadButton, isGeneratingZip ? "busy" : downloadButton.disabled ? "unavailable" : "ready");
+        for (const button of [chooseButton, clearButton, selectAllImages, selectNoImages, $("#cancel-work")]) {
+          commonUI.setButtonState(button, button.disabled ? "unavailable" : "ready");
+        }
+        $("#export-reason").textContent = translate(exporting ? "exportBusy" : pending ? "exportWaiting" : !records.length ? "exportNeedsFiles" : !selectedCount ? "exportNeedsSelection" : "exportScope").replace("{count}", formatNumber(selectedCount));
         selectionNotice.textContent = formatSelectionSummary();
 
         if (records.length === 0) {
@@ -1515,12 +1540,12 @@ software or this license, under any kind of legal claim.***
         }
 
         const renderRows = images => images.map(image => { const record = records.find(r => r.id === image.documentId), index = records.indexOf(record), imageIndex = record.images.indexOf(image); return `<li class="image-row">
-                <button type="button" class="image-thumb" data-preview-id="${image.id}" data-focus-key="preview-${image.id}" aria-label="${escapeHtml(translate("previewTitle") + ": " + image.name)}" ${previewEligible(image) ? "" : "disabled"}>${previewEligible(image) ? `<img data-thumb-id="${image.id}" alt="${escapeHtml(image.name)}">` : `<span>${escapeHtml(translate("previewUnavailable"))}</span>`}</button>
+                <button data-bk-button data-bk-variant="secondary" type="button" class="image-thumb" data-preview-id="${image.id}" data-focus-key="preview-${image.id}" aria-label="${escapeHtml(translate("previewTitle") + ": " + image.name)}" ${previewEligible(image) ? "" : "disabled"}>${previewEligible(image) ? `<img data-thumb-id="${image.id}" alt="${escapeHtml(image.name)}">` : `<span>${escapeHtml(translate("previewUnavailable"))}</span>`}</button>
                 <label class="image-label"><input type="checkbox" ${grouping && groupMembers(image).length > 1 ? `data-group-id="${image.id}"` : `data-record-index="${index}" data-image-index="${imageIndex}"`} data-focus-key="image-${record.id}-${imageIndex}" ${(grouping ? groupMembers(image).every(i => i.selected) : image.selected) ? "checked" : ""} ${exporting ? "disabled" : ""}>
                   <span class="image-name">${escapeHtml(image.name)} ${escapeHtml(groupLabel(image))}<span class="image-usage">${escapeHtml(image.documentName)}</span><span class="image-usage">${image.width && image.height ? image.width + " × " + image.height + " px" : "— px"} · ${formatBytes(image.bytes)}<br>${escapeHtml(usageText(image))}</span><span class="image-format">${escapeHtml(image.name.includes(".") ? image.name.split(".").pop().toUpperCase() : image.contentType || "—")}</span></span>
                 </label>
                 ${groupDetails(image)}
-                <button class="button remove-button" type="button" data-record-index="${index}" data-download-image="${imageIndex}" data-focus-key="save-${record.id}-${imageIndex}"
+                <button data-bk-button data-bk-variant="secondary" class="button remove-button" type="button" data-record-index="${index}" data-download-image="${imageIndex}" data-focus-key="save-${record.id}-${imageIndex}"
                   aria-label="${escapeHtml(format(translate("downloadImageLabel"), { name: image.name }))}" ${exporting || pending ? "disabled" : ""}>${escapeHtml(translate("downloadImage"))}</button>
               </li>`; }).join("");
         fileList.innerHTML = records.map((record, index) => {
@@ -1536,16 +1561,16 @@ software or this license, under any kind of legal claim.***
                 <div class="file-status ${statusClass}">${escapeHtml(status)}</div>
                 ${record.duplicateCheckFailed ? `<div class="media-note">${escapeHtml(translate("duplicateCheckFailed"))}</div>` : ""}
                 ${record.warnings?.map(w => `<div class="media-note">${escapeHtml(translate(w === "LARGE" ? "largeWarning" : "metadataWarning"))}</div>`).join("") || ""}
-                ${record.error ? `<button type="button" class="button" data-retry-id="${record.id}" data-focus-key="retry-${record.id}" ${exporting ? "disabled" : ""}>${escapeHtml(translate("retry"))}</button>` : ""}
+                ${record.error ? `<button data-bk-button data-bk-variant="secondary" type="button" class="button" data-retry-id="${record.id}" data-focus-key="retry-${record.id}" ${exporting ? "disabled" : ""}>${escapeHtml(translate("retry"))}</button>` : ""}
                 ${record.skippedMedia ? `<div class="media-note">${escapeHtml(format(translate("skippedMedia"), { count: formatNumber(record.skippedMedia) }))}</div>` : ""}
                 <div class="progress-track" role="progressbar" aria-label="${escapeHtml(status)}"
                   aria-valuemin="0" aria-valuemax="100" aria-valuenow="${record.progress}">
                   <i class="progress-bar" style="width: ${record.progress}%"></i>
                 </div>
-                ${record.images?.length ? `<button class="button remove-button image-toggle" type="button" data-expand-index="${index}" data-focus-key="expand-${record.id}"
+                ${record.images?.length ? `<button data-bk-button data-bk-variant="secondary" class="button remove-button image-toggle" type="button" data-expand-index="${index}" data-focus-key="expand-${record.id}"
                   aria-expanded="${Boolean(record.expanded)}" aria-controls="images-${record.id}">${escapeHtml(translate(record.expanded ? "hideImages" : "showImages"))}</button>` : ""}
               </div>
-              <button class="button remove-button" type="button" data-remove-index="${index}"
+              <button data-bk-button data-bk-variant="secondary" class="button remove-button" type="button" data-remove-index="${index}"
                 data-focus-key="remove-${record.id}" aria-label="${escapeHtml(removeLabel)}" ${exporting ? "disabled" : ""}>
                 ${escapeHtml(translate("remove"))}
               </button>
@@ -1553,8 +1578,8 @@ software or this license, under any kind of legal claim.***
             ${record.images?.length && imageSort === "source" ? `<div class="image-panel" id="images-${record.id}" ${record.expanded ? "" : "hidden"}>
               <div class="image-tools">
                 <span>${escapeHtml(format(translate("selectedImages"), { selected: formatNumber(selectedImageCount(record)), total: formatNumber(record.images.length) }))}</span>
-                <button class="button remove-button" type="button" data-select-all="${index}" data-focus-key="all-${record.id}" ${exporting ? "disabled" : ""}>${escapeHtml(translate("selectAll"))}</button>
-                <button class="button remove-button" type="button" data-select-none="${index}" data-focus-key="none-${record.id}" ${exporting ? "disabled" : ""}>${escapeHtml(translate("selectNone"))}</button>
+                <button data-bk-button data-bk-variant="secondary" class="button remove-button" type="button" data-select-all="${index}" data-focus-key="all-${record.id}" ${exporting ? "disabled" : ""}>${escapeHtml(translate("selectAll"))}</button>
+                <button data-bk-button data-bk-variant="secondary" class="button remove-button" type="button" data-select-none="${index}" data-focus-key="none-${record.id}" ${exporting ? "disabled" : ""}>${escapeHtml(translate("selectNone"))}</button>
               </div>
               <ul class="image-list">${renderRows(record.images.filter(image => pageIds.has(image.id)))}</ul>
             </div>` : ""}
@@ -1959,8 +1984,13 @@ software or this license, under any kind of legal claim.***
         if (!removeButton) return;
         const removeIndex = Number(removeButton.dataset.removeIndex);
         if (!Number.isInteger(removeIndex) || !records[removeIndex]) return;
-        disposePreviews(); jobs.cancel([records[removeIndex].id]);
-        records.splice(removeIndex, 1); duplicateGroups = []; grouping = false;
+        const record = records[removeIndex];
+        const confirmed = await AppConfirm.ask({ title: translate("confirmTitle"),
+          message: format(translate("confirmRemoveMessage"), { name: record.file.name }),
+          confirmLabel: translate("confirmClearAction"), cancelLabel: translate("cancel"), tone: "danger" });
+        if (!confirmed || isExporting() || !records.includes(record)) return;
+        disposePreviews(); jobs.cancel([record.id]);
+        records.splice(records.indexOf(record), 1); duplicateGroups = []; grouping = false;
         selectionSummary = null;
         pumpInspectionQueue();
         render();
@@ -1971,7 +2001,7 @@ software or this license, under any kind of legal claim.***
         if (isExporting() || records.length === 0) return;
         const confirmed = await AppConfirm.ask({
           title: translate("confirmTitle"),
-          message: translate("confirmClearMessage"),
+          message: format(translate("confirmClearMessage"), { count: formatNumber(records.length) }),
           confirmLabel: translate("confirmClearAction"),
           cancelLabel: translate("cancel"),
           tone: "danger"
@@ -1990,8 +2020,9 @@ software or this license, under any kind of legal claim.***
 
       languageButton.addEventListener("click", () => {
         language = language === "ja" ? "en" : "ja";
-        writeStorage(LANGUAGE_STORAGE_KEY, language);
+        const choice = commonUI.chooseLanguage(language);
         applyLanguage();
+        if (!choice.persisted) showToast(commonUI.text("languageSessionOnly", language));
       });
 
       $("#helpButton").addEventListener("click", () => helpDialog.showModal());

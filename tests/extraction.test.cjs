@@ -38,7 +38,7 @@ test('expansion, selection and keyboard focus survive progress renders and langu
   const f=await fixture();f.api.addFiles([await office()]);await settled(f);await action(f,'[data-expand-index="0"]');await action(f,'[data-image-index="0"]','change',{checked:false});const checkbox=f.get('#file-list').querySelector('[data-image-index="0"]');checkbox.focus();const key=checkbox.dataset.focusKey;f.api.render();assert.equal(f.document.activeElement.isConnected,true);assert.equal(f.document.activeElement.dataset.focusKey,key);f.api.setLanguage('ja');assert.equal(f.api.records[0].expanded,true);assert.equal(f.api.records[0].images[0].selected,false);assert.equal(f.document.activeElement.dataset.focusKey,key);assert.match(f.get('#file-list').innerHTML,/すべて選択/);
 });
 test('remove and clear discard selection and stale async inspection cannot reappear',async()=>{
-  const f=await fixture();const file=await office();f.api.addFiles([file]);await action(f,'[data-remove-index="0"]');await new Promise(resolve=>setImmediate(resolve));assert.equal(f.api.records.length,0);assert.equal(f.get('#download-button').disabled,true);f.api.addFiles([file]);await settled(f);await action(f,'[data-expand-index="0"]');await action(f,'[data-select-none="0"]');const clear=f.get('#clear-button').dispatch('click');await f.get('#appConfirmOk').dispatch('click');await clear;assert.equal(f.api.records.length,0);f.api.addFiles([file]);await settled(f);assert.equal(f.api.records[0].images[0].selected,true);
+  const f=await fixture();const file=await office();f.api.addFiles([file]);await removeDocument(f,'[data-remove-index="0"]');await new Promise(resolve=>setImmediate(resolve));assert.equal(f.api.records.length,0);assert.equal(f.get('#download-button').disabled,true);f.api.addFiles([file]);await settled(f);await action(f,'[data-expand-index="0"]');await action(f,'[data-select-none="0"]');const clear=f.get('#clear-button').dispatch('click');await f.get('#appConfirmOk').dispatch('click');await clear;assert.equal(f.api.records.length,0);f.api.addFiles([file]);await settled(f);assert.equal(f.api.records[0].images[0].selected,true);
 });
 test('malformed packages report an error and do not block a valid document',async()=>{
   const f=await fixture();const bad=Object.assign(Uint8Array.from([1,2,3]),{name:'bad.pptx',size:3,lastModified:1});f.api.addFiles([bad,await office()]);await settled(f);assert.equal(f.api.records[0].error,true);assert.equal(f.api.records[1].images.length,1);assert.equal(f.get('#download-button').disabled,false);
@@ -183,12 +183,12 @@ test('clear during comparison followed immediately by identical import cannot re
 });
 test('removing the comparing candidate suppresses its result and its stale notice',async()=>{
  const f=await fixture(),a=await office();f.api.addFiles([a]);await drained(f);const gate=deferred(),b=syntheticFile(a,{name:a.name});let started=false;
- observeSlices(b,async()=>{started=true;await gate.promise;});f.api.addFiles([b]);await until(()=>started);await action(f,'[data-remove-index="1"]');gate.resolve();await drained(f);
+ observeSlices(b,async()=>{started=true;await gate.promise;});f.api.addFiles([b]);await until(()=>started);await removeDocument(f,'[data-remove-index="1"]');gate.resolve();await drained(f);
  assert.equal(f.api.records.length,1);assert.equal(f.api.records[0].file,a);assert.equal(f.get('#selection-notice').textContent,'');assert.equal(selected(f),1);
 });
 test('removing the earlier canonical while comparison awaits admits the remaining candidate',async()=>{
  const f=await fixture(),a=await office();f.api.addFiles([a]);await drained(f);const gate=deferred(),b=syntheticFile(a,{name:a.name});let started=false;
- observeSlices(b,async()=>{started=true;await gate.promise;});f.api.addFiles([b]);await until(()=>started);await action(f,'[data-remove-index="0"]');gate.resolve();await drained(f);
+ observeSlices(b,async()=>{started=true;await gate.promise;});f.api.addFiles([b]);await until(()=>started);await removeDocument(f,'[data-remove-index="0"]');gate.resolve();await drained(f);
  assert.equal(f.api.records.length,1);assert.equal(f.api.records[0].file,b);assert.equal(selected(f),1);assert.equal(f.get('#selection-notice').textContent,'');
 });
 test('clear invalidates two active comparisons and all pending candidates without leaking queue slots',async()=>{
@@ -221,7 +221,7 @@ test('global controls handle mixed selection, errors, zero images and new later 
  for(let i=0;i<3;i++)await f.get('#select-all-images').dispatch('click');assert.equal(selected(f),4);assert.equal(f.api.records[2].expanded,true);
 });
 test('global buttons are semantic, have explicit all-document scope, retain focus and translate during renders',async()=>{
- assert.match(html,/<button id="select-all-images"[^>]*type="button"/);assert.match(html,/<button id="select-none-images"[^>]*type="button"/);
+ assert.match(html,/<button[^>]* id="select-all-images"[^>]*type="button"/);assert.match(html,/<button[^>]* id="select-none-images"[^>]*type="button"/);
  assert.match(html,/role="group" data-i18n-aria-label="batchSelection"/);
  const f=await fixture();f.api.addFiles([await office()]);await drained(f);const button=f.get('#select-none-images');button.focus();await button.dispatch('click');f.api.render();f.api.setLanguage('ja');
  assert.equal(f.document.activeElement,button);assert.equal(button.textContent,'全画像の選択を解除');assert.equal(f.get('#select-all-images').textContent,'全画像を選択');assert.equal(selected(f),0);
@@ -239,12 +239,16 @@ test('global controls are inert throughout ZIP and individual-image exports',asy
 
 test('canonical ownership is checked again when an equality result is delivered',async()=>{
  const f=await fixture(),a=await office();f.api.addFiles([a]);await drained(f);const b=syntheticFile(a,{name:a.name}),slice=a.slice;
+ const pendingRemoval=action(f,'[data-remove-index="0"]');
  a.slice=(start,end)=>({arrayBuffer(){
   const reading=slice(start,end).arrayBuffer();
-  // Remove after sameFileBytes resumes but before its caller receives true.
-  reading.then(()=>queueMicrotask(()=>queueMicrotask(()=>{void action(f,'[data-remove-index="0"]');})));
+  // Confirm the already-open removal after the read; the awaited confirmation
+  // resumes between comparison and its caller, so ownership must be checked again.
+  reading.then(()=>queueMicrotask(()=>{void f.get("#appConfirmOk").dispatch("click");}));
   return reading;
  }});
- f.api.addFiles([b]);await drained(f);assert.equal(f.api.records.length,1);assert.equal(f.api.records[0].file,b);assert.equal(selected(f),1);
+ f.api.addFiles([b]);await pendingRemoval;await drained(f);assert.equal(f.api.records.length,1);assert.equal(f.api.records[0].file,b);assert.equal(selected(f),1);
 });
 test('oversized rejected document does not block a valid file in the same batch',async()=>{const f=await fixture(),big=await office('huge.docx'),good=await office('good.docx');big.size=2147483649;f.api.addFiles([big,good]);await settled(f);assert.equal(f.api.records[0].errorCode,'INPUT_LIMIT');assert.equal(f.api.records[1].error,false);assert.equal(f.api.records[1].images.length,1);});
+
+async function removeDocument(f, selector) { const pending=action(f,selector); await f.get("#appConfirmOk").dispatch("click"); await pending; }

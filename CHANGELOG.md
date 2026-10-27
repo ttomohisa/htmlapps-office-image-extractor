@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased — Shared UI pilot
+
+- Add common language, explicit button states and session retention/output scope.
+- Confirm single/all document removal with name/count and source-file safety.
+- Embed pinned shared UI components without runtime requests.
+
 ## 1.1.0 - 2026-10-25
 
 - Add bounded raster previews, enlargement, dimensions, byte sizes and relationship-based Office provenance.

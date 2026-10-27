@@ -97,3 +97,11 @@ All processing happens in the browser. The app has no upload, account, analytics
 - Preview limits: 32 megapixels, 16 MiB encoded original, one decode at a time and 32 MiB thumbnail cache; object URLs and bitmaps are released.
 - Reject ambiguous ZIP paths/header conflicts, encrypted/unsupported archives and invalid image CRCs with actionable errors. Partial ZIP requires explicit confirmation, lists failed items and records omissions in its manifest.
 - JA/EN title metrics stay consistent, third-party notices live inside Help, and the drop area uses a document-to-image icon without changing the supplied app artwork.
+
+## Shared UI conventions pilot
+
+- Embed the vendored BrowserKittyUI 1.0.0 JS/CSS only after lock/marker validation.
+- Session retention status sits above input; ZIP availability reason and all-selected-original scope remain beside the toolbar. Busy ZIP is non-repeatable; cancellation retains the existing worker lifecycle.
+- Removing one/all documents uses cancel-first AppConfirm; name/count and lost inspection/selection scope are literal text. Source files are never deleted.
+- Language: URL ja/en, shared key, legacy key, supported navigator language, English. Only explicit switch writes the shared key; no state reset.
+- Tests cover actual package bytes, stale worker results, declined destructive actions and preserved work on language/storage failure.
