@@ -586,6 +586,8 @@
     .export-option { display: block; margin: 12px 0; font-size: 12px; }
     .image-row details { max-width: 260px; font-size: 11px; }
     @media (max-width: 520px) { .image-row { flex-wrap: wrap; } .image-row details { flex-basis: 100%; max-width: 100%; } }
+    .zip-name { display: grid; gap: 4px; max-width: 100%; font-size: .85rem; }
+    .zip-name input { min-height: 44px; width: 230px; max-width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font: inherit; }
   </style>
   <style>__BK_UI_CSS__</style>
 </head>
@@ -659,7 +661,7 @@
           <button data-bk-button data-bk-variant="secondary" id="select-all-images" class="button" type="button" disabled data-i18n="selectAllImages">全画像を選択</button>
           <button data-bk-button data-bk-variant="secondary" id="select-none-images" class="button" type="button" disabled data-i18n="selectNoImages">全画像の選択を解除</button>
         </div>
-        <div class="button-row"><button data-bk-button data-bk-variant="primary" id="download-button" aria-describedby="export-reason" class="button primary" type="button" disabled data-i18n="downloadZip">抽出画像をZIPで保存</button></div>
+        <div class="button-row"><label class="zip-name"><span data-i18n="zipFilename">ZIPのファイル名</span><input id="zip-filename" type="text" maxlength="180" value="extracted-office-images" autocomplete="off" spellcheck="false"></label><button data-bk-button data-bk-variant="primary" id="download-button" aria-describedby="export-reason" class="button primary" type="button" disabled data-i18n="downloadZip">抽出画像をZIPで保存</button></div>
         <div class="button-row"><button data-bk-button data-bk-variant="danger" id="clear-button" class="button danger" type="button" disabled data-i18n="clearAll">すべてクリア</button></div>
       </div>
 
@@ -1112,6 +1114,7 @@ software or this license, under any kind of legal claim.***
           dependencies: "内包依存数",
           confirmTitle: "確認",
           imageFilters: "画像の絞り込み",
+          zipFilename: "ZIPのファイル名（.zip）",
           exportRecovery: "選択した画像は保持されています。保存を再試行するか、元のOfficeファイルをもう一度読み込んでください。",
           exportNeedsFiles: "Officeファイルを選択すると画像を保存できます。",
           exportNeedsSelection: "保存する画像を1枚以上選択してください。",
@@ -1259,6 +1262,7 @@ software or this license, under any kind of legal claim.***
           dependencies: "Embedded dependencies",
           confirmTitle: "Confirm",
           imageFilters: "Image filters",
+          zipFilename: "ZIP filename (.zip)",
           exportRecovery: "Your image selection is preserved. Retry saving, or load the original Office document again.",
           exportNeedsFiles: "Choose an Office document to save its images.",
           exportNeedsSelection: "Select at least one image to save.",
@@ -1523,6 +1527,7 @@ software or this license, under any kind of legal claim.***
         clearButton.disabled = exporting || records.length === 0;
         chooseButton.disabled = exporting;
         filePicker.disabled = exporting;
+        $("#zip-filename").disabled = exporting;
 
         dropZone.classList.toggle("busy", exporting);
         dropZone.setAttribute("aria-disabled", exporting ? "true" : "false");
@@ -1884,10 +1889,16 @@ software or this license, under any kind of legal claim.***
         }
       }
 
+      function zipOutputName(partial, snapshot) {
+        let stem = snapshot.replace(/\.zip$/i, "").replace(/[<>:"/\\|?*\x00-\x1f]/g, "_").replace(/[. ]+$/g, "").trim();
+        if (!stem || /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(stem)) stem = "extracted-office-images";
+        return stem + (partial ? "-partial" : "") + ".zip";
+      }
       async function downloadExtractedImages() {
         if (isExporting() || hasPendingInspections()) return;
         const items = records.flatMap(record => (record.images || []).filter(i => i.selected).map(image => ({ id: image.id, documentId: record.id, documentName: record.file.name, file: record.file, path: image.path, name: image.name, usages: image.usages })));
         if (!items.length) return;
+        const outputNameSnapshot = $("#zip-filename").value;
         const epoch = ++exportEpoch; exportError = null; disposePreviews(); isGeneratingZip = true; zipProgress = 0; render();
         try {
           const result = await jobs.run("exportImages", [items, { unique: $("#unique-export").checked }], { affectedDocumentIds: records.map(r => r.id), onProgress: p => { zipProgress = p.percent || 0; downloadButton.textContent = format(translate("creatingZip"), { percent: formatNumber(zipProgress) }); } });
@@ -1897,7 +1908,7 @@ software or this license, under any kind of legal claim.***
             const confirmed = await AppConfirm.ask({ title: translate("partialTitle"), message: format(translate("partialMessage"), { good: result.count, failed: result.failed.length }) + "\n" + result.failed.map(i => `${i.document} / ${i.path}: ${errorText(i.code)}`).join("\n"), confirmLabel: translate("saveSuccessful"), cancelLabel: translate("cancel"), tone: "danger" });
             if (!confirmed || epoch !== exportEpoch) return;
           }
-          saveBlob(result.blob, result.failed.length ? "extracted-office-images-partial.zip" : "extracted-office-images.zip"); showToast(translate("downloaded"));
+          saveBlob(result.blob, zipOutputName(result.failed.length > 0, outputNameSnapshot)); showToast(translate("downloaded"));
         } catch (error) { if (error.code !== "CANCELLED") { exportError = { code: error.code || "EXPORT" }; showToast(errorText(exportError.code)); } }
         finally { isGeneratingZip = false; zipProgress = 0; render(); }
       }

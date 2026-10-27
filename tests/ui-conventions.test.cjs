@@ -85,3 +85,10 @@ test('failed individual image save retains filename and recovery guidance',async
  assert.match(f.get('#export-error').textContent,/image1.png/);
  assert.match(f.get('#export-error').textContent,/try|retry/i);assert.equal(f.downloads.length,0);
 });
+
+test('ZIP filename is editable, sanitized and fixed when export starts',async()=>{
+ const f=await fixture();await f.api.addFiles([await office()]);await settled(f);
+ f.get('#zip-filename').value='レポート:/画像.zip';
+ const pending=f.api.downloadExtractedImages();f.get('#zip-filename').value='later';await pending;
+ assert.equal(f.downloads[0].name,'レポート__画像.zip');assert.equal(f.get('#zip-filename').disabled,false);
+});
