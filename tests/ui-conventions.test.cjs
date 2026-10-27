@@ -66,3 +66,22 @@ test('single-document removal requires confirmation and cancel preserves selecti
   await f.get('#appConfirmCancel').dispatch('click');await pending;
   assert.equal(f.api.records.length,1);assert.equal(f.api.records[0].images[0].selected,true);
 });
+
+test('failed ZIP keeps translated recovery guidance visible until retry',async()=>{
+ const f=await fixture();await f.api.addFiles([await office()]);await settled(f);
+ const file=f.api.records[0].file;f.api.records[0].file=Uint8Array.from([1,2]);
+ await f.api.downloadExtractedImages();assert.equal(f.downloads.length,0);
+ assert.match(f.get('#export-error').textContent,/try|retry/i);
+ f.api.setLanguage('ja');assert.match(f.get('#export-error').textContent,/再試行/);
+ assert.equal(f.get('#download-button').disabled,false);
+ f.api.records[0].file=file;await f.api.downloadExtractedImages();
+ assert.equal(f.get('#export-error').textContent,'');assert.equal(f.downloads.length,1);
+});
+test('failed individual image save retains filename and recovery guidance',async()=>{
+ const f=await fixture();await f.api.addFiles([await office()]);await settled(f);
+ await action(f,'[data-expand-index="0"]');
+ f.api.records[0].images[0].entry.async=async()=>{throw Object.assign(new Error('bad'),{code:'CRC'});};
+ await action(f,'[data-download-image="0"]');
+ assert.match(f.get('#export-error').textContent,/image1.png/);
+ assert.match(f.get('#export-error').textContent,/try|retry/i);assert.equal(f.downloads.length,0);
+});

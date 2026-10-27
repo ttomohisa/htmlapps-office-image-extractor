@@ -662,6 +662,7 @@
       </div>
 
       <p id="export-reason" class="hint" role="status" aria-live="polite"></p>
+      <p id="export-error" class="original-warning" role="alert" hidden></p>
       <p class="original-warning" data-i18n="originalWarning"></p>
 <div class="filter-panel" data-i18n-aria-label="imageFilters" aria-label="画像の絞り込み">
 <label><span data-i18n="searchImages"></span><input id="filter-text" type="search" data-filter="text"></label>
@@ -1109,6 +1110,7 @@ software or this license, under any kind of legal claim.***
           dependencies: "内包依存数",
           confirmTitle: "確認",
           imageFilters: "画像の絞り込み",
+          exportRecovery: "選択した画像は保持されています。保存を再試行するか、元のOfficeファイルをもう一度読み込んでください。",
           exportNeedsFiles: "Officeファイルを選択すると画像を保存できます。",
           exportNeedsSelection: "保存する画像を1枚以上選択してください。",
           exportWaiting: "解析が終わると保存できます。中止した後は解析済みの画像を保存できます。",
@@ -1141,7 +1143,7 @@ software or this license, under any kind of legal claim.***
           imageFoundMany: "{count}個の画像を検出",
           readError: "読み込めませんでした。暗号化、破損、未対応形式の可能性があります。",
           removeFile: "{name} を一覧から取り除く",
-          remove: "削除",
+          remove: "一覧から取り除く",
           creatingZip: "ZIP作成中… {percent}%",
           zipFailed: "ZIPを作成できませんでした。ファイル数やサイズを減らしてもう一度お試しください。",
           downloaded: "ZIPの保存を開始しました",
@@ -1255,6 +1257,7 @@ software or this license, under any kind of legal claim.***
           dependencies: "Embedded dependencies",
           confirmTitle: "Confirm",
           imageFilters: "Image filters",
+          exportRecovery: "Your image selection is preserved. Retry saving, or load the original Office document again.",
           exportNeedsFiles: "Choose an Office document to save its images.",
           exportNeedsSelection: "Select at least one image to save.",
           exportWaiting: "Save will be available when inspection finishes. Stop processing to save images already inspected.",
@@ -1305,6 +1308,7 @@ software or this license, under any kind of legal claim.***
       let zipProgress = 0;
       let selectionSummary = null;
       let toastTimer = 0;
+      let exportError = null;
       const commonUI = window.BrowserKittyUI;
       let language = commonUI.resolveLanguage({ legacyKeys: [LANGUAGE_STORAGE_KEY] });
 
@@ -1532,6 +1536,8 @@ software or this license, under any kind of legal claim.***
           commonUI.setButtonState(button, button.disabled ? "unavailable" : "ready");
         }
         $("#export-reason").textContent = translate(exporting ? "exportBusy" : pending ? "exportWaiting" : !records.length ? "exportNeedsFiles" : !selectedCount ? "exportNeedsSelection" : "exportScope").replace("{count}", formatNumber(selectedCount));
+        $("#export-error").textContent = exportError ? (exportError.name ? exportError.name + ": " : "") + errorText(exportError.code) + " " + translate("exportRecovery") : "";
+        $("#export-error").hidden = !exportError;
         selectionNotice.textContent = formatSelectionSummary();
 
         if (records.length === 0) {
@@ -1858,6 +1864,7 @@ software or this license, under any kind of legal claim.***
         if (isExporting() || hasPendingInspections() || !records.includes(record) || !record.images?.includes(image)) return;
         const previousFocus = document.activeElement;
         const focusKey = fileList.contains(previousFocus) ? previousFocus?.dataset.focusKey : null;
+        exportError = null;
         isDownloadingImage = true;
         render();
         try {
@@ -1865,7 +1872,7 @@ software or this license, under any kind of legal claim.***
           showToast(translate("imageDownloaded"));
         } catch (error) {
           console.error(error);
-          if (error.code !== "CANCELLED") showToast(errorText(error.code));
+          if (error.code !== "CANCELLED") { exportError = { code: error.code || "EXPORT", name: image.name }; showToast(errorText(error.code)); }
         } finally {
           const restoreFocus = focusKey && (document.activeElement === previousFocus ||
             document.activeElement === document.body || !document.activeElement?.isConnected);
@@ -1879,17 +1886,17 @@ software or this license, under any kind of legal claim.***
         if (isExporting() || hasPendingInspections()) return;
         const items = records.flatMap(record => (record.images || []).filter(i => i.selected).map(image => ({ id: image.id, documentId: record.id, documentName: record.file.name, file: record.file, path: image.path, name: image.name, usages: image.usages })));
         if (!items.length) return;
-        const epoch = ++exportEpoch; disposePreviews(); isGeneratingZip = true; zipProgress = 0; render();
+        const epoch = ++exportEpoch; exportError = null; disposePreviews(); isGeneratingZip = true; zipProgress = 0; render();
         try {
           const result = await jobs.run("exportImages", [items, { unique: $("#unique-export").checked }], { affectedDocumentIds: records.map(r => r.id), onProgress: p => { zipProgress = p.percent || 0; downloadButton.textContent = format(translate("creatingZip"), { percent: formatNumber(zipProgress) }); } });
           if (epoch !== exportEpoch) return;
-          if (!result.blob) { showToast(errorText(result.failed[0]?.code || "EXPORT")); return; }
+          if (!result.blob) { exportError = { code: result.failed[0]?.code || "EXPORT" }; showToast(errorText(exportError.code)); return; }
           if (result.failed.length) {
             const confirmed = await AppConfirm.ask({ title: translate("partialTitle"), message: format(translate("partialMessage"), { good: result.count, failed: result.failed.length }) + "\n" + result.failed.map(i => `${i.document} / ${i.path}: ${errorText(i.code)}`).join("\n"), confirmLabel: translate("saveSuccessful"), cancelLabel: translate("cancel"), tone: "danger" });
             if (!confirmed || epoch !== exportEpoch) return;
           }
           saveBlob(result.blob, result.failed.length ? "extracted-office-images-partial.zip" : "extracted-office-images.zip"); showToast(translate("downloaded"));
-        } catch (error) { if (error.code !== "CANCELLED") showToast(errorText(error.code)); }
+        } catch (error) { if (error.code !== "CANCELLED") { exportError = { code: error.code || "EXPORT" }; showToast(errorText(exportError.code)); } }
         finally { isGeneratingZip = false; zipProgress = 0; render(); }
       }
 
@@ -1990,7 +1997,7 @@ software or this license, under any kind of legal claim.***
           confirmLabel: translate("confirmClearAction"), cancelLabel: translate("cancel"), tone: "danger" });
         if (!confirmed || isExporting() || !records.includes(record)) return;
         disposePreviews(); jobs.cancel([record.id]);
-        records.splice(records.indexOf(record), 1); duplicateGroups = []; grouping = false;
+        records.splice(records.indexOf(record), 1); exportError = null; duplicateGroups = []; grouping = false;
         selectionSummary = null;
         pumpInspectionQueue();
         render();
@@ -2008,7 +2015,7 @@ software or this license, under any kind of legal claim.***
         });
         if (!confirmed || isExporting()) return;
         disposePreviews(); jobs.cancel();
-        records.length = 0; duplicateGroups = []; grouping = false; imagePage = 0;
+        records.length = 0; exportError = null; duplicateGroups = []; grouping = false; imagePage = 0;
         pendingInspections.length = 0;
         selectionSummary = null;
         render();
