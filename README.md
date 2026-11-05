@@ -1,6 +1,6 @@
 # Office Image Extractor
 
-Header: v1.1.0. The privacy badge reads “Fully local processing”; the language button shows EN in Japanese and JA in English, with localized target-language and Help descriptions.
+Header: v1.1.1. The privacy badge reads “Fully local processing” on larger screens and is hidden at widths of 520px or less. The language button shows EN in Japanese and JA in English, with localized target-language and Help descriptions.
 
 [![GitHub Pages](https://github.com/ttomohisa/htmlapps-office-image-extractor/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/ttomohisa/htmlapps-office-image-extractor/actions/workflows/deploy-pages.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -127,6 +127,10 @@ The repository includes a workflow that builds the fully embedded HTML and deplo
 Each push to `main` rebuilds `dist/index.html` from the pinned dependency, verifies the standalone artifact, generates the self-extracting variant, and then publishes the `dist` directory.
 
 The legacy `/office-image-extractor.html` path is also generated as an alias for compatibility.
+
+## GitHub Release publishing
+
+A version bump in `app.config.json`, merged to `main` by the repository owner, triggers `.github/workflows/publish-release.yml`. The workflow builds and verifies both standalone HTML variants, runs Chromium `file://` browser QA, creates the annotated `vX.Y.Z` tag, and publishes a GitHub Release with HTML, self-extracting HTML, ZIP and SHA-256 checksums. It requires matching release notes in `docs/releases/vX.Y.Z.md` and does not tag or publish from PRs. Existing releases and tags are not overwritten.
 
 ## Development and build layout
 
