@@ -687,7 +687,7 @@
           <div class="drop-zone-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20H4V3h9l4 4v3M13 3v5h4M7 11h3M7 14h2"/><rect x="12" y="13" width="10" height="8" rx="1.5"/><path d="m13 20 3-3 2 2 2-2 2 2M8 18h3m-2-2 2 2-2 2"/></svg>
           </div>
-          <strong data-i18n="dropTitle">Officeファイルをここにドロップ</strong>
+          <strong id="dropTitle" data-i18n="dropTitle">Officeファイルをここにドロップ</strong>
           <span class="drop-zone-copy" data-i18n="dropBody">または、端末からファイルを選択してください。</span>
           <button id="choose-button" class="button primary choose-button" type="button" data-i18n="chooseFiles">ファイルを選択</button>
         </div>
@@ -1573,7 +1573,7 @@ software or this license, under any kind of legal claim.***
         fileList.hidden = records.length === 0;
         dropZone.classList.toggle("has-files", records.length > 0);
         $(".workspace").classList.toggle("has-files", records.length > 0);
-        dropZone.querySelector("[data-i18n='dropTitle']").textContent = translate(records.length ? "dropMoreTitle" : "dropTitle");
+        $("#dropTitle").textContent = translate(records.length ? "dropMoreTitle" : "dropTitle");
         selectedSummary.textContent = format(translate("selectedImages"), { selected: formatNumber(selectedCount), total: formatNumber(imageCount) });
         $("#cancel-work").disabled = !pending && !exporting;
         $("#cancel-work").hidden = !pending && !exporting;
