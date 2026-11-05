@@ -584,6 +584,54 @@
     .export-option { display: block; margin: 12px 0; font-size: 12px; }
     .image-row details { max-width: 260px; font-size: 11px; }
     @media (max-width: 520px) { .image-row { flex-wrap: wrap; } .image-row details { flex-basis: 100%; max-width: 100%; } }
+
+    /* The file picker is a large landing target only until a document has been added. */
+    .drop-zone.has-files { display: block; min-height: 0; padding: 12px 14px; text-align: left; border-style: solid; background: #f7faf8; }
+    .drop-zone.has-files > div { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+    .drop-zone.has-files .drop-zone-icon { width: 38px; height: 38px; margin: 0; border-radius: 10px; }
+    .drop-zone.has-files .drop-zone-icon svg { width: 22px; height: 22px; }
+    .drop-zone.has-files strong { min-width: 0; font-size: 13px; font-weight: 700; }
+    .drop-zone.has-files .drop-zone-copy { display: none; }
+    .drop-zone.has-files .choose-button { margin: 0; white-space: nowrap; }
+    .workspace.has-files .supported-hint { display: none; }
+    .results-ui[hidden], .file-list[hidden], .pagination[hidden], #cancel-work[hidden] { display: none !important; }
+    .results-ui { margin-top: 14px; }
+    .results-actions { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 15px 17px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+    .results-selection { min-width: 0; }
+    .results-label { margin: 0 0 3px; font-size: 11px; color: var(--muted); }
+    .results-selection .selected-summary { margin: 0; font-size: 16px; font-weight: 750; color: var(--text); }
+    .selection-buttons { display: flex; flex-wrap: wrap; gap: 5px 10px; margin-top: 6px; }
+    .selection-buttons .button { min-height: 34px; padding: 4px 8px; border-color: transparent; font-size: 12px; color: var(--accent); }
+    .selection-buttons .button:hover:not(:disabled) { border-color: var(--line); }
+    .results-actions > .button { min-height: 46px; flex: 0 0 auto; }
+    .results-secondary { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; margin-top: 10px; }
+    .results-minor { display: flex; flex-wrap: wrap; gap: 7px; margin-left: auto; }
+    .results-minor .button { min-height: 38px; font-size: 12px; }
+    .filter-details { flex: 1 1 250px; min-width: 0; border: 0; border-radius: 10px; background: transparent; box-shadow: none; }
+    .filter-details > summary { padding: 8px 2px; color: var(--accent); font-size: 13px; }
+    .filter-details[open] { flex-basis: 100%; order: 2; padding: 0 12px 12px; border: 1px solid var(--line); background: var(--surface); }
+    .filter-details[open] > summary { padding-top: 12px; }
+    .filter-details .filter-panel { margin-top: 6px; }
+    .filter-details .original-warning { margin-bottom: 0; }
+    .filter-details .filter-options { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filter-details .pagination { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filter-details .export-option { line-height: 1.6; }
+    .results-ui .selection-notice { text-align: left; margin: 0 2px 9px; }
+    @media (max-width: 520px) {
+      .drop-zone.has-files { min-height: 0; padding: 10px; }
+      .drop-zone.has-files > div { grid-template-columns: 32px minmax(0, 1fr) auto; gap: 8px; }
+      .drop-zone.has-files .drop-zone-icon { width: 32px; height: 32px; }
+      .drop-zone.has-files .drop-zone-icon svg { width: 19px; height: 19px; }
+      .drop-zone.has-files strong { font-size: 12px; overflow-wrap: anywhere; }
+      .drop-zone.has-files .choose-button { flex: none; min-height: 38px; padding: 7px 10px; font-size: 12px; }
+      .results-actions { flex-direction: column; align-items: stretch; gap: 11px; padding: 13px; }
+      .results-actions > .button { width: 100%; }
+      .selection-buttons .button { flex: 0 1 auto; }
+      .results-secondary { gap: 5px; }
+      .filter-details { flex-basis: 100%; }
+      .results-minor { width: 100%; justify-content: flex-end; }
+      .results-minor .button { flex: 0 1 auto; }
+    }
   </style>
 </head>
 <body>
@@ -646,33 +694,53 @@
         <input id="file-picker" type="file" multiple accept=".xlsx,.xlsm,.xltx,.xltm,.pptx,.pptm,.potx,.potm,.ppsx,.ppsm,.docx,.docm,.dotx,.dotm">
       </section>
 
-      <div class="hint" data-i18n="supportedHint">対応: .xlsx / .pptx / .docx とマクロ・テンプレート系のOffice Open XML形式。ファイルは外部へ送信されません。</div>
-      <div id="selection-notice" class="selection-notice" role="status" aria-live="polite"></div>
+      <div class="hint supported-hint" data-i18n="supportedHint">対応: .xlsx / .pptx / .docx とマクロ・テンプレート系のOffice Open XML形式。ファイルは外部へ送信されません。</div>
 
-      <div class="toolbar"><button id="cancel-work" class="button" type="button" disabled data-i18n="stopWork">処理を中止</button>
-        <div class="button-row" role="group" data-i18n-aria-label="batchSelection" aria-label="すべての文書の画像選択">
-          <p class="selected-summary" id="selected-summary" role="status" aria-live="polite"></p>
-          <button id="select-all-images" class="button" type="button" disabled data-i18n="selectAllImages">全画像を選択</button>
-          <button id="select-none-images" class="button" type="button" disabled data-i18n="selectNoImages">全画像の選択を解除</button>
+      <div id="results-ui" class="results-ui" hidden>
+        <div id="selection-notice" class="selection-notice" role="status" aria-live="polite"></div>
+        <div class="results-actions">
+          <div class="results-selection">
+            <p class="results-label" data-i18n="selectionLabel">保存する画像</p>
+            <p class="selected-summary" id="selected-summary" role="status" aria-live="polite"></p>
+            <div class="selection-buttons" role="group" data-i18n-aria-label="batchSelection" aria-label="すべての文書の画像選択">
+              <button id="select-all-images" class="button" type="button" disabled data-i18n="selectAllImages">全画像を選択</button>
+              <button id="select-none-images" class="button" type="button" disabled data-i18n="selectNoImages">全画像の選択を解除</button>
+            </div>
+          </div>
+          <button id="download-button" class="button primary" type="button" disabled data-i18n="downloadZip">選択した画像をZIPで保存</button>
         </div>
-        <div class="button-row"><button id="download-button" class="button primary" type="button" disabled data-i18n="downloadZip">抽出画像をZIPで保存</button></div>
-        <div class="button-row"><button id="clear-button" class="button danger" type="button" disabled data-i18n="clearAll">すべてクリア</button></div>
+        <div class="results-secondary">
+          <details class="filter-details" id="filter-details">
+            <summary data-i18n="filterSettings">絞り込み・並べ替え</summary>
+            <div class="filter-panel" aria-label="Image filters">
+              <label><span data-i18n="searchImages"></span><input id="filter-text" type="search" data-filter="text"></label>
+              <label><span data-i18n="documentFilter"></span><select id="filter-document" data-filter="documentId"></select></label>
+              <label><span data-i18n="formatFilter"></span><select id="filter-format" data-filter="format"></select></label>
+              <label><span data-i18n="minWidth"></span><input id="filter-width" type="number" min="0" data-filter="minWidth"></label>
+              <label><span data-i18n="minHeight"></span><input id="filter-height" type="number" min="0" data-filter="minHeight"></label>
+              <label><span data-i18n="minBytes"></span><input id="filter-min-bytes" type="number" min="0" data-filter="minBytes"></label>
+              <label><span data-i18n="maxBytes"></span><input id="filter-max-bytes" type="number" min="0" data-filter="maxBytes"></label>
+              <label><span data-i18n="sortImages"></span><select id="image-sort"><option value="source" data-i18n="sourceOrder"></option><option value="name" data-i18n="nameOrder"></option><option value="size" data-i18n="sizeOrder"></option><option value="dimensions" data-i18n="dimensionsOrder"></option></select></label>
+            </div>
+            <div class="filter-options">
+              <button id="select-matching" class="button" data-i18n="selectMatching"></button>
+              <button id="clear-matching" class="button" data-i18n="clearMatching"></button>
+              <button id="group-button" class="button" data-i18n="groupIdentical"></button>
+            </div>
+            <p id="filter-summary" role="status" class="hint"></p>
+            <div id="image-pagination" class="pagination">
+              <button id="previous-page" class="button" data-i18n="previous"></button>
+              <button id="next-page" class="button" data-i18n="next"></button>
+            </div>
+            <label class="export-option"><input id="unique-export" type="checkbox"> <span data-i18n="uniqueExport"></span></label>
+            <p class="original-warning" data-i18n="originalWarning"></p>
+          </details>
+          <div class="results-minor">
+            <button id="cancel-work" class="button" type="button" disabled data-i18n="stopWork">処理を中止</button>
+            <button id="clear-button" class="button danger" type="button" disabled data-i18n="clearAll">すべてクリア</button>
+          </div>
+        </div>
       </div>
-
-      <p class="original-warning" data-i18n="originalWarning"></p>
-<div class="filter-panel" aria-label="Image filters">
-<label><span data-i18n="searchImages"></span><input id="filter-text" type="search" data-filter="text"></label>
-<label><span data-i18n="documentFilter"></span><select id="filter-document" data-filter="documentId"></select></label>
-<label><span data-i18n="formatFilter"></span><select id="filter-format" data-filter="format"></select></label>
-<label><span data-i18n="minWidth"></span><input id="filter-width" type="number" min="0" data-filter="minWidth"></label>
-<label><span data-i18n="minHeight"></span><input id="filter-height" type="number" min="0" data-filter="minHeight"></label>
-<label><span data-i18n="minBytes"></span><input id="filter-min-bytes" type="number" min="0" data-filter="minBytes"></label>
-<label><span data-i18n="maxBytes"></span><input id="filter-max-bytes" type="number" min="0" data-filter="maxBytes"></label>
-<label><span data-i18n="sortImages"></span><select id="image-sort"><option value="source" data-i18n="sourceOrder"></option><option value="name" data-i18n="nameOrder"></option><option value="size" data-i18n="sizeOrder"></option><option value="dimensions" data-i18n="dimensionsOrder"></option></select></label>
-</div>
-<div class="button-row"><button id="select-matching" class="button" data-i18n="selectMatching"></button><button id="clear-matching" class="button" data-i18n="clearMatching"></button><button id="group-button" class="button" data-i18n="groupIdentical"></button></div>
-<p id="filter-summary" role="status" class="hint"></p><div class="button-row"><button id="previous-page" class="button" data-i18n="previous"></button><button id="next-page" class="button" data-i18n="next"></button></div>
-<label class="export-option"><input id="unique-export" type="checkbox"> <span data-i18n="uniqueExport"></span></label>
       <section id="file-list" class="file-list" aria-live="polite"><div class="empty" data-i18n="noFiles">ファイルはまだ選択されていません。</div></section>
     </section>
 
@@ -1017,6 +1085,11 @@ software or this license, under any kind of legal claim.***
           errorEXPORT: "ZIPを作成できませんでした。選択数を減らすか、1枚ずつ保存してください。",
           errorUNKNOWN: "処理を完了できませんでした。原因は特定できません。再試行するか、文書・選択数を減らしてください。",
 
+          filterSettings: "絞り込み・並べ替え",
+          selectionLabel: "保存する画像",
+          dropMoreTitle: "Officeファイルを追加",
+          vectorImage: "ベクター画像",
+          unknownDimensions: "寸法不明",
           searchImages: "検索（名前・使用箇所）",
           documentFilter: "文書",
           formatFilter: "形式",
@@ -1156,6 +1229,11 @@ software or this license, under any kind of legal claim.***
           errorEXPORT: "Could not create ZIP. Select fewer images or save originals individually.",
           errorUNKNOWN: "Processing failed; the cause is unknown. Retry or use fewer documents/images.",
 
+          filterSettings: "Filter & sort",
+          selectionLabel: "Images to save",
+          dropMoreTitle: "Add more Office files",
+          vectorImage: "Vector image",
+          unknownDimensions: "Dimensions unavailable",
           searchImages: "Search name / usage",
           documentFilter: "Document",
           formatFilter: "Format",
@@ -1422,6 +1500,7 @@ software or this license, under any kind of legal claim.***
       }
 
       function formatBytes(n) { return n >= 1073741824 ? (n / 1073741824).toFixed(2) + " GiB" : n >= 1048576 ? (n / 1048576).toFixed(1) + " MiB" : n >= 1024 ? (n / 1024).toFixed(1) + " KiB" : n + " B"; }
+      function imageDimensions(image) { return image.mime === "image/svg+xml" ? translate("vectorImage") : image.width && image.height ? `${image.width} × ${image.height} px` : translate("unknownDimensions"); }
       function usageText(image) { return image.usages?.length ? image.usages.map(u => `${translate(u.kind + "Usage")} ${u.label || u.order || ""}${u.detail && !["drawing", "vmlDrawing"].includes(u.detail) ? " (" + u.detail + ")" : ""}`).join(" · ") : translate("unknownUsage"); }
       function errorText(code) { return translate("error" + (translations.en["error" + code] ? code : "UNKNOWN")); }
       function statusText(record) {
@@ -1473,6 +1552,7 @@ software or this license, under any kind of legal claim.***
         const matchingIds = new Set(matching.map(i => i.id));
         const hiddenSelected = records.flatMap(r => r.images || []).filter(i => i.selected && !matchingIds.has(i.id)).length;
         $("#filter-summary").textContent = `${matching.length} ${translate("matches")} · ${hiddenSelected} ${translate("hiddenSelected")} · ${imagePage + 1}/${Math.max(1, Math.ceil(shown.length / 100))}`;
+        $("#image-pagination").hidden = shown.length <= 100;
         $("#previous-page").disabled = imagePage === 0; $("#next-page").disabled = (imagePage + 1) * 100 >= shown.length;
         $("#filter-document").innerHTML = `<option value="">${escapeHtml(translate("allDocuments"))}</option>` + records.map(r => `<option value="${r.id}">${escapeHtml(r.file.name)}</option>`).join(""); $("#filter-document").value = filterState.documentId;
         $("#filter-format").innerHTML = `<option value="">${escapeHtml(translate("allFormats"))}</option>` + [...new Set(records.flatMap(r => r.images || []).map(i => i.name.split(".").pop().toLowerCase()))].sort().map(ext => `<option value="${escapeHtml(ext)}">${escapeHtml(ext.toUpperCase())}</option>`).join(""); $("#filter-format").value = filterState.format;
@@ -1489,8 +1569,14 @@ software or this license, under any kind of legal claim.***
         imageStat.textContent = formatNumber(imageCount);
         errorStat.textContent = formatNumber(errorCount);
 
+        $("#results-ui").hidden = records.length === 0;
+        fileList.hidden = records.length === 0;
+        dropZone.classList.toggle("has-files", records.length > 0);
+        $(".workspace").classList.toggle("has-files", records.length > 0);
+        dropZone.querySelector("[data-i18n='dropTitle']").textContent = translate(records.length ? "dropMoreTitle" : "dropTitle");
         selectedSummary.textContent = format(translate("selectedImages"), { selected: formatNumber(selectedCount), total: formatNumber(imageCount) });
         $("#cancel-work").disabled = !pending && !exporting;
+        $("#cancel-work").hidden = !pending && !exporting;
         downloadButton.disabled = exporting || pending || selectedCount === 0;
         selectAllImages.disabled = selectNoImages.disabled = exporting || pending || imageCount === 0;
         selectAllImages.textContent = translate("selectAllImages");
@@ -1517,7 +1603,7 @@ software or this license, under any kind of legal claim.***
         const renderRows = images => images.map(image => { const record = records.find(r => r.id === image.documentId), index = records.indexOf(record), imageIndex = record.images.indexOf(image); return `<li class="image-row">
                 <button type="button" class="image-thumb" data-preview-id="${image.id}" data-focus-key="preview-${image.id}" aria-label="${escapeHtml(translate("previewTitle") + ": " + image.name)}" ${previewEligible(image) ? "" : "disabled"}>${previewEligible(image) ? `<img data-thumb-id="${image.id}" alt="${escapeHtml(image.name)}">` : `<span>${escapeHtml(translate("previewUnavailable"))}</span>`}</button>
                 <label class="image-label"><input type="checkbox" ${grouping && groupMembers(image).length > 1 ? `data-group-id="${image.id}"` : `data-record-index="${index}" data-image-index="${imageIndex}"`} data-focus-key="image-${record.id}-${imageIndex}" ${(grouping ? groupMembers(image).every(i => i.selected) : image.selected) ? "checked" : ""} ${exporting ? "disabled" : ""}>
-                  <span class="image-name">${escapeHtml(image.name)} ${escapeHtml(groupLabel(image))}<span class="image-usage">${escapeHtml(image.documentName)}</span><span class="image-usage">${image.width && image.height ? image.width + " × " + image.height + " px" : "— px"} · ${formatBytes(image.bytes)}<br>${escapeHtml(usageText(image))}</span><span class="image-format">${escapeHtml(image.name.includes(".") ? image.name.split(".").pop().toUpperCase() : image.contentType || "—")}</span></span>
+                  <span class="image-name">${escapeHtml(image.name)} ${escapeHtml(groupLabel(image))}<span class="image-usage">${escapeHtml(image.documentName)}</span><span class="image-usage">${escapeHtml(imageDimensions(image))} · ${formatBytes(image.bytes)}<br>${escapeHtml(usageText(image))}</span><span class="image-format">${escapeHtml(image.name.includes(".") ? image.name.split(".").pop().toUpperCase() : image.contentType || "—")}</span></span>
                 </label>
                 ${groupDetails(image)}
                 <button class="button remove-button" type="button" data-record-index="${index}" data-download-image="${imageIndex}" data-focus-key="save-${record.id}-${imageIndex}"
@@ -1595,7 +1681,7 @@ software or this license, under any kind of legal claim.***
         const pair = occurrence(id); if (!pair || !previewEligible(pair.image) || isExporting()) return;
         disposePreviews(); previewReturn = trigger;
         const epoch = previewEpoch, dialog = $("#previewDialog");
-        $("#previewMeta").textContent = `${pair.image.name} · ${pair.image.width} × ${pair.image.height} px · ${formatBytes(pair.image.bytes)} · ${usageText(pair.image)}`;
+        $("#previewMeta").textContent = `${pair.image.name} · ${imageDimensions(pair.image)} · ${formatBytes(pair.image.bytes)} · ${usageText(pair.image)}`;
         $("#previewImage").alt = pair.image.name;
         $("#previewStatus").textContent = translate("previewLoading"); dialog.showModal();
         try { const value = await rasterUrl(pair.record, pair.image, 1920, epoch); if (value && dialog.open && epoch === previewEpoch) { previewUrl = value.url; $("#previewImage").src = value.url; $("#previewStatus").textContent = ""; } else if (value) URL.revokeObjectURL(value.url); }
