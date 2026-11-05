@@ -54,7 +54,7 @@ async function fixture() {
   vm.runInNewContext(script.replace(/      applyLanguage\(\);\n      document.documentElement.dataset.ready = \"true\";\n    \}\)\(\)/,injection+'\n      applyLanguage();\n    })()'),context);
   for(let i=0;i<10&&!context.api;i++) await new Promise(resolve=>setImmediate(resolve));
   if (!context.api) throw errors[0] || Error('App did not initialize');
-  return {api:context.api,document,get,downloads,errors,JSZip};
+  return {api:context.api,document,get,downloads,errors,JSZip,engine};
 }
 async function office(name='sample.pptx', entries={'ppt/media/image1.png':Uint8Array.from([137,80,78,71,13,10,26,10])}, types='<Default Extension="png" ContentType="image/png"/>', zipOptions={}) {
   const zip=new JSZip(); if(types!==null)zip.file('[Content_Types].xml',`<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">${types}</Types>`,{date:new Date('2026-01-01T00:00:00Z')}); for(const [key,value] of Object.entries(entries))zip.file(key,value,{date:new Date('2026-01-01T00:00:00Z')}); zip.forEach((_,entry)=>{entry.date=new Date('2026-01-01T00:00:00Z');}); const file=await zip.generateAsync({type:'uint8array',...zipOptions}); return syntheticFile(file, {name});
