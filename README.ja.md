@@ -1,6 +1,6 @@
 # Office Image Extractor
 
-ヘッダーのバージョンは v1.1.0。プライバシーバッジは「完全ローカル処理」、言語ボタンは日本語表示中に EN、英語表示中に JA と表示します。切替先と言語に合ったヘルプの説明を表示します。
+ヘッダーのバージョンは v1.1.1。プライバシーバッジの「完全ローカル処理」は画面幅520px以下では非表示にし、処理自体は従来どおり端末内で行います。言語ボタンは日本語表示中に EN、英語表示中に JA と表示します。
 
 [![GitHub Pages](https://github.com/ttomohisa/htmlapps-office-image-extractor/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/ttomohisa/htmlapps-office-image-extractor/actions/workflows/deploy-pages.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -130,6 +130,10 @@ extracted-office-images.zip
 `main` へのプッシュ時には、固定バージョンの依存パッケージから `dist/index.html` を再生成し、単一HTMLの検証と自己解凍版の生成を行ってから `dist` を公開します。
 
 従来の `/office-image-extractor.html` URLも互換用エイリアスとして生成します。
+
+## GitHub Releaseの作成
+
+`app.config.json` のバージョン変更をリポジトリ所有者が `main` へマージすると、`.github/workflows/publish-release.yml` が動きます。単一HTML・自己展開版のビルドと検証、Chromiumでの `file://` テストが成功した後に、`vX.Y.Z` のタグとGitHub Releaseを作成します。通常版HTML、自己展開版HTML、ZIP、SHA-256チェックサムを添付します。`docs/releases/vX.Y.Z.md` に対応するリリースノートが必要で、PR段階ではタグ・Releaseを作りません。既存のタグやReleaseは上書きしません。
 
 ## 開発とビルド
 
