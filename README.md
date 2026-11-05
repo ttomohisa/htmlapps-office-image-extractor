@@ -1,6 +1,6 @@
 # Office Image Extractor
 
-Header: v1.1.0. The privacy badge reads “Fully local processing”; the language button shows EN in Japanese and JA in English, with localized target-language and Help descriptions.
+Header: v1.1.1. The privacy badge reads “Fully local processing” on larger screens and is hidden at widths of 520px or less. The language button shows EN in Japanese and JA in English, with localized target-language and Help descriptions.
 
 [![GitHub Pages](https://github.com/ttomohisa/htmlapps-office-image-extractor/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/ttomohisa/htmlapps-office-image-extractor/actions/workflows/deploy-pages.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -128,6 +128,10 @@ Each push to `main` rebuilds `dist/index.html` from the pinned dependency, verif
 
 The legacy `/office-image-extractor.html` path is also generated as an alias for compatibility.
 
+## GitHub Release publishing
+
+A version bump in `app.config.json`, merged to `main` by the repository owner, triggers `.github/workflows/publish-release.yml`. The workflow builds and verifies both standalone HTML variants, runs Chromium `file://` browser QA, creates the annotated `vX.Y.Z` tag, and publishes a GitHub Release with HTML, self-extracting HTML, ZIP and SHA-256 checksums. It requires matching release notes in `docs/releases/vX.Y.Z.md` and does not tag or publish from PRs. Existing releases and tags are not overwritten.
+
 ## Development and build layout
 
 This repository follows [`ttomohisa/htmlapps-template`](https://github.com/ttomohisa/htmlapps-template).
@@ -237,7 +241,7 @@ Microsoft, Excel, PowerPoint, Word, and Office are trademarks of the Microsoft g
 
 ## Image discovery in v1.1.0
 
-Expand a document to see lazy raster thumbnails, dimensions, original byte sizes and verified usage locations. Click a supported thumbnail to enlarge it. SVG/EMF/WMF and unsafe-size or unsupported previews remain available as unchanged originals. Originals may include regions cropped out in Office; this is not an Office page/slide renderer.
+After adding documents, the drop target becomes a compact add-files control. The selection count and ZIP download are kept together; filters, sorting and image grouping are under **Filter & sort**. Expand a document for thumbnails, dimensions, original byte sizes and verified usage locations. Click a supported thumbnail to enlarge it. SVGs up to 16 MiB can be previewed when they do not contain active content or external resources. SVGs rejected for preview, EMF/WMF and other unsupported formats remain available as unchanged originals. Originals may include regions cropped out in Office; this is not an Office page/slide renderer.
 
 Filter by document, format, name/usage, minimum width/height or byte range; sort by source order, name, size or dimensions. Filters do not change selection. “Select matching images” applies across matching pages; global all/none still applies to every document. The toolbar reports selected images hidden by filters, and ZIP saves all selected occurrences.
 

@@ -530,6 +530,7 @@
 
     @media (max-width: 520px) {
       footer { display: none; }
+      .local-badge { display: none; }
       :root { --header-height: 58px; }
       .header-inner { padding-block: 8px; }
       .brand-mark { width: 34px; height: 34px; border-radius: 10px; }
@@ -584,6 +585,54 @@
     .export-option { display: block; margin: 12px 0; font-size: 12px; }
     .image-row details { max-width: 260px; font-size: 11px; }
     @media (max-width: 520px) { .image-row { flex-wrap: wrap; } .image-row details { flex-basis: 100%; max-width: 100%; } }
+
+    /* The file picker is a large landing target only until a document has been added. */
+    .drop-zone.has-files { display: block; min-height: 0; padding: 12px 14px; text-align: left; border-style: solid; background: #f7faf8; }
+    .drop-zone.has-files > div { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+    .drop-zone.has-files .drop-zone-icon { width: 38px; height: 38px; margin: 0; border-radius: 10px; }
+    .drop-zone.has-files .drop-zone-icon svg { width: 22px; height: 22px; }
+    .drop-zone.has-files strong { min-width: 0; font-size: 13px; font-weight: 700; }
+    .drop-zone.has-files .drop-zone-copy { display: none; }
+    .drop-zone.has-files .choose-button { margin: 0; white-space: nowrap; }
+    .workspace.has-files .supported-hint { display: none; }
+    .results-ui[hidden], .file-list[hidden], .pagination[hidden], #cancel-work[hidden] { display: none !important; }
+    .results-ui { margin-top: 14px; }
+    .results-actions { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 15px 17px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+    .results-selection { min-width: 0; }
+    .results-label { margin: 0 0 3px; font-size: 11px; color: var(--muted); }
+    .results-selection .selected-summary { margin: 0; font-size: 16px; font-weight: 750; color: var(--text); }
+    .selection-buttons { display: flex; flex-wrap: wrap; gap: 5px 10px; margin-top: 6px; }
+    .selection-buttons .button { min-height: 34px; padding: 4px 8px; border-color: transparent; font-size: 12px; color: var(--accent); }
+    .selection-buttons .button:hover:not(:disabled) { border-color: var(--line); }
+    .results-actions > .button { min-height: 46px; flex: 0 0 auto; }
+    .results-secondary { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; margin-top: 10px; }
+    .results-minor { display: flex; flex-wrap: wrap; gap: 7px; margin-left: auto; }
+    .results-minor .button { min-height: 38px; font-size: 12px; }
+    .filter-details { flex: 1 1 250px; min-width: 0; border: 0; border-radius: 10px; background: transparent; box-shadow: none; }
+    .filter-details > summary { padding: 8px 2px; color: var(--accent); font-size: 13px; }
+    .filter-details[open] { flex-basis: 100%; order: 2; padding: 0 12px 12px; border: 1px solid var(--line); background: var(--surface); }
+    .filter-details[open] > summary { padding-top: 12px; }
+    .filter-details .filter-panel { margin-top: 6px; }
+    .filter-details .original-warning { margin-bottom: 0; }
+    .filter-details .filter-options { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filter-details .pagination { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filter-details .export-option { line-height: 1.6; }
+    .results-ui .selection-notice { text-align: left; margin: 0 2px 9px; }
+    @media (max-width: 520px) {
+      .drop-zone.has-files { min-height: 0; padding: 10px; }
+      .drop-zone.has-files > div { grid-template-columns: 32px minmax(0, 1fr) auto; gap: 8px; }
+      .drop-zone.has-files .drop-zone-icon { width: 32px; height: 32px; }
+      .drop-zone.has-files .drop-zone-icon svg { width: 19px; height: 19px; }
+      .drop-zone.has-files strong { font-size: 12px; overflow-wrap: anywhere; }
+      .drop-zone.has-files .choose-button { flex: none; min-height: 38px; padding: 7px 10px; font-size: 12px; }
+      .results-actions { flex-direction: column; align-items: stretch; gap: 11px; padding: 13px; }
+      .results-actions > .button { width: 100%; }
+      .selection-buttons .button { flex: 0 1 auto; }
+      .results-secondary { gap: 5px; }
+      .filter-details { flex-basis: 100%; }
+      .results-minor { width: 100%; justify-content: flex-end; }
+      .results-minor .button { flex: 0 1 auto; }
+    }
   </style>
 </head>
 <body>
@@ -594,7 +643,7 @@
           <svg viewBox="0 0 1095 1095" xmlns="http://www.w3.org/2000/svg"><rect x="22" y="22" width="1050" height="1050" rx="262.5" fill="#16624f"/><path d="m420 111.5c7.5-1 15.5-0.5 22.5-0.5h44 136 38c11.5 0 22 0 29.5 9.5 8 10 5 26 5 38v88 69c0 10.5 2 22.5-5.5 31.5-7.5 8.5-17 8.5-28 8.5s-21.5 0-32 0h-165-30c-13.5 0-26 0.5-33-13.5-3.5-7-2.5-14.5-2.5-22v-33-125c0-18.5-4.5-46 20.5-50zm8 25c-5 1.5-4.5 7-4.5 11v32 107 28c0 3.5-1 9.5 1 13 2.5 4 9.5 2.5 13.5 2.5h40 145 35c3.5 0 10 1.5 12.5-2.5 2.5-3.5 1-17.5 1-22v-59-79-20c0-3 0.5-6.5-1-9-3-4-11-2.5-15.5-2.5h-42-128-38c-6 0-13-1-18.5 0.5zm-38 3v23.5c-11 3-22.5 5-34 7.5-25.5 5.5-51 11.5-76.5 17.5-9.5 2-18.5 4-28 6-3.5 1-9 1-11.5 3.5-3 3-1 7-0.5 10.5 2 9 4 17.5 6 26.5 6.5 29.5 12.5 59 19.5 88.5 1.5 7.5 3 15 4.5 22 1 4 1 8 4 11 8.5 2 21.5-3.5 30-5.5 17.5-3.5 35-7.5 53-11.5 10.5-2.5 22-6.5 33-6.5 1 5.5 1.5 10 4 15 1 2.5 3 4.5 4 7-12 4-25.5 6-38 8.5-19.5 4-38.5 9-58 13-11.5 2.5-26.5 9-38 4-16-7-16.5-27.5-19.5-42.5-7.5-36-16-72-24-108-3-13.5-10.5-33.5-1.5-45.5 8-10.5 34-13.5 47-16 29.5-6.5 59.5-13.5 89-20 11.5-2.5 23.5-6.5 35.5-7.5zm307 214c5.5-8 6-13 8.5-22 38.5 8 76.5 16.5 115 24.5 5-3.5 5-12 6.5-17.5 3.5-16 6.5-32 10.5-48 5-22.5 9.5-45.5 15-68 1.5-5.5 2.5-11 3.5-16 0.5-2.5 1.5-5.5 0.5-8-2-3-6.5-3-9.5-4-9-2-18.5-4-27.5-6-27-6-53.5-12.5-80.5-18-11-2.5-23.5-3.5-34-8v-23c11 0 28.5 6 40 8.5 30 6 59.5 13.5 89 20 13 3 35.5 4.5 43.5 16 8.5 12 1.5 30.5-2 44-8.5 36-16 72.5-24 109-3 14.5-3.5 35-19 42.5-11 5-27.5-1-39-3.5-19.5-4.5-39-9-59-13-7.5-1.5-15.5-3.5-23-5-5-1-10-2-14.5-3.5zm-218.5-195c4.5-1 9-1 13.5 0 31.5 7.5 31 54.5-1 60-4.5 1-9.5 1-14-0.5-30.5-8.5-29.5-53 1.5-60zm254 32c32-6 40.5 42 9.5 48.5-32 6.5-40.5-42.5-9.5-48.5zm-440 14c4-1 8.5-1 12.5 0 27 7 25 46.5-2.5 51-3.5 0.5-7.5 0.5-11-0.5-26.5-7-25-46 1-51zm307 6c1.5 0.5 2.5 0.5 3.5 1 4 3 13 16 17 21 9 11 17.5 22 26 33 3.5 4 10.5 11 12 16s0.5 12 0.5 17.5 1 12-1.5 17c-4 2.5-9.5 1.5-14 1.5h-33-124-36c-4.5 0-11 1.5-15-1.5-4.5-8.5 1.5-13.5 7-19 12-12.5 24.5-25 37-37 3-3 11-13 15.5-13.5 4-0.5 6 2.5 8.5 5 6.5 5.5 12.5 11.5 19 17 3 3 7 8 12 6 3.5-1.5 11-11 14-14 11-11.5 22.5-22.5 34-34 4.5-4.5 12-13.5 17.5-16zm-225 26.5c1 0 2 0 3 1 1.5 1 11.5 9.5 12 11 1 3.5 0 17 0 22 0 15.5 1.5 32-0.5 47.5-7.5 3-17 4-25 6-17 4-34 7.5-51 11-7.5 1.5-26 7.5-32.5 6-6-6-1.5-13 2-19 7.5-11.5 14.5-23 21.5-34.5 3-5 5.5-10.5 9.5-14.5 10-1 16.5 11.5 26 12.5 4-2.5 6.5-8 8.5-12 5.5-9 11-17.5 17-26 2.5-4 4.5-9 8.5-11.5zm420 15.5c4.5 6 7 14.5 10 21.5 4 9 8 17.5 11.5 26.5 1.5 3.5 4.5 8 5 12 0.5 5-2 11-3 16-1 4-1 9-3.5 12.5-3.5 2-7 0.5-10.5-0.5-6.5-1.5-13-3-19.5-4-26.5-6-53-10.5-79-18-1-6-0.5-12-0.5-18 0-2.5-0.5-6.5 0-9 1-2.5 5.5-5 7.5-6.5 5.5-4 18-16 24-17 3.5 5 7.5 10.5 11 15.5 4.5 0 8-4 11.5-7 7.5-6 15-12 22.5-17.5 4-3 7.5-7.5 13-6.5zm-191 225h-33.5v69.5h-28.5c-5.5 0-11 0.5-16-0.5v-68c-9-2.5-26 1.5-33.5-2-2-4.5 2-7 5-10 5.5-6 11-12.5 16.5-18.5 8.5-9 16.5-18.5 24.5-27.5 2.5-3 6-8.5 10.5-8.5 4 0 11 10 14 13 11 12.5 22 24.5 33 37 4 4.5 10.5 9 8 15.5zm116 424c-1-7-0.5-15-0.5-22v-42c0-43.5 0.5-86.5 0-130v-46c0-8.5 1-18-2-26.5-2-6-6.5-10-10.5-14.5-8-9.5-17-18-25-28 2.5-18.5 6-36.5 8.5-55 1.5-12 2-24.5 13-32.5s23-5.5 35-3.5c18.5 3 37.5 6.5 56 10 27 5 54.5 10 82 14 10 1.5 20 3 30 5 5.5 1 11 1.5 16 4 9 4.5 13.5 16 19 24 9 14.5 18.5 28.5 27.5 42.5 4 6 9.5 12.5 11.5 19 2.5 7.5-0.5 15.5-1.5 23-2.5 15.5-5 31-8 46-10 56.5-19.5 113-28.5 170-2 14-4.5 27.5-6.5 41-2 12.5-3.5 23.5-16.5 29.5-8 4-16 2.5-24.5 1-11.5-2-23.5-4-35-6-31.5-5-63.5-10.5-95-16-15-3-30.5-4.5-45.5-7.5zm-318.5-346c-2.5 2-5 4-7.5 7-2 2.5-3 5-5.5 7-13.5-10.5-25.5-23.5-38-35-5-4.5-10.5-11.5-17-14-1.5 5.5 0.5 13 1 18.5 2 12 3 24 4.5 35.5 1 6 0.5 12.5 7 15.5 4.5 2 9.5 0.5 14 0 8-1.5 15.5-3 23.5-4v309.5c-49.5 7.5-98.5 17-147.5 24.5-10.5 1.5-21 3.5-32 5.5-8.5 1.5-16.5 3.5-25-0.5-11.5-5.5-13.5-16-15-27-3-19.5-6-38.5-9-58-10-67-20.5-134-30-201-2.5-18.5-5.5-36.5-8-55-1.5-9.5-4.5-20-1.5-29 5-17.5 19-19 34.5-21.5s31.5-5 47-8c31.5-6 63.5-10.5 95-16 9.5-1.5 19.5-3.5 29-5 6.5-1 12.5-3 19-1.5 9.5 2 15.5 10 22.5 16.5 7.5 7 15 14.5 22.5 21.5 5.5 5 11.5 9.5 15.5 15.5zm512.5-2.5c-1.5 5-2 10.5-3 15.5-2 10.5-3.5 21.5-5 32-1 6-3.5 13 0.5 18.5 3.5 5 10.5 5 16 6 9 1.5 18 3 27 4.5 5 1 10 2.5 15 2 0-0.5 0.5-1 0.5-2 0-1.5-2-3.5-3-5-2.5-4.5-5.5-8.5-8.5-12.5-9-14.5-18.5-28-28-42-3.5-5-7-13.5-12-17zm-491.5 8.5c16.5-1.5 34 0 50.5 0h99 41c7.5 0 16-1 22.5 2s11.5 10 16 15c7 8 14.5 16 22 24s14.5 16 21.5 24.5c3.5 4 8.5 8.5 10 14 1.5 6 1 12.5 1 19v33 104 113c0 14.5 3.5 34-10 44-7.5 5.5-16.5 5-25 5h-39-164-33c-13.5 0-26 0.5-33.5-13-4-7-3.5-15-3.5-23v-38-148-132c0-7.5-1-15.5 0.5-23 2.5-11 12.5-19.5 23.5-20zm205.5 20c-2 5-1 11.5-0.5 17v34c0 6-0.5 12.5 4.5 17 4 3.5 10.5 3 15.5 3h28c5 0 10 0.5 14.5-0.5-1.5-5.5-10.5-13-14.5-17.5-11-13-22-25.5-33-38-4-4.5-8.5-12-14-14.5zm-254.5 92c-5.5 1-11 1.5-16.5 2.5-2.5 5.5-4.5 10.5-7 16-3.5-4-6.5-8.5-10-12.5-6 1-11.5 2.5-17.5 3.5 7 8.5 13.5 17.5 20.5 26-4 10.5-8.5 21.5-12.5 32 6-1 11.5-2 17-3 2-5.5 4-11 6-16 3.5 4.5 7.5 9 11 13.5 5.5-1 11.5-2 17-3-7-9-13.5-18-20.5-27 4-10.5 8-20.5 12-31zm-167.5 8c-5.5 1-10.5 2-16 3 1 8.5 2 16.5 3 25-10-7.5-24-2.5-29 8.5-7 15-3 37.5 12 46 4.5 2.5 10 3.5 15.5 2 5-1.5 7.5-5 11-8.5 0.5 1 0.5 4 1.5 5 1.5 1 12.5-1.5 15-2-4-26.5-8-52.5-12-79zm542-0.5c-2 6-2.5 13-3.5 19.5-2 11.5-4 23.5-6 35-1.5 8-5 17-3.5 25 5 1 10 1.5 15 2.5 1.5-8.5 3.5-17 5-25.5 3 3 5.5 6 10 7.5 24 7 35.5-27.5 29-45-5-14-18-20-31-11 0-1 0.5-4-0.5-5-1.5-1.5-12-2.5-14.5-3zm-424 16.5c-8.5-15.5-29.5-16.5-40.5-3-6 7.5-7.5 18-6 27 3 16 17 28.5 33.5 24 5-1.5 9-4 12-8 2.5-3 4-7 5-11l-13.5-6c-1.5 2.5-3 6-5.5 7.5-8.5 5-14.5-4.5-15.5-12-1-7 3-17 12-15 3.5 0.5 5 3.5 7.5 5.5 4-3 7.5-6.5 11-9.5zm547-9.5-3 14h-6.5c-1 5-2 9.5-2.5 14.5 2 0.5 4 1 6 2 0 13-11.5 38 7 44 2.5 0.5 4.5 1 7 1 4 0 7-0.5 10-2.5-0.5-4.5-1.5-9-2-13.5h-7.5c-2.5-6-0.5-20.5 2.5-26h10.5c0.5-4.5 1-9 2-14-3-0.5-6-1.5-9-2v-15c-5-1-9.5-2-14.5-2.5zm-64 3.5c-4.5 26-9 52-13.5 78.5 5.5 1 10.5 2 16 3 1.5-8.5 3-17 5-25 4 3 6.5 7 12 8 21.5 3.5 33-24 28.5-41.5-2.5-9.5-9-18.5-19.5-19-5-0.5-8.5 2.5-13 4 0-1 0.5-3.5 0-4.5-1-1.5-12.5-3-15-3zm-565 4c-33.5 6-26 65 9 60.5 36.5-4.5 28-67-9-60.5zm525 6c16.5-4.5 14.5 27.5 1 28-13.5 0-12-25-1-28zm151 8.5c-5.5-1.5-12.5-3-18-2 4 10 7.5 20 11.5 30-7.5 8.5-14.5 17.5-22 26 6 1 11.5 2 17.5 3 3.5-4.5 7.5-9 11-13 2.5 5.5 4.5 11 7 16.5 5.5 0.5 11.5 2.5 17 1.5-4-10.5-7.5-20.5-11.5-31 7-8.5 13.5-16.5 20.5-25-3.5-3-11.5-3-16.5-3.5-3.5 4.5-7.5 8.5-11 13-2-5-4-10.5-6-15.5zm-385-1.5h-21v91.5h21v-91.5zm294 2.5c16-3 13.5 28-0.5 28s-11-26 0.5-28zm-581 1c13.5-0.5 16.5 27 3 28-14 1.5-17-27.5-3-28zm-60 10c13.5-2 17.5 27.5 3 28.5-13.5 1-16-26.5-3-28.5zm409 16.5c-15-10.5-50-9.5-53 13-2 15 9 20 21.5 22.5 5.5 1 13 0.5 14 7-5.5 9-23 1.5-30.5-2-2 5-4.5 10-6.5 15 13 11.5 49.5 11.5 55.5-8.5 1-3 1-6 1-9-1.5-12-11.5-16-22.5-18-4.5-1-10-0.5-13-5 2-11 21-3 27.5-1l6-15zm-135-5h-23c7 11 14 22 21 32.5-7.5 11-15 22-22 33 3.5 2.5 17.5 1.5 22.5 1 4.5-6 8.5-12 13-18 4 6 8.5 12 12.5 18 4.5 0.5 19.5 1.5 22.5-1-7.5-11-14.5-22-22-33 7-11 14-22 21-32.5h-22.5l-12 17c-3.5-5.5-7.5-11.5-11-17zm163 0h-23.5c7 11 14 22 21 32.5l-22.5 33c4 2.5 18 1.5 23 1l12-18c4.5 6 8.5 12 13 18.5 5 0.5 19 1.5 22.5-1-7.5-11-14.5-22-22-33 7-11 14-22 21.5-32.5h-22.5c-3.5 5.5-7.5 11.5-11 17-3.5-5.5-7.5-11.5-11-17z" fill="#fdfdfd" fill-rule="evenodd" stroke="#fdfdfd" stroke-linejoin="round" stroke-width=".25"/></svg>
         </div>
         <div class="brand-copy">
-          <p class="brand-name"><span>Office Image Extractor</span><span class="version-badge" id="versionBadge">v1.1.0</span></p>
+          <p class="brand-name"><span>Office Image Extractor</span><span class="version-badge" id="versionBadge">v1.1.1</span></p>
           <p class="brand-meta" data-i18n="brandMeta">単一HTML・ローカル処理</p>
         </div>
       </div>
@@ -639,40 +688,60 @@
           <div class="drop-zone-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20H4V3h9l4 4v3M13 3v5h4M7 11h3M7 14h2"/><rect x="12" y="13" width="10" height="8" rx="1.5"/><path d="m13 20 3-3 2 2 2-2 2 2M8 18h3m-2-2 2 2-2 2"/></svg>
           </div>
-          <strong data-i18n="dropTitle">Officeファイルをここにドロップ</strong>
+          <strong id="dropTitle" data-i18n="dropTitle">Officeファイルをここにドロップ</strong>
           <span class="drop-zone-copy" data-i18n="dropBody">または、端末からファイルを選択してください。</span>
           <button id="choose-button" class="button primary choose-button" type="button" data-i18n="chooseFiles">ファイルを選択</button>
         </div>
         <input id="file-picker" type="file" multiple accept=".xlsx,.xlsm,.xltx,.xltm,.pptx,.pptm,.potx,.potm,.ppsx,.ppsm,.docx,.docm,.dotx,.dotm">
       </section>
 
-      <div class="hint" data-i18n="supportedHint">対応: .xlsx / .pptx / .docx とマクロ・テンプレート系のOffice Open XML形式。ファイルは外部へ送信されません。</div>
-      <div id="selection-notice" class="selection-notice" role="status" aria-live="polite"></div>
+      <div class="hint supported-hint" data-i18n="supportedHint">対応: .xlsx / .pptx / .docx とマクロ・テンプレート系のOffice Open XML形式。ファイルは外部へ送信されません。</div>
 
-      <div class="toolbar"><button id="cancel-work" class="button" type="button" disabled data-i18n="stopWork">処理を中止</button>
-        <div class="button-row" role="group" data-i18n-aria-label="batchSelection" aria-label="すべての文書の画像選択">
-          <p class="selected-summary" id="selected-summary" role="status" aria-live="polite"></p>
-          <button id="select-all-images" class="button" type="button" disabled data-i18n="selectAllImages">全画像を選択</button>
-          <button id="select-none-images" class="button" type="button" disabled data-i18n="selectNoImages">全画像の選択を解除</button>
+      <div id="results-ui" class="results-ui" hidden>
+        <div id="selection-notice" class="selection-notice" role="status" aria-live="polite"></div>
+        <div class="results-actions">
+          <div class="results-selection">
+            <p class="results-label" data-i18n="selectionLabel">保存する画像</p>
+            <p class="selected-summary" id="selected-summary" role="status" aria-live="polite"></p>
+            <div class="selection-buttons" role="group" data-i18n-aria-label="batchSelection" aria-label="すべての文書の画像選択">
+              <button id="select-all-images" class="button" type="button" disabled data-i18n="selectAllImages">全画像を選択</button>
+              <button id="select-none-images" class="button" type="button" disabled data-i18n="selectNoImages">全画像の選択を解除</button>
+            </div>
+          </div>
+          <button id="download-button" class="button primary" type="button" disabled data-i18n="downloadZip">選択した画像をZIPで保存</button>
         </div>
-        <div class="button-row"><button id="download-button" class="button primary" type="button" disabled data-i18n="downloadZip">抽出画像をZIPで保存</button></div>
-        <div class="button-row"><button id="clear-button" class="button danger" type="button" disabled data-i18n="clearAll">すべてクリア</button></div>
+        <div class="results-secondary">
+          <details class="filter-details" id="filter-details">
+            <summary data-i18n="filterSettings">絞り込み・並べ替え</summary>
+            <div class="filter-panel" aria-label="Image filters">
+              <label><span data-i18n="searchImages"></span><input id="filter-text" type="search" data-filter="text"></label>
+              <label><span data-i18n="documentFilter"></span><select id="filter-document" data-filter="documentId"></select></label>
+              <label><span data-i18n="formatFilter"></span><select id="filter-format" data-filter="format"></select></label>
+              <label><span data-i18n="minWidth"></span><input id="filter-width" type="number" min="0" data-filter="minWidth"></label>
+              <label><span data-i18n="minHeight"></span><input id="filter-height" type="number" min="0" data-filter="minHeight"></label>
+              <label><span data-i18n="minBytes"></span><input id="filter-min-bytes" type="number" min="0" data-filter="minBytes"></label>
+              <label><span data-i18n="maxBytes"></span><input id="filter-max-bytes" type="number" min="0" data-filter="maxBytes"></label>
+              <label><span data-i18n="sortImages"></span><select id="image-sort"><option value="source" data-i18n="sourceOrder"></option><option value="name" data-i18n="nameOrder"></option><option value="size" data-i18n="sizeOrder"></option><option value="dimensions" data-i18n="dimensionsOrder"></option></select></label>
+            </div>
+            <div class="filter-options">
+              <button id="select-matching" class="button" data-i18n="selectMatching"></button>
+              <button id="clear-matching" class="button" data-i18n="clearMatching"></button>
+              <button id="group-button" class="button" data-i18n="groupIdentical"></button>
+            </div>
+            <p id="filter-summary" role="status" class="hint"></p>
+            <div id="image-pagination" class="pagination">
+              <button id="previous-page" class="button" data-i18n="previous"></button>
+              <button id="next-page" class="button" data-i18n="next"></button>
+            </div>
+            <label class="export-option"><input id="unique-export" type="checkbox"> <span data-i18n="uniqueExport"></span></label>
+            <p class="original-warning" data-i18n="originalWarning"></p>
+          </details>
+          <div class="results-minor">
+            <button id="cancel-work" class="button" type="button" disabled data-i18n="stopWork">処理を中止</button>
+            <button id="clear-button" class="button danger" type="button" disabled data-i18n="clearAll">すべてクリア</button>
+          </div>
+        </div>
       </div>
-
-      <p class="original-warning" data-i18n="originalWarning"></p>
-<div class="filter-panel" aria-label="Image filters">
-<label><span data-i18n="searchImages"></span><input id="filter-text" type="search" data-filter="text"></label>
-<label><span data-i18n="documentFilter"></span><select id="filter-document" data-filter="documentId"></select></label>
-<label><span data-i18n="formatFilter"></span><select id="filter-format" data-filter="format"></select></label>
-<label><span data-i18n="minWidth"></span><input id="filter-width" type="number" min="0" data-filter="minWidth"></label>
-<label><span data-i18n="minHeight"></span><input id="filter-height" type="number" min="0" data-filter="minHeight"></label>
-<label><span data-i18n="minBytes"></span><input id="filter-min-bytes" type="number" min="0" data-filter="minBytes"></label>
-<label><span data-i18n="maxBytes"></span><input id="filter-max-bytes" type="number" min="0" data-filter="maxBytes"></label>
-<label><span data-i18n="sortImages"></span><select id="image-sort"><option value="source" data-i18n="sourceOrder"></option><option value="name" data-i18n="nameOrder"></option><option value="size" data-i18n="sizeOrder"></option><option value="dimensions" data-i18n="dimensionsOrder"></option></select></label>
-</div>
-<div class="button-row"><button id="select-matching" class="button" data-i18n="selectMatching"></button><button id="clear-matching" class="button" data-i18n="clearMatching"></button><button id="group-button" class="button" data-i18n="groupIdentical"></button></div>
-<p id="filter-summary" role="status" class="hint"></p><div class="button-row"><button id="previous-page" class="button" data-i18n="previous"></button><button id="next-page" class="button" data-i18n="next"></button></div>
-<label class="export-option"><input id="unique-export" type="checkbox"> <span data-i18n="uniqueExport"></span></label>
       <section id="file-list" class="file-list" aria-live="polite"><div class="empty" data-i18n="noFiles">ファイルはまだ選択されていません。</div></section>
     </section>
 
@@ -886,7 +955,7 @@ software or this license, under any kind of legal claim.***
       <details class="build-info-details">
         <summary data-i18n="buildInfo">ビルド情報</summary>
         <div class="build-info-grid">
-          <div class="build-info-item"><span data-i18n="appVersion">アプリバージョン</span><strong id="buildVersion">1.1.0</strong></div>
+          <div class="build-info-item"><span data-i18n="appVersion">アプリバージョン</span><strong id="buildVersion">1.1.1</strong></div>
           <div class="build-info-item"><span data-i18n="builtAt">生成日時</span><strong id="buildDate">-</strong></div>
           <div class="build-info-item"><span data-i18n="dependencies">内包依存数</span><strong id="buildDeps">1</strong></div>
         </div>
@@ -1017,6 +1086,11 @@ software or this license, under any kind of legal claim.***
           errorEXPORT: "ZIPを作成できませんでした。選択数を減らすか、1枚ずつ保存してください。",
           errorUNKNOWN: "処理を完了できませんでした。原因は特定できません。再試行するか、文書・選択数を減らしてください。",
 
+          filterSettings: "絞り込み・並べ替え",
+          selectionLabel: "保存する画像",
+          dropMoreTitle: "Officeファイルを追加",
+          vectorImage: "ベクター画像",
+          unknownDimensions: "寸法不明",
           searchImages: "検索（名前・使用箇所）",
           documentFilter: "文書",
           formatFilter: "形式",
@@ -1156,6 +1230,11 @@ software or this license, under any kind of legal claim.***
           errorEXPORT: "Could not create ZIP. Select fewer images or save originals individually.",
           errorUNKNOWN: "Processing failed; the cause is unknown. Retry or use fewer documents/images.",
 
+          filterSettings: "Filter & sort",
+          selectionLabel: "Images to save",
+          dropMoreTitle: "Add more Office files",
+          vectorImage: "Vector image",
+          unknownDimensions: "Dimensions unavailable",
           searchImages: "Search name / usage",
           documentFilter: "Document",
           formatFilter: "Format",
@@ -1422,6 +1501,7 @@ software or this license, under any kind of legal claim.***
       }
 
       function formatBytes(n) { return n >= 1073741824 ? (n / 1073741824).toFixed(2) + " GiB" : n >= 1048576 ? (n / 1048576).toFixed(1) + " MiB" : n >= 1024 ? (n / 1024).toFixed(1) + " KiB" : n + " B"; }
+      function imageDimensions(image) { return image.mime === "image/svg+xml" ? translate("vectorImage") : image.width && image.height ? `${image.width} × ${image.height} px` : translate("unknownDimensions"); }
       function usageText(image) { return image.usages?.length ? image.usages.map(u => `${translate(u.kind + "Usage")} ${u.label || u.order || ""}${u.detail && !["drawing", "vmlDrawing"].includes(u.detail) ? " (" + u.detail + ")" : ""}`).join(" · ") : translate("unknownUsage"); }
       function errorText(code) { return translate("error" + (translations.en["error" + code] ? code : "UNKNOWN")); }
       function statusText(record) {
@@ -1473,6 +1553,7 @@ software or this license, under any kind of legal claim.***
         const matchingIds = new Set(matching.map(i => i.id));
         const hiddenSelected = records.flatMap(r => r.images || []).filter(i => i.selected && !matchingIds.has(i.id)).length;
         $("#filter-summary").textContent = `${matching.length} ${translate("matches")} · ${hiddenSelected} ${translate("hiddenSelected")} · ${imagePage + 1}/${Math.max(1, Math.ceil(shown.length / 100))}`;
+        $("#image-pagination").hidden = shown.length <= 100;
         $("#previous-page").disabled = imagePage === 0; $("#next-page").disabled = (imagePage + 1) * 100 >= shown.length;
         $("#filter-document").innerHTML = `<option value="">${escapeHtml(translate("allDocuments"))}</option>` + records.map(r => `<option value="${r.id}">${escapeHtml(r.file.name)}</option>`).join(""); $("#filter-document").value = filterState.documentId;
         $("#filter-format").innerHTML = `<option value="">${escapeHtml(translate("allFormats"))}</option>` + [...new Set(records.flatMap(r => r.images || []).map(i => i.name.split(".").pop().toLowerCase()))].sort().map(ext => `<option value="${escapeHtml(ext)}">${escapeHtml(ext.toUpperCase())}</option>`).join(""); $("#filter-format").value = filterState.format;
@@ -1489,8 +1570,14 @@ software or this license, under any kind of legal claim.***
         imageStat.textContent = formatNumber(imageCount);
         errorStat.textContent = formatNumber(errorCount);
 
+        $("#results-ui").hidden = records.length === 0;
+        fileList.hidden = records.length === 0;
+        dropZone.classList.toggle("has-files", records.length > 0);
+        $(".workspace").classList.toggle("has-files", records.length > 0);
+        $("#dropTitle").textContent = translate(records.length ? "dropMoreTitle" : "dropTitle");
         selectedSummary.textContent = format(translate("selectedImages"), { selected: formatNumber(selectedCount), total: formatNumber(imageCount) });
         $("#cancel-work").disabled = !pending && !exporting;
+        $("#cancel-work").hidden = !pending && !exporting;
         downloadButton.disabled = exporting || pending || selectedCount === 0;
         selectAllImages.disabled = selectNoImages.disabled = exporting || pending || imageCount === 0;
         selectAllImages.textContent = translate("selectAllImages");
@@ -1517,7 +1604,7 @@ software or this license, under any kind of legal claim.***
         const renderRows = images => images.map(image => { const record = records.find(r => r.id === image.documentId), index = records.indexOf(record), imageIndex = record.images.indexOf(image); return `<li class="image-row">
                 <button type="button" class="image-thumb" data-preview-id="${image.id}" data-focus-key="preview-${image.id}" aria-label="${escapeHtml(translate("previewTitle") + ": " + image.name)}" ${previewEligible(image) ? "" : "disabled"}>${previewEligible(image) ? `<img data-thumb-id="${image.id}" alt="${escapeHtml(image.name)}">` : `<span>${escapeHtml(translate("previewUnavailable"))}</span>`}</button>
                 <label class="image-label"><input type="checkbox" ${grouping && groupMembers(image).length > 1 ? `data-group-id="${image.id}"` : `data-record-index="${index}" data-image-index="${imageIndex}"`} data-focus-key="image-${record.id}-${imageIndex}" ${(grouping ? groupMembers(image).every(i => i.selected) : image.selected) ? "checked" : ""} ${exporting ? "disabled" : ""}>
-                  <span class="image-name">${escapeHtml(image.name)} ${escapeHtml(groupLabel(image))}<span class="image-usage">${escapeHtml(image.documentName)}</span><span class="image-usage">${image.width && image.height ? image.width + " × " + image.height + " px" : "— px"} · ${formatBytes(image.bytes)}<br>${escapeHtml(usageText(image))}</span><span class="image-format">${escapeHtml(image.name.includes(".") ? image.name.split(".").pop().toUpperCase() : image.contentType || "—")}</span></span>
+                  <span class="image-name">${escapeHtml(image.name)} ${escapeHtml(groupLabel(image))}<span class="image-usage">${escapeHtml(image.documentName)}</span><span class="image-usage">${escapeHtml(imageDimensions(image))} · ${formatBytes(image.bytes)}<br>${escapeHtml(usageText(image))}</span><span class="image-format">${escapeHtml(image.name.includes(".") ? image.name.split(".").pop().toUpperCase() : image.contentType || "—")}</span></span>
                 </label>
                 ${groupDetails(image)}
                 <button class="button remove-button" type="button" data-record-index="${index}" data-download-image="${imageIndex}" data-focus-key="save-${record.id}-${imageIndex}"
@@ -1595,7 +1682,7 @@ software or this license, under any kind of legal claim.***
         const pair = occurrence(id); if (!pair || !previewEligible(pair.image) || isExporting()) return;
         disposePreviews(); previewReturn = trigger;
         const epoch = previewEpoch, dialog = $("#previewDialog");
-        $("#previewMeta").textContent = `${pair.image.name} · ${pair.image.width} × ${pair.image.height} px · ${formatBytes(pair.image.bytes)} · ${usageText(pair.image)}`;
+        $("#previewMeta").textContent = `${pair.image.name} · ${imageDimensions(pair.image)} · ${formatBytes(pair.image.bytes)} · ${usageText(pair.image)}`;
         $("#previewImage").alt = pair.image.name;
         $("#previewStatus").textContent = translate("previewLoading"); dialog.showModal();
         try { const value = await rasterUrl(pair.record, pair.image, 1920, epoch); if (value && dialog.open && epoch === previewEpoch) { previewUrl = value.url; $("#previewImage").src = value.url; $("#previewStatus").textContent = ""; } else if (value) URL.revokeObjectURL(value.url); }

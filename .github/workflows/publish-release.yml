@@ -1,0 +1,175 @@
+name: Publish versioned GitHub Release
+
+# A version change is merged by the repository owner. No tags/releases are
+# created on PRs; the release build runs from the resulting main commit.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-release.yml
+      - docs/releases/**
+      - app.config.json
+  push:
+    branches: [main]
+    paths:
+      - app.config.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: versioned-release-main
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout release commit
+        uses: actions/checkout@v6
+      - name: Build and test standalone HTML
+        shell: pwsh
+        run: ./scripts/check-repository.ps1
+      - name: Upload verified release build
+        uses: actions/upload-artifact@v7
+        with:
+          name: office-release-build-${{ github.sha }}
+          path: |
+            dist/index.html
+            dist/office-image-extractor.html
+            dist/index.self-extract.html
+            dist/dependency-manifest.json
+            dist/self-extract-manifest.json
+          if-no-files-found: error
+          retention-days: 14
+
+  browser-qa:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+      - uses: actions/download-artifact@v7
+        with:
+          name: office-release-build-${{ github.sha }}
+          path: dist
+      - name: Install pinned browser test runner
+        run: |
+          npm install --prefix .cache/browser --no-save --ignore-scripts playwright@1.64.1
+          .cache/browser/node_modules/.bin/playwright install --with-deps chromium
+      - name: Test standalone and self-extract via file://
+        env:
+          PLAYWRIGHT_MODULE: ../.cache/browser/node_modules/playwright
+        run: node tests/browser-qa.cjs
+      - name: Preserve browser evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: office-release-browser-qa-${{ github.sha }}
+          path: browser-qa
+          if-no-files-found: warn
+
+  publish:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: [build, browser-qa]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout release commit with tags
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v7
+        with:
+          name: office-release-build-${{ github.sha }}
+          path: dist
+      - name: Verify version, notes and existing tag
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(node -p "require('./app.config.json').version")"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::app.config.json must contain a stable semantic version"
+            exit 1
+          fi
+          TAG="v$VERSION"
+          test -s "docs/releases/$TAG.md" || { echo "::error::Missing docs/releases/$TAG.md"; exit 1; }
+
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $TAG already exists; no duplicate release will be published."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git fetch --tags --force origin
+          if git rev-parse -q --verify "refs/tags/$TAG^{commit}" >/dev/null; then
+            TAG_COMMIT="$(git rev-parse "refs/tags/$TAG^{commit}")"
+            if [[ "$TAG_COMMIT" != "$GITHUB_SHA" ]]; then
+              echo "::error::Tag $TAG points to $TAG_COMMIT, not the verified commit $GITHUB_SHA"
+              exit 1
+            fi
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Package standalone files, documentation and checksums
+        if: steps.version.outputs.skip == 'false'
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          BASE="htmlapps-office-image-extractor-v$RELEASE_VERSION"
+          mkdir -p release/bundle
+          cp dist/index.html "release/$BASE.html"
+          cp dist/index.self-extract.html "release/$BASE.self-extract.html"
+          cp "release/$BASE.html" "release/$BASE.self-extract.html" release/bundle/
+          cp dist/dependency-manifest.json dist/self-extract-manifest.json release/bundle/
+          cp README.md README.ja.md CHANGELOG.md LICENSE THIRD_PARTY_NOTICES.md release/bundle/
+
+          # Recheck the real built artifact, not just the version in app.config.
+          node - "$RELEASE_VERSION" <<'NODE'
+          const fs = require('node:fs');
+          const version = process.argv[2];
+          const html = fs.readFileSync('dist/index.html', 'utf8');
+          const m = html.match(/const APP_CONFIG = (\{[^\n]+\});/);
+          if (!m || JSON.parse(m[1]).version !== version) {
+            throw new Error('Built standalone HTML version does not match ' + version);
+          }
+          if (!html.includes("connect-src 'none'")) {
+            throw new Error('Missing offline CSP');
+          }
+          NODE
+
+          (cd release/bundle && zip -q -r "../$BASE.zip" .)
+          (cd release && sha256sum "$BASE.html" "$BASE.self-extract.html" "$BASE.zip" > SHA256SUMS.txt)
+          (cd release && sha256sum -c SHA256SUMS.txt)
+
+      - name: Create annotated tag and publish GitHub Release
+        if: steps.version.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git show-ref --verify --quiet "refs/tags/$RELEASE_TAG"; then
+            git tag -a "$RELEASE_TAG" -m "Office Image Extractor $RELEASE_TAG" "$GITHUB_SHA"
+            git push origin "refs/tags/$RELEASE_TAG"
+          fi
+          BASE="htmlapps-office-image-extractor-v$RELEASE_VERSION"
+          gh release create "$RELEASE_TAG"             "release/$BASE.html"             "release/$BASE.self-extract.html"             "release/$BASE.zip"             release/SHA256SUMS.txt             --repo "$GITHUB_REPOSITORY"             --verify-tag             --title "Office Image Extractor $RELEASE_TAG"             --notes-file "docs/releases/$RELEASE_TAG.md"             --latest

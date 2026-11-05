@@ -55,6 +55,8 @@ All processing happens in the browser. The app has no upload, account, analytics
 - Help dialog documents the real workflow and limitations.
 - Confirmation dialog is centered on desktop and becomes a safe-area-aware bottom sheet on smartphones.
 - Status updates use `aria-live` regions.
+- After importing files, the drop area becomes a compact add-files target; the selection total and ZIP action remain visible while advanced filters stay collapsed until requested.
+- SVG originals up to 16 MiB may be previewed as images when they contain no active elements or external references. Unsupported SVG previews do not prevent saving the original.
 
 ## 7. Acceptance criteria
 

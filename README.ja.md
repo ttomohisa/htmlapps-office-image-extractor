@@ -1,6 +1,6 @@
 # Office Image Extractor
 
-ヘッダーのバージョンは v1.1.0。プライバシーバッジは「完全ローカル処理」、言語ボタンは日本語表示中に EN、英語表示中に JA と表示します。切替先と言語に合ったヘルプの説明を表示します。
+ヘッダーのバージョンは v1.1.1。プライバシーバッジの「完全ローカル処理」は画面幅520px以下では非表示にし、処理自体は従来どおり端末内で行います。言語ボタンは日本語表示中に EN、英語表示中に JA と表示します。
 
 [![GitHub Pages](https://github.com/ttomohisa/htmlapps-office-image-extractor/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/ttomohisa/htmlapps-office-image-extractor/actions/workflows/deploy-pages.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -131,6 +131,10 @@ extracted-office-images.zip
 
 従来の `/office-image-extractor.html` URLも互換用エイリアスとして生成します。
 
+## GitHub Releaseの作成
+
+`app.config.json` のバージョン変更をリポジトリ所有者が `main` へマージすると、`.github/workflows/publish-release.yml` が動きます。単一HTML・自己展開版のビルドと検証、Chromiumでの `file://` テストが成功した後に、`vX.Y.Z` のタグとGitHub Releaseを作成します。通常版HTML、自己展開版HTML、ZIP、SHA-256チェックサムを添付します。`docs/releases/vX.Y.Z.md` に対応するリリースノートが必要で、PR段階ではタグ・Releaseを作りません。既存のタグやReleaseは上書きしません。
+
 ## 開発とビルド
 
 このリポジトリは [`ttomohisa/htmlapps-template`](https://github.com/ttomohisa/htmlapps-template) に準拠しています。
@@ -240,7 +244,7 @@ Microsoft、Excel、PowerPoint、Word、Office は Microsoft グループ企業�
 
 ## v1.1.0の画像一覧と安全な保存
 
-文書を展開すると、必要な画像だけサムネイルを読み込み、寸法・元の容量・確認できた使用箇所を表示します。対応画像はクリックで拡大できます。SVG/EMF/WMFや巨大・未対応のプレビューでも、原本はそのまま保存できます。Officeでトリミングした範囲外が含まれる場合があり、ページやスライドの見た目を再現する機能ではありません。
+文書を追加すると、ドロップエリアはファイル追加用の細い表示に切り替わります。選択数とZIP保存をまとめ、絞り込み・並べ替え・同一画像の確認は「絞り込み・並べ替え」から開けます。文書を展開するとサムネイル・寸法・元の容量・確認できた使用箇所を表示し、対応画像は拡大できます。SVGも16 MiB以内で実行可能な要素や外部参照がなければプレビューできます。プレビューできないSVGやEMF/WMFなども、元画像のまま保存できます。Officeでトリミングした範囲外が含まれる場合があり、ページやスライドの見た目を再現する機能ではありません。
 
 文書・形式・名前/使用箇所・最小幅/高さ・容量範囲で絞り込み、元の順序・名前・容量・寸法で並べ替えます。絞り込みは選択状態を変えません。「該当画像を選択」は該当する全ページ、「全画像を選択」は全文書が対象です。非表示の選択件数を表示し、ZIPには選択済み画像をすべて含めます。
 
