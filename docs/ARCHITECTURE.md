@@ -6,6 +6,6 @@ The UI keeps immutable original File references, stable image occurrence IDs, se
 
 The worker validates ZIP central/local identities, names, budgets and CRCs, then uses namespace-aware bounded SAX events for usage mapping. It reads originals on demand, fingerprints and byte-compares duplicate candidates, and generates STORE ZIPs to avoid recompressing already-compressed image formats. Original bytes are never recompressed as images. Metadata failure is separate from image-read failure. Partial output is never downloaded until the UI obtains explicit consent.
 
-Preview decoding only accepts recognized, budgeted raster headers. The UI renders small PNG thumbnails into a bounded LRU and closes bitmaps/revokes URLs. SVG and unsupported originals are not embedded as active content. Filters and grouping are views over occurrence selection, never destructive transforms.
+Raster previews only accept recognized, budgeted image headers and are converted to bounded PNGs in a Worker. SVG files up to 16 MiB are separately validated and shown only through an image element; active elements, external resource references, and DTDs fail preview. The UI uses a bounded thumbnail LRU and revokes URLs. All originals, including rejected SVGs, are preserved for download. Filters and grouping are views over occurrence selection, never destructive transforms.
 
 See the approved v1.1.0 design for exact limits and acceptance cases.
