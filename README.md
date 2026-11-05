@@ -237,7 +237,7 @@ Microsoft, Excel, PowerPoint, Word, and Office are trademarks of the Microsoft g
 
 ## Image discovery in v1.1.0
 
-Expand a document to see lazy raster thumbnails, dimensions, original byte sizes and verified usage locations. Click a supported thumbnail to enlarge it. SVG/EMF/WMF and unsafe-size or unsupported previews remain available as unchanged originals. Originals may include regions cropped out in Office; this is not an Office page/slide renderer.
+After adding documents, the drop target becomes a compact add-files control. The selection count and ZIP download are kept together; filters, sorting and image grouping are under **Filter & sort**. Expand a document for thumbnails, dimensions, original byte sizes and verified usage locations. Click a supported thumbnail to enlarge it. SVGs up to 16 MiB can be previewed when they do not contain active content or external resources. SVGs rejected for preview, EMF/WMF and other unsupported formats remain available as unchanged originals. Originals may include regions cropped out in Office; this is not an Office page/slide renderer.
 
 Filter by document, format, name/usage, minimum width/height or byte range; sort by source order, name, size or dimensions. Filters do not change selection. “Select matching images” applies across matching pages; global all/none still applies to every document. The toolbar reports selected images hidden by filters, and ZIP saves all selected occurrences.
 
