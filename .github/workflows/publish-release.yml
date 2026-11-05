@@ -148,7 +148,7 @@ jobs:
 
           (cd release/bundle && zip -q -r "../$BASE.zip" .)
           (cd release && sha256sum "$BASE.html" "$BASE.self-extract.html" "$BASE.zip" > SHA256SUMS.txt)
-          sha256sum -c release/SHA256SUMS.txt --ignore-missing --status             || (cd release && sha256sum -c SHA256SUMS.txt)
+          (cd release && sha256sum -c SHA256SUMS.txt)
 
       - name: Create annotated tag and publish GitHub Release
         if: steps.version.outputs.skip == 'false'
