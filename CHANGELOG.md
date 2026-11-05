@@ -4,6 +4,7 @@
 
 - Shrink the Office drop target after adding documents and hide the empty results area until it is needed.
 - Replace the busy toolbar with a clear selection/ZIP action, collapsible filters and secondary controls; tighten mobile spacing.
+- Hide the fully-local-processing badge on narrow mobile screens without removing the privacy guidance.
 - Preview bounded local SVG files in thumbnails and the preview dialog after rejecting active content and external references; preserve original bytes in downloads.
 - Add SVG safety and loaded/empty-state regressions. Keep the app offline and bilingual.
 
