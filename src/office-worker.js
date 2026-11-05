@@ -60,7 +60,7 @@ function createEngine(JSZip,sax,progress=()=>{}){
   const defaults=new Map(),overrides=new Map();try{await xml('[Content_Types].xml',t=>{if(t.uri!=='http://schemas.openxmlformats.org/package/2006/content-types')return;if(t.local==='Default')defaults.set(attr(t,'Extension').toLowerCase(),attr(t,'ContentType').toLowerCase());if(t.local==='Override'){let p=attr(t,'PartName');try{p=decodeURIComponent(p);}catch{}overrides.set(p.replace(/^\//,''),attr(t,'ContentType').toLowerCase());}});}catch{warnings.push('METADATA');}
   const typeFor=p=>overrides.get(p)||defaults.get(p.split('.').pop().toLowerCase())||'';
   const images=[],media=[...ctx.entries.entries()].filter(([p,m])=>!m.dir&&/^(xl|ppt|word)\/media\/[^/\\]+$/i.test(p));
-  for(const [path,m] of media){const contentType=typeFor(path);if(contentType?!contentType.startsWith('image/'):!(/\.(png|jpe?g|jfif|gif|webp|svg|emf|wmf|tiff?|bmp|dib|ico|avif|heic|heif|jxr|wdp)$/i.test(path)))continue;let dim={width:null,height:null,mime:''},readError=null;try{dim=dimensions(await read(ctx,path,65536,true));}catch(e){readError=e.code||'CORRUPT';}images.push({path,name:path.split('/').pop(),contentType,bytes:m.uncompressed,compressedBytes:m.compressed,...dim,usages:[],readError});}
+  for(const [path,m] of media){const contentType=typeFor(path);if(contentType?!contentType.startsWith('image/'):!(/\.(png|jpe?g|jfif|gif|webp|svg|emf|wmf|tiff?|bmp|dib|ico|avif|heic|heif|jxr|wdp)$/i.test(path)))continue;let dim={width:null,height:null,mime:''},readError=null;try{const header=await read(ctx,path,65536,true);dim=/\.svg$/i.test(path)||/^image\/svg\+xml(?:$|;)/i.test(contentType)?{width:null,height:null,mime:'image/svg+xml'}:dimensions(header);}catch(e){readError=e.code||'CORRUPT';}images.push({path,name:path.split('/').pop(),contentType,bytes:m.uncompressed,compressedBytes:m.compressed,...dim,usages:[],readError});}
   try{await mapUsages(ctx,images,xml);}catch{warnings.push('METADATA');}
   return {images,skippedMedia:media.length-images.length,warnings:[...new Set(warnings)]};
  }
@@ -91,8 +91,40 @@ function createEngine(JSZip,sax,progress=()=>{}){
   if(ctx.entries.has('xl/workbook.xml')){const rel=await relationships('xl/workbook.xml'),sheets=[];await xml('xl/workbook.xml',t=>{if(t.local==='sheet'&&/\/spreadsheetml\//.test(t.uri))sheets.push({id:relationIds(t)[0],label:attr(t,'name')+(attr(t,'state')&&attr(t,'state')!=='visible'?' (hidden)':'')});});for(let i=0;i<sheets.length;i++){const e=rel.get(sheets[i].id);if(e?.path)await walk(e.path,{kind:'sheet',label:sheets[i].label,order:i+1});}}
   if(ctx.entries.has('word/document.xml'))await walk('word/document.xml',{kind:'body',label:'',order:1});
  }
+ // SVG is previewed only as an <img>, never inserted into the DOM as markup.
+ // For safe offline previews reject active content and remote resource references.
+ // Save/ZIP always uses the untouched original bytes, including on rejection.
+ function svgPreviewBlob(data){
+  let source;try{source=new TextDecoder('utf-8',{fatal:true}).decode(data);}catch{fail('PREVIEW');}
+  if(/<!\s*(?:DOCTYPE|ENTITY)/i.test(source))fail('PREVIEW');
+  const blocked=new Set(['script','foreignobject','style','image','feimage','a','iframe','object','embed','audio','video','link','animate','animatetransform','animatemotion','set','discard','mpath','font-face-uri','font-face-src']);
+  const localUrls=/url\s*\(\s*(['"]?)#[A-Za-z_][\w:.-]*\1\s*\)/gi;
+  const parser=sax.parser(true,{xmlns:true,strictEntities:true});
+  let rootSeen=false,depth=0,nodes=0;
+  parser.onerror=()=>fail('PREVIEW');
+  parser.ondoctype=()=>fail('PREVIEW');
+  parser.onprocessinginstruction=instruction=>{if(instruction.name.toLowerCase()!=='xml')fail('PREVIEW');};
+  parser.onopentag=tag=>{
+   if(++depth>256||++nodes>1000000||tag.uri!=='http://www.w3.org/2000/svg'||blocked.has(tag.local.toLowerCase()))fail('PREVIEW');
+   if(!rootSeen){if(tag.local!=='svg')fail('PREVIEW');rootSeen=true;}
+   for(const attr of Object.values(tag.attributes)){
+    const name=attr.name.toLowerCase(),value=attr.value.trim();
+    if(name==='xmlns'||name.startsWith('xmlns:'))continue;
+    if(name==='xml:base'||/^on[a-z]/.test(name)||name==='src')fail('PREVIEW');
+    if(attr.local.toLowerCase()==='href'&&!/^#[A-Za-z_][\w:.-]*$/.test(value))fail('PREVIEW');
+    if(/(?:@import|@font-face|expression\s*\(|javascript:|data:|file:|https?:|\/\/)/i.test(value))fail('PREVIEW');
+    if(/url\s*\(/i.test(value.replace(localUrls,'')))fail('PREVIEW');
+   }
+  };
+  parser.onclosetag=()=>{depth--;};
+  try{for(let i=0;i<source.length;i+=16384)parser.write(source.slice(i,i+16384));parser.close();}catch{fail('PREVIEW');}
+  if(!rootSeen||depth!==0)fail('PREVIEW');
+  return new Blob([data],{type:'image/svg+xml'});
+ }
  async function preview(file,path,maxSide=192){
-  const data=await read(await open(file),path,16777216),dim=dimensions(data);
+  const data=await read(await open(file),path,16777216);
+  if(/\.svg$/i.test(path)){const blob=svgPreviewBlob(data);return {blob,cost:blob.size};}
+  const dim=dimensions(data);
   if(!dim.mime||!dim.width||!dim.height||dim.width*dim.height>limits.pixels)fail('PREVIEW');
   if(typeof createImageBitmap!=='function'||typeof OffscreenCanvas!=='function')fail('PREVIEW');
   const bitmap=await createImageBitmap(new Blob([data],{type:dim.mime}));
