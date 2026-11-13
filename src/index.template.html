@@ -114,7 +114,7 @@
       border-radius: 999px;
       color: var(--muted);
       background: var(--surface-muted);
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 650;
       vertical-align: 2px;
     }
@@ -162,6 +162,8 @@
     .icon-button:hover { border-color: var(--line-strong); background: var(--surface-hover); }
     .icon-button:active { transform: translateY(1px); }
     .icon-button svg { width: 18px; height: 18px; display: block; }
+    .dialog-close { display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 9px; background: transparent; cursor: pointer; }
+    .dialog-close svg { width: 18px; height: 18px; }
 
     .header-icon-button {
       width: auto;
@@ -207,13 +209,13 @@
       gap: 7px;
       flex: 0 0 auto;
       margin-top: 3px;
-      padding: 7px 10px;
-      border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line));
-      border-radius: 999px;
+      padding: 7px 0;
+      border: 0;
+      border-radius: 0;
       color: var(--accent);
-      background: var(--accent-soft);
+      background: transparent;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 500;
       white-space: nowrap;
     }
 
@@ -759,7 +761,7 @@
     </section>
   </main>
 
-  <footer>Office Image Extractor · MIT License · <span data-i18n="footer">完全内包HTML・ローカル処理</span></footer>
+  <footer>Office Image Extractor · MIT License · <span data-i18n="footer">画像の抽出はブラウザー内で完結</span></footer>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 
@@ -782,8 +784,8 @@
   <dialog id="helpDialog" aria-labelledby="helpTitle">
     <div class="dialog-header">
       <h2 id="helpTitle" data-i18n="helpTitle">使い方と注意事項</h2>
-      <button class="icon-button" id="closeHelpButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      <button class="dialog-close" id="closeHelpButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12"/><path d="M18 6 6 18"/></svg>
       </button>
     </div>
     <div class="dialog-body">
@@ -1181,7 +1183,7 @@ software or this license, under any kind of legal claim.***
           confirmClearMessage: "選択したOfficeファイルと解析結果をすべてクリアしますか？",
           confirmClearAction: "クリアする",
           cancel: "キャンセル",
-          footer: "完全内包HTML・ローカル処理",
+          footer: "画像の抽出はブラウザー内で完結",
           helpBasicsTitle: "基本操作",
           helpStep1: "Excel、PowerPoint、Wordファイルを選択するか、画面へドラッグ&ドロップします。",
           helpStep2: "解析後、全画像の選択・解除で文書をまたいでまとめて選べます。「画像を選択」では文書ごと・画像ごとに調整できます。追加した文書の画像は最初はすべて選択され、音声や動画は除外されます。",
@@ -1325,7 +1327,7 @@ software or this license, under any kind of legal claim.***
           confirmClearMessage: "Clear all selected Office files and inspection results?",
           confirmClearAction: "Clear",
           cancel: "Cancel",
-          footer: "Self-contained HTML · Local processing",
+          footer: "Image extraction stays in the browser",
           helpBasicsTitle: "Basics",
           helpStep1: "Choose Excel, PowerPoint, or Word files, or drag and drop them onto the page.",
           helpStep2: "After inspection, use the all-image controls to select or clear images across every document. Open Select images for per-document and individual choices. Newly added images start selected; audio and video are skipped.",
